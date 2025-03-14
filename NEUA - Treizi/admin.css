@@ -1,0 +1,603 @@
+html, body {
+    font-family: Helvetica, sans-serif;
+    background-color: #f5f5f5;
+    font-size: 16px; 
+    
+        
+        margin: 0;
+        padding: 0;
+    }
+    
+
+    .custom-alert {
+        position: fixed; /* Changed from absolute to fixed */
+        top: 20px; /* Distance from the top of the screen */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Adjust for exact center */
+        z-index: 1050;
+        min-width: 250px;
+        max-width: 400px;
+        border-radius: 0.5rem;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        display: none;
+      }
+      
+      .custom-alert.show {
+        display: block;
+      }
+      
+      .custom-alert .alert-icon {
+        font-size: 1.5rem;
+        margin-right: 12px;
+      }
+      
+      .custom-alert .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+      }
+
+
+    /*Override Bootstrap Button Colors */
+    .btn-primary {
+        background-color: #004151 !important;
+        border-color: #004151 !important;
+        border-radius: 8px !important;
+        height: 100% !important;
+    }
+    .btn-primary:hover, 
+    .btn-primary:focus {
+        background-color: #003144 !important; /* Slightly darker shade on hover */
+        border-color: #003144 !important;
+        border-radius: 8px !important;
+        height: 100% !important;
+    }
+
+    .btn-secondary {
+        background-color: #e0e0e0 !important;
+        border-color: #e0e0e0 !important;
+        border-radius: 8px !important;
+        height: 100% !important;
+    }
+    .btn-secondary:hover, 
+    .btn-secondary:focus {
+        background-color: #757575 !important; /* Slightly darker shade on hover */
+        border-color: #757575 !important;
+        border-radius: 8px !important;
+        height: 100% !important;
+    }
+
+    
+
+    .btn-outline-secondary {
+        background-color: transparent !important;
+        border-color: #757575 !important;
+        color:#2c2c2c !important;
+        border-radius: 8px !important;
+        height: 100% !important;
+    }
+    .btn-outline-secondary:hover, 
+    .btn-outline-secondary:focus {
+        background-color: #e0e0e0 !important; /* Slightly darker shade on hover */
+        border-color: #757575 !important;
+        color:#2c2c2c !important;
+        border-radius: 8px !important;
+        height: 100% !important;
+    }
+
+
+
+
+.top-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    margin-bottom: 24px;
+}
+
+.top-container h1{
+    margin-top: 12px;
+    font-size: 2rem;
+    color: #757575;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    width: 100%;
+    bottom: 0;
+}
+
+p {
+    font-size: 1rem;
+    color: #e0e0e0;
+}
+
+
+/*-----------------------------------------------------------------------------------------------------admin*/
+.loginbg {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    background-image: url('loginbg.png');
+    background-size: cover; 
+    background-position: center; 
+    height: 100vh; 
+    flex-direction: column;
+}
+
+.login-header {
+    font-size: 2rem;
+    color: #000000;
+    text-align: center;
+    font-weight: bold;
+}
+
+.adminbg {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    background-image: url('admin-bg.jpg');
+    background-size: cover; 
+    background-position: center; 
+    height: 100vh; 
+    flex-direction: column;
+}
+
+
+h4 {
+    font-weight: bold;
+    text-align: center;
+    margin: 1.5rem auto;
+    color: #00415a;
+    font-size: 1.8rem; 
+}
+
+::placeholder {
+    color: #ccc;
+}
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------------------upload*/
+.container {
+    max-width: 1200px;
+    height: auto;
+    margin:12px auto;
+    padding: 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 2px solid #e0e0e0;
+}
+
+.file-upload-wrapper {
+    position: relative;
+    display: inline-block;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#pdfFile {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-name {
+    margin-top: 10px;
+    color: #000000;
+    font-weight: bold;
+}
+
+
+.upload {
+    font-size: 120px; 
+    color: #e0e0e0;
+    display: flex;
+    margin: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.btn-upload,
+.btn-remove {
+    min-width: 150px;
+    
+}
+
+.btn-home, .btn-logout {
+    font-size: 1.8rem;
+    color: #757575;
+    border: 2px solid #757575;
+}
+
+
+
+
+.btn-home:hover, .btn-home:active, 
+.btn-logout:hover, .btn-logout:active {
+    color: #757575;
+    border: 2px solid #757575;
+    background-color: #e0e0e0;
+}
+
+
+
+
+
+.btn-upload i {
+    margin-right: 12px;
+    color: #f5f5f5;
+    font-size: 1rem; 
+}
+
+
+
+.file-box {
+    width: auto;
+    height: 320px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 16px;
+    margin: auto;
+    margin-bottom: 16px;
+    border: 2px dashed #757575;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow-y: auto;
+}
+
+h1{
+    color: #e0e0e0;
+    font-size: 1rem;
+}
+
+.upload-status {
+    color: #002635;
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------------------table*/
+
+.dashboard-stats {
+    max-width: 1200px;
+    height: auto;
+    margin: auto;
+    margin-top: 64px;
+    
+    
+    
+   
+
+    display: flex;
+    gap: 20px;
+}
+
+.stat {
+    
+   
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 1rem; 
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+    display: flex;
+    flex: 1;
+    margin:12px auto;
+}
+
+.stat i {
+    font-size: 4rem;
+    color: #00415A;
+    margin-right: 16px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2; /* Adjust line spacing */
+    align-items: end;
+}
+
+.stat-info h3 {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.stat-info p {
+    font-size: 1.2rem;
+    color: #757575;
+    margin: 0;
+}
+
+/* Table Styles */
+.table-wrapper {
+    max-height: 550px; 
+    overflow-y: auto;
+    
+    border-radius: 8px;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    border-right: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+th {
+    background-color: #004151;
+    color: #fff;
+    text-align: center;
+}
+
+
+#fileRecordsTable tbody td:nth-child(1),
+#fileRecordsTable tbody td:nth-child(4),
+#fileRecordsTable tbody td:nth-child(5),
+#fileRecordsTable tbody td:nth-child(7),
+
+#userRecordsTable tbody td:nth-child(1),
+#userRecordsTable tbody td:nth-child(5),
+#userRecordsTable tbody td:nth-child(6),
+#userRecordsTable tbody td:nth-child(7){
+    text-align: center;
+}
+                        
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.actions {
+    text-align: center;
+}
+
+.actions i {
+    cursor: pointer;
+    margin: 0 5px;
+    color: #002635;
+}
+
+
+.edit-mode input {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    margin-bottom: 16px;
+}
+
+.search-container input {
+    padding: 8px;
+    margin-left: 16px;
+    border: 1px solid #757575;
+    border-radius: 8px;
+    width: 300px;
+}
+
+th span {
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+th span.asc::after {
+    content: ' ▲'; 
+}
+
+th span.desc::after {
+    content: ' ▼'; 
+}
+
+td {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+td.actions {
+    max-width: none;
+    white-space: normal;
+}
+
+/* Scrollbar Styling for Modern Browsers */
+.file-box::-webkit-scrollbar, .table-wrapper::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.file-box::-webkit-scrollbar-thumb, .table-wrapper::-webkit-scrollbar-thumb {
+    background-color: #d3d3d3; 
+    border-radius: 20px;     
+}
+
+.file-box::-webkit-scrollbar-thumb:hover, .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #c0c0c0; 
+}
+
+.file-box::-webkit-scrollbar-track,  .table-wrapper::-webkit-scrollbar-track {
+    background-color: #f0f0f0; 
+    border-radius: 20px;
+}
+
+/* Scrollbar for Firefox */
+.file-box, .table-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #d3d3d3 #f0f0f0;
+}
+
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #003b51;
+    background-color: #fff;
+    color: #002635;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.pagination button:disabled {
+    background-color: #002635;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #f0f0f0;
+}
+
+.rows-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rows-per-page select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
+
+
+
+/*------------------------------------------------------------------------------------------------------480---------++++++*/
+@media (max-width: 480px) {
+
+    .top-container {
+        padding: 40px 20px;
+    }
+
+    h4 {
+        font-size: 1.5rem; 
+        margin: 0.8rem auto;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        padding: 8px;
+        
+    }
+
+   
+
+    
+
+    .file-box {
+    max-height: 280px;
+    }
+
+
+    .upload {
+        margin: 10px;
+        display: none;
+    }
+
+    .btn-home, .btn-logout {
+        font-size: 1.3rem; 
+        
+    }
+
+    
+
+   
+        .custom-layout {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .btn-group {
+          display: flex;
+          gap: 0.75rem; /* Space between buttons */
+          margin-top: 0.75rem;
+        }
+      
+      
+
+    .file-name {
+        margin-top: 6px;
+        font-size: 0.85rem; 
+    }
+
+    .upload-status {
+        margin-top: 8px;
+        font-size: 1rem;
+    }
+
+    ::placeholder {
+        font-size: 1rem;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+        
+
+        
+    
