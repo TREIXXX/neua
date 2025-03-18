@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    
+    <link rel="website icon" type="png" href="neu-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <link rel="stylesheet" href="fontawesome-free-6.7.1-web/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">
+    <link rel="stylesheet" href="admin.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+   
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfjs-dist/2.6.347/pdf.min.js"></script> <!-- PDF.js for extracting metadata -->
+
+    <!-- Include PDF.js library -->
+    <script type="module">
+        import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.worker.min.mjs';
+
+        window.pdfjsLib = pdfjsLib; // Expose pdfjsLib to the global window object
+    </script>
+
+    
+</head>
+<style>
+    .modal-content {
+      border-radius: 1rem;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .container {
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .password-mismatch {
+      color: red;
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    .password-match {
+      color: green;
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    /* Custom Alert Styles */
+    .custom-alert {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1050;
+      min-width: 250px;
+      max-width: 400px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .custom-alert.show {
+      display: block;
+    }
+
+    .custom-alert .alert-icon {
+      font-size: 1.5rem;
+      margin-right: 12px;
+    }
+
+    .custom-alert .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .user-type {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 4px; /* Rounded corners */
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff; /* White text color */
+}
+
+    .user-type.student {
+        background-color: #FF9500; /* Orange for students */
+    }
+
+    .user-type.alumni {
+        background-color: #00CC22; /* Green for alumni */
+    }
+
+    .user-type.faculty {
+        background-color: #0092CC; /* Blue for faculty */
+    }
+
+
+    </style>
+
+<body>
+     <!-- Custom Alert -->
+  <div id="customAlert" class="custom-alert alert" role="alert">
+    <div class="d-flex align-items-center">
+      <span class="alert-icon"></span>
+      <span id="alertMessage"></span>
+      <button type="button" class="close-btn ms-auto" aria-label="Close" onclick="hideAlert()">&times;</button>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="signupModalLabel">
+            <i class="fas fa-info-circle text-dark ms-2" 
+               data-bs-toggle="popover" 
+               data-bs-trigger="hover" 
+               data-bs-placement="right" 
+               data-bs-content="Alumni and Faculty may contact csd@neu.edu.ph for assistance.">
+            </i>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="signupForm">
+            <div class="mb-3">
+              <label for="userType" class="form-label">User Type</label>
+              <select class="form-select" id="userType">
+                <option value="" >Select User Type</option>
+                <option value="student" id="studentUser">Student</option>
+                <option value="alumni" id="alumniUser">Alumni</option>
+                <option value="faculty" id="facultyUser">Faculty</option>
+              </select>
+
+              
+            </div>
+            <div class="mb-3">
+              <label for="signupName" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="signupName" placeholder="Last Name, First Name MI." required>
+            </div>
+            <div class="mb-3">
+              <label for="signupEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="mb-3">
+              <label for="signupID" class="form-label">ID</label>
+              <input type="text" class="form-control" id="signupID" placeholder="Enter your ID" required>
+            </div>
+            <div class="mb-3 row">
+              <div class="col-md-6">
+                <label for="signupPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="signupPassword" placeholder="at least 6 characters" required>
+              </div>
+              <div class="col-md-6">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="" required>
+                <div id="passwordMismatch" class="password-mismatch">Passwords do not match.</div>
+                <div id="passwordMatch" class="password-match">Passwords match!</div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="certificateUpload" class="form-label">Upload Certificate of Matriculation (Latest)</label>
+              <input type="file" class="form-control" id="certificateUpload" accept="image/*" required>
+            </div>
+           
+            <button type="submit" class="btn btn-primary w-100" id="sendVerificationEmail" disabled>Send Verification Email</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+    
+    <div class="container">
+        <div class="top-container">
+            <a href="index.html" class="btn btn-home"><i class="fas fa-home"></i></a>
+            <h1>Admin Dashboard</h1>
+        <button type="button" class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button> 
+        </div>
+        <div class="file-box" onclick="document.getElementById('pdfFile').click();">
+            <div class="file-upload-wrapper">
+                <div class="upload-elements"> <!-- Wrap elements to hide -->
+                    <i class="fas fa-cloud-upload-alt upload"></i> 
+                    <h1>Drag and Drop File</h1>
+                    <h1>or</h1>
+                    <button type="button" class="btn btn-secondary">Browse</button>
+                </div>
+                <input type="file" id="pdfFile" accept=".pdf" multiple required>
+                <span class="file-name"></span>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center custom-layout">
+            <div class="upload-status"></div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-outline-secondary btn-remove" onclick="removeFile()">Remove</button>
+                <button type="button" class="btn btn-primary btn-upload">Upload</button>
+            </div>
+        </div>
+    </div>
+
+        
+    
+       
+        <div class="dashboard-stats">
+
+            <div class="stat">
+                <i class="fa-solid fa-file"></i>
+                <div class="stat-info">
+                    <h3 id="fileCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Files</p>
+                </div>
+            </div>
+        
+        
+            <div class="stat">
+                <i class="fa-solid fa-users"></i>
+                <div class="stat-info">
+                    <h3 id="userCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Users</p>
+                </div>
+            </div>
+
+            <div class="stat"> <!-- account request stat NEW!-->
+                <i class="fa-solid fa-user-plus"></i>
+                <div class="stat-info">
+                    <h3 id="accountRequestsCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Account Requests</p>
+                </div>
+            </div>
+
+
+        
+    </div>
+
+    <div class="container">
+        <!-- File Records Section -->
+        <div class="search-container">
+            <h2>File Records</h2>
+            <div class="search-controls">
+                <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportFileRecords()">
+                    <i class="fa-solid fa-share-from-square"></i> Export
+                </button>
+                <input type="text" id="fileSearch" placeholder="Search file records..." oninput="filterFileRecords()">
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="fileRecordsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('fileRecordsTable', 0)"># <span id="fileRecordsTableHeader0"></span></th>
+                        <th onclick="sortTable('fileRecordsTable', 1)">Title <span id="fileRecordsTableHeader1"></span></th>
+                        <th onclick="sortTable('fileRecordsTable', 2)">Author <span id="fileRecordsTableHeader2"></span></th>
+                        <th onclick="sortTable('fileRecordsTable', 3)">Year <span id="fileRecordsTableHeader3"></span></th>
+                        <th onclick="sortTable('fileRecordsTable', 4)">Course <span id="fileRecordsTableHeader4"></span></th>
+                        <th onclick="sortTable('fileRecordsTable', 5)">Date Modified <span id="fileRecordsTableHeader5"></span></th>
+                        <th class="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically generated here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            <div class="rows-per-page">
+                <span>Showing</span>
+                <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>rows per page</span>
+            </div>
+            <div id="fileRecordsTablePagination" class="pagination"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- User Records Section -->
+        <div class="search-container">
+            <h2>User Records</h2>
+            <div class="search-controls">
+                <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportUserRecords()">
+                    <i class="fa-solid fa-share-from-square"></i> Export
+                </button>
+                <input type="text" id="userSearch" placeholder="Search user records..." oninput="filterUserRecords()">
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table id="userRecordsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('userRecordsTable', 0)"># <span id="userRecordsTableHeader0"></span></th>
+                        <th onclick="sortTable('userRecordsTable', 1)">Name <span id="userRecordsTableHeader1"></span></th>
+                        <th onclick="sortTable('userRecordsTable', 2)">Email <span id="userRecordsTableHeader2"></span></th>
+                        <th onclick="sortTable('userRecordsTable', 3)">ID <span id="userRecordsTableHeader3"></span></th>
+                        <th onclick="sortTable('userRecordsTable', 4)">User Type <span id="userRecordsTableHeader4"></span></th>
+                        <th onclick="sortTable('userRecordsTable', 5)">Requests <span id="userRecordsTableHeader5"></span></th>
+                        <th class="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically generated here -->
+                </tbody>
+            </table>
+        </div>
+
+        
+
+        <div class="text-end mt-3">
+            <button type="button" class="btn btn-outline-secondary" id="adminSignupButton" data-bs-toggle="modal" data-bs-target="#signupModal">
+                <i class="fas fa-plus"></i> Create User
+            </button>
+        </div>
+
+
+        <div class="pagination-container">
+            <div class="rows-per-page">
+                <span>Showing</span>
+                <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>rows per page</span>
+            </div>
+            <div id="userRecordsTablePagination" class="pagination"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Account Requests Section NEW!---------------------------------------------------------------------------------->
+        <div class="search-container">
+            <h2>Account Requests</h2>
+            <div class="search-controls">
+                <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportAccountRequestsRecords()">
+                    <i class="fa-solid fa-share-from-square"></i> Export
+                </button>
+                <input type="text" id="accountRequestSearch" placeholder="Search account requests..." oninput="filterAccountRequests()">
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table id="accountRequestsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('accountRequestsTable', 0)"># <span id="accountRequestsTableHeader0"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 1)">Name <span id="accountRequestsTableHeader1"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 2)">Email <span id="accountRequestsTableHeader2"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 3)">ID <span id="accountRequestsTableHeader3"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 4)">User Type <span id="accountRequestsTableHeader4"></span></th>
+                        <th>Certificate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically generated here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            <div class="rows-per-page">
+                <span>Showing</span>
+                <select id="accountRequestsRowsPerPage" onchange="changeAccountRequestsRowsPerPage()">
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>rows per page</span>
+            </div>
+            <div id="accountRequestsTablePagination" class="pagination"></div>
+        </div>
+    </div>
+
+    <div class="loader"></div>
+    <footer>
+        <p class="copyright">2024 © NEUA All rights reserved.</p>
+    </footer>
+
+
+<!-- Your custom script -->
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyC8eu7JXiwb7cxm0Vnq3JJ0wJqGgZanJ_w",
+        authDomain: "neua-5f9cd.firebaseapp.com",
+        databaseURL: "https://neua-5f9cd-default-rtdb.firebaseio.com",
+        projectId: "neua-5f9cd",
+        storageBucket: "neua-5f9cd.appspot.com",
+        messagingSenderId: "259473631559",
+        appId: "1:259473631559:web:e53ce11445550f5ad6c462",
+        measurementId: "G-QW3J7JZENG"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+
+    // Firebase services
+    const auth = firebase.auth();
+    const storage = firebase.storage();
+    const firestore = firebase.firestore();
+
+    function logout() {
+        // Sign out from Firebase
+        firebase.auth().signOut().then(() => {
+            console.log("User signed out");
+
+            // Clear session storage or local storage
+            sessionStorage.clear(); // or localStorage.clear();
+
+            // Redirect to the login page
+            window.location.href = "admin.html"; // Update with your login page URL
+        }).catch((error) => {
+            console.error("Sign out error:", error);
+        });
+    }
+
+    window.onload = function () {
+    // Check if the admin is authenticated
+    const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated');
+    if (!isAdminAuthenticated) {
+        redirectToLogin();
+    }
+
+    // Optionally clear the session when the user closes the browser or navigates away
+    window.addEventListener("beforeunload", clearSessionOnExit);
+};
+
+function redirectToLogin() {
+    showAlert('Please log in first.','primary');
+    window.location.replace('admin.html'); // Prevent back button navigation to this page
+}
+
+function clearSessionOnExit() {
+    // Remove the session storage key on exit
+    sessionStorage.removeItem('adminAuthenticated');
+}
+
+
+            // Rest of the existing onload functionality
+            const dropArea = document.querySelector('.file-box');
+            const fileInput = document.getElementById("pdfFile");
+            const fileNameDisplay = document.querySelector(".file-name");
+            const uploadElements = document.querySelector('.upload-elements');
+            const uploadStatus = document.querySelector('.upload-status');
+            let selectedFiles = []; // Array to hold selected files
+
+            // Handle file input change
+            fileInput.addEventListener("change", function() {
+                const files = Array.from(this.files); // Convert FileList to Array
+
+                if (files.length + selectedFiles.length > 20) {
+                    showAlert("You can only upload up to 20 PDF files.",'info');
+                    return;
+                }
+
+                // Add new files to the selectedFiles array
+                selectedFiles = selectedFiles.concat(files);
+                const fileNames = selectedFiles.map(file => file.name).join(', ');
+                fileNameDisplay.textContent = fileNames;
+                uploadElements.style.display = 'none'; // Hide the upload elements
+            });
+
+            // Handle file drop
+            dropArea.addEventListener('drop', handleDrop, false);
+            dropArea.addEventListener('dragover', handleDragOver, false);
+            dropArea.addEventListener('dragleave', handleDragLeave, false);
+
+            function handleDragOver(event) {
+                event.preventDefault();
+                dropArea.classList.add('dragging');
+            }
+
+            function handleDragLeave(event) {
+                event.preventDefault();
+                dropArea.classList.remove('dragging');
+            }
+
+            function handleDrop(event) {
+                event.preventDefault();
+                dropArea.classList.remove('dragging');
+
+                const files = Array.from(event.dataTransfer.files); // Convert FileList to Array
+
+                if (files.length + selectedFiles.length > 20) {
+                    showAlert("You can only upload up to 20 PDF files.",'info');
+                    return;
+                }
+
+                // Add dropped files to the selectedFiles array
+                selectedFiles = selectedFiles.concat(files);
+                const fileNames = selectedFiles.map(file => file.name).join(', ');
+                fileNameDisplay.textContent = fileNames;
+                uploadElements.style.display = 'none'; // Hide upload elements
+            }
+
+            // Handle Upload button click
+            document.querySelector(".btn-upload").addEventListener("click", async function() {
+                if (selectedFiles.length === 0) {
+                    showAlert("Please Select PDF Files First.",'primary');
+                    return;
+                }
+
+                for (const pdfFile of selectedFiles) {
+                    const storageRef = storage.ref();
+                    const pdfRef = storageRef.child(`pdfs/${pdfFile.name}`);
+                    const uploadTask = pdfRef.put(pdfFile);
+
+                    uploadStatus.textContent = `Uploading ${pdfFile.name}...`;
+
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            uploadStatus.textContent = `Upload ${pdfFile.name} is ${Math.round(progress)}% done`;
+                        },
+                        (error) => {
+                            console.error('Error Uploading PDF:', error);
+                            showAlert(`Error Uploading ${pdfFile.name}. Please Try Again.`,'danger');
+                            uploadStatus.textContent = `Upload Failed for ${pdfFile.name}`;
+                            uploadStatus.style.color = '#CE0000';  // Change font color to red
+                        },
+                        async () => {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            console.log('File available at', downloadURL);
+
+                            // Extract metadata and text from the uploaded PDF URL
+                            const metadata = await extractMetadata(downloadURL);
+                            const text = await extractTextFromPDF(downloadURL);
+
+                            // Save flattened metadata and text to Firestore
+                            firestore.collection('pdfMetadata').add({
+                                fileName: pdfFile.name,
+                                url: downloadURL,
+                                metadata: metadata,
+                                text: text,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(() => {
+                                console.log('Metadata and Text Saved Successfully');
+                                uploadStatus.textContent = `Upload complete for: ${pdfFile.name}!`;
+                                uploadStatus.style.color = '#002635';  // Reset color after success
+                            }).catch((error) => {
+                                console.error('Error saving metadata:', error);
+                                uploadStatus.textContent = `Error Saving Metadata for ${pdfFile.name}!`;
+                            });
+                        }
+                    );
+                }
+
+                // Clear the file input and display
+                fileInput.value = ''; // Clear the file input
+                fileNameDisplay.textContent = ''; // Clear the displayed file names
+                selectedFiles = []; // Reset the selected files
+            });
+
+            // Handle Remove button click
+            document.querySelector(".btn-remove").addEventListener("click", removeFile);
+
+            function removeFile() {
+                // Reset the file input and related variables
+                selectedFiles = [];
+                fileInput.value = ''; // Clear the file input element
+                fileNameDisplay.textContent = ''; // Clear the displayed file names
+                uploadStatus.style.color = '#002635';  // Reset color after for new upload
+                
+                // Show upload elements again for the user to upload new files
+                uploadElements.style.display = 'block'; // Re-display the upload instructions
+
+                // Clear any upload status messages
+                uploadStatus.textContent = '';
+            }
+
+            // Function to extract PDF metadata using PDF.js
+            async function extractMetadata(url) {
+                try {
+                    const pdf = await pdfjsLib.getDocument(url).promise;
+                    const metadata = await pdf.getMetadata();
+
+                    return {
+                        title: metadata.info.Title || null,
+                        author: metadata.info.Author || null,
+                        subject: metadata.info.Subject || null,
+                        keywords: metadata.info.Keywords || null,
+                        creationDate: metadata.info.CreationDate || null,
+                        modificationDate: metadata.info.ModDate || null,
+                        creator: metadata.info.Creator || null,
+                        producer: metadata.info.Producer || null
+                    };
+                } catch (error) {
+                    console.error('Error extracting metadata:', error);
+                    return {}; // Return empty object on error
+                }
+            }
+
+            // Function to extract text from PDF using PDF.js
+            async function extractTextFromPDF(url) {
+                try {
+                    const pdf = await pdfjsLib.getDocument(url).promise;
+                    let text = '';
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        text += pageText + ' ';
+                    }
+
+                    return text.trim();
+                } catch (error) {
+                    console.error('Error extracting text from PDF:', error);
+                    return ''; // Return empty string on error
+                }
+            }
+        ;
+    ;
+
+
+    let rowsPerPage = 20;
+        let filteredFileRows = []; // Store filtered rows for file records
+        let filteredUserRows = []; // Store filtered rows for user records
+
+        function changeRowsPerPage() {
+    rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+    renderTable('fileRecordsTable', filteredFileRows.length > 0 ? filteredFileRows : allFileRecords);
+    renderTable('userRecordsTable', filteredUserRows.length > 0 ? filteredUserRows : allUserRecords);
+}
+
+
+        // Pagination logic
+        function setupPagination(tableId, rows) {
+    const pagination = document.getElementById(`${tableId}Pagination`);
+    if (!pagination) {
+        console.error(`Pagination container for ${tableId} not found`);
+        return;
+    }
+
+    let currentPage = 1;
+
+    function showPage(page) {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
+
+        updatePaginationButtons(page);
+    }
+
+   function updatePaginationButtons(page) {
+    pagination.innerHTML = '';
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    const createButton = (iconClass, pageNum, disabled = false) => {
+        const button = document.createElement('button');
+        button.disabled = disabled;
+
+        // Create an icon element
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+
+        // Append the icon to the button
+        button.appendChild(icon);
+
+        // Add click event listener
+        button.addEventListener('click', () => {
+            currentPage = pageNum;
+            showPage(currentPage);
+        });
+
+        return button;
+    };
+
+    // Previous Button
+    const prevButton = createButton('fa-solid fa-chevron-left', currentPage - 1, currentPage === 1);
+    pagination.appendChild(prevButton);
+
+    // Page Number Buttons
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        pageButton.disabled = i === currentPage;
+        pageButton.addEventListener('click', () => {
+            currentPage = i;
+            showPage(currentPage);
+        });
+        pagination.appendChild(pageButton);
+    }
+
+    // Next Button
+    const nextButton = createButton('fa-solid fa-chevron-right', currentPage + 1, currentPage === totalPages);
+    pagination.appendChild(nextButton);
+}
+
+    showPage(currentPage);
+}
+
+
+        // Call setupPagination after loading records
+        let allFileRecords = []; // Store all file records
+let allUserRecords = []; // Store all user records
+
+function loadFileRecords() {
+    const fileRecordsTable = document.getElementById('fileRecordsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('pdfMetadata').get().then((querySnapshot) => {
+        fileRecordsTable.innerHTML = '';
+        allFileRecords = []; // Clear previous records
+        let index = 0;
+        querySnapshot.forEach((doc) => {
+            index++;
+            const data = doc.data();
+            const row = {
+                index: index,
+                fileName: data.fileName,
+                author: data.metadata?.author || 'N/A',
+                year: data.timestamp ? new Date(data.timestamp.toDate()).getFullYear() : 'N/A',
+                course: 'N/A',
+                dateModified: data.timestamp ? data.timestamp.toDate() : null // Store as Date object
+            };
+            allFileRecords.push(row);
+        });
+
+        // Update the Uploads stat
+        document.querySelector('.dashboard-stats .stat:nth-child(1) h3').textContent = index;
+
+        // Render the table with all records
+        renderTable('fileRecordsTable', allFileRecords);
+        })
+        .catch((error) => {
+        console.error("Error loading file records:", error);
+        showAlert('Failed to load file records. Please check your internet connection and try again.', 'danger');
+        });
+}
+
+function loadUserRecords() {
+    const userRecordsTable = document.getElementById('userRecordsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('users').get().then((querySnapshot) => {
+        userRecordsTable.innerHTML = '';
+        allUserRecords = []; // Clear previous records
+        let index = 0;
+        querySnapshot.forEach((doc) => {
+            index++;
+            const data = doc.data();
+            const row = {
+                index: index,
+                name: data.name,
+                email: data.email,
+                ID: data.ID,
+                userType: data.userType || 'N/A', // Add userType field
+                requests: data.requests || 0, // Add requests field
+            };
+            allUserRecords.push(row);
+        });
+
+        // Update the Users stat
+        const userCount = index > 0 ? index : 0;
+        document.querySelector('.dashboard-stats .stat:nth-child(2) h3').textContent = index;
+
+          // Render the table with all records
+          renderTable('userRecordsTable', allUserRecords);
+        })
+        .catch((error) => {
+            console.error("Error loading user records:", error);
+            showAlert('Failed to load user records. Please check your internet connection and try again.', 'danger');
+        });
+}
+
+
+//Load Account Request NEW!--------------------------------------------------------------------------------------->
+function loadAccountRequestsCount() {
+    firestore.collection('accountRequests').get().then((querySnapshot) => {
+        const count = querySnapshot.size;
+        const accountRequestsCount = count > 0 ? count : 0;
+        document.getElementById('accountRequestsCount').textContent = accountRequestsCount;
+    }).catch((error) => {
+        console.error("Error loading account requests count:", error);
+        document.getElementById('accountRequestsCount').textContent = 'N/A'; // Display N/A if there's an error
+    });
+}
+
+
+function filterFileRecords() {
+    const searchTerm = document.getElementById('fileSearch').value.toLowerCase();
+    filteredFileRows = allFileRecords.filter(record => {
+        const title = record.fileName.toLowerCase();
+        const author = record.author.toLowerCase();
+        return title.includes(searchTerm) || author.includes(searchTerm);
+    });
+
+    // Re-render the table with filtered rows
+    renderTable('fileRecordsTable', filteredFileRows);
+}
+
+function filterUserRecords() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    filteredUserRows = allUserRecords.filter(record => {
+        const name = record.name.toLowerCase();
+        const email = record.email.toLowerCase();
+        return name.includes(searchTerm) || email.includes(searchTerm);
+    });
+
+     // Re-render the table with filtered rows
+    renderTable('fileRecordsTable', filteredFileRows);
+}
+
+    // Re-render the table with filtered rows
+    function renderTable(tableId, records) {
+    const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+    table.innerHTML = '';
+
+    records.forEach(record => {
+        const row = table.insertRow();
+        Object.values(record).forEach((value, index) => {
+            const cell = row.insertCell();
+            if (index === 5) { // Date Modified column
+                // Format the date to a simplified format (e.g., "YYYY-MM-DD")
+                const date = record.dateModified ? new Date(record.dateModified) : null;
+                cell.textContent = date ? date.toISOString().split('T')[0] : 'N/A';
+                cell.classList.add('uneditable'); // Add a class to make it uneditable
+            } else if (index === 4) { // User Type column
+                // Capitalize the first letter of the user type
+                const capitalizedUserType = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+                // Create a span element for the user type
+                const span = document.createElement('span');
+                span.textContent = capitalizedUserType;
+                span.classList.add('user-type', value.toLowerCase()); // Add a class based on user type
+                cell.appendChild(span);
+            } else if (index === 5) { // Requests column
+                if (value > 0) {
+                    cell.textContent = value;
+                } else {
+                    cell.textContent = ''; // Don't display 0
+                }
+            } else {
+                cell.textContent = value;
+            }
+        });
+
+        const actionsCell = row.insertCell();
+        actionsCell.className = 'actions';
+        actionsCell.innerHTML = `
+            <i class="fas fa-eye" onclick="viewUser('${record.name}', '${record.email}', '${record.ID}', '${record.userType}', ${record.requests})"></i>
+            <i class="fas fa-edit" onclick="editRow(this)"></i>
+            <i class="fas fa-trash" onclick="deleteRow(this)"></i>
+        `;
+    });
+
+    setupPagination(tableId, Array.from(table.getElementsByTagName('tr')));
+}
+
+
+
+
+//Account Requests NEW!--------------------------------------------------------------------------------------->
+let allAccountRequests = []; // Store all account requests
+
+function loadAccountRequests() {
+    const accountRequestsTable = document.getElementById('accountRequestsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('accountRequests').get().then((querySnapshot) => {
+        accountRequestsTable.innerHTML = '';
+        allAccountRequests = []; // Clear previous records
+        let index = 0;
+        querySnapshot.forEach((doc) => {
+            index++;
+            const data = doc.data();
+            const row = {
+                index: index,
+                fullName: data.fullName,
+                email: data.email,
+                ID: data.ID,
+                userType: data.userType || 'N/A',
+                certificateURL: data.certificateURL || 'N/A'
+            };
+            allAccountRequests.push(row);
+        });
+
+        // Render the table with all records
+        renderAccountRequestsTable(allAccountRequests);
+    }).catch(error => {
+        console.error("Error loading account requests:", error);
+    });
+}
+
+function renderAccountRequestsTable(records) {
+    const table = document.getElementById('accountRequestsTable').getElementsByTagName('tbody')[0];
+    table.innerHTML = '';
+
+    records.forEach(record => {
+        const row = table.insertRow();
+        Object.values(record).forEach((value, index) => {
+            const cell = row.insertCell();
+            if (index === 5) { // Certificate column
+                if (value !== 'N/A') {
+                    const fileIcon = document.createElement('i');
+                    fileIcon.className = 'fas fa-file-pdf';
+                    fileIcon.style.cursor = 'pointer';
+                    fileIcon.onclick = () => viewPdf(value);
+                    cell.appendChild(fileIcon);
+                } else {
+                    cell.textContent = 'N/A';
+                }
+            } else {
+                cell.textContent = value;
+            }
+        });
+
+        const actionsCell = row.insertCell();
+        actionsCell.className = 'actions';
+        actionsCell.innerHTML = `
+            <button class="btn btn-success btn-sm" onclick="acceptAccountRequest('${record.email}')">Accept</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectAccountRequest('${record.email}')">Reject</button>
+        `;
+    });
+
+    setupPagination('accountRequestsTable', Array.from(table.getElementsByTagName('tr')));
+}
+
+function filterAccountRequests() {
+    const searchTerm = document.getElementById('accountRequestSearch').value.toLowerCase();
+    const filteredRows = allAccountRequests.filter(record => {
+        const fullName = record.fullName.toLowerCase();
+        const email = record.email.toLowerCase();
+        return fullName.includes(searchTerm) || email.includes(searchTerm);
+    });
+
+    // Re-render the table with filtered rows
+    renderAccountRequestsTable(filteredRows);
+}
+
+function changeAccountRequestsRowsPerPage() {
+    rowsPerPage = parseInt(document.getElementById('accountRequestsRowsPerPage').value);
+    renderAccountRequestsTable(allAccountRequests);
+}
+
+function acceptAccountRequest(email) {
+    // Logic to accept the account request
+    // Send verification email and move the user to the verified users collection
+    firestore.collection('accountRequests').where('email', '==', email).get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            firestore.collection('users').add(userData).then(() => {
+                doc.ref.delete(); // Remove from account requests
+                showAlert('Account request accepted and verification email sent.', 'success');
+                loadAccountRequests(); // Refresh the table
+            });
+        });
+    }).catch(error => {
+        console.error("Error accepting account request:", error);
+        showAlert('Error accepting account request.', 'danger');
+    });
+}
+
+function rejectAccountRequest(email) {
+    // Logic to reject the account request
+    firestore.collection('accountRequests').where('email', '==', email).get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            doc.ref.delete(); // Remove from account requests
+            showAlert('Account request rejected.', 'success');
+            loadAccountRequests(); // Refresh the table
+        });
+    }).catch(error => {
+        console.error("Error rejecting account request:", error);
+        showAlert('Error rejecting account request.', 'danger');
+    });
+}
+
+// Call loadAccountRequests on page load
+window.onload = function () {
+    const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated');
+    if (!isAdminAuthenticated) {
+        redirectToLogin();
+    }
+    loadFileRecords();
+    loadUserRecords();
+    loadAccountRequests();
+};
+
+
+
+
+
+
+function viewPdf(fileName) {
+    if (!fileName || fileName === 'N/A' || fileName === '') {
+        showAlert('No PDF file available','info');
+        return;
+    }
+
+    function viewUser(name, email, ID, userType, requests) {
+    // Populate the modal with user details
+    document.getElementById('viewUserName').textContent = name;
+    document.getElementById('viewUserEmail').textContent = email;
+    document.getElementById('viewUserID').textContent = ID;
+    document.getElementById('viewUserType').textContent = userType;
+    document.getElementById('viewUserRequests').textContent = requests > 0 ? requests : 'No requests';
+
+    // Show the modal
+    const viewUserModal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+    viewUserModal.show();
+}
+
+    // Initialize Firebase Storage
+    const storage = firebase.storage();
+    const storageRef = storage.ref();
+    const pdfRef = storageRef.child(`pdfs/${fileName}`);
+
+    // Get the download URL
+    pdfRef.getDownloadURL()
+        .then((url) => {
+            // Open PDF in new tab
+            window.open(url, '_blank');
+        })
+        .catch((error) => {
+            console.error("Error getting PDF URL:", error);
+            switch (error.code) {
+                case 'storage/object-not-found':
+                showAlert('Error: PDF file not found','primary');
+                    break;
+                case 'storage/unauthorized':
+                showAlert('Error: Unauthorized access','primary');
+                    break;
+                default:
+                showAlert('Error accessing PDF file','primary');
+            }
+        });
+}
+
+function sortTable(tableId, columnIndex) {
+    let records;
+    if (tableId === 'fileRecordsTable') {
+        records = filteredFileRows.length > 0 ? filteredFileRows : allFileRecords;
+    } else if (tableId === 'userRecordsTable') {
+        records = filteredUserRows.length > 0 ? filteredUserRows : allUserRecords;
+    } else {
+        return;
+    }
+
+    const headerSpan = document.getElementById(`${tableId}Header${columnIndex}`);
+    const isAscending = headerSpan.classList.contains('asc');
+
+    // Clear all arrow classes
+    document.querySelectorAll(`#${tableId} th span`).forEach(span => {
+        span.classList.remove('asc', 'desc');
+    });
+
+    // Sort records
+    records.sort((a, b) => {
+        const aValue = Object.values(a)[columnIndex];
+        const bValue = Object.values(b)[columnIndex];
+
+        if (columnIndex === 5) { // Date Modified column
+            if (aValue === null) return 1; // Place null values at the end
+            if (bValue === null) return -1; // Place null values at the end
+            return isAscending ? bValue - aValue : aValue - bValue;
+        } else if (columnIndex === 0 || columnIndex === 3) { // Numeric columns
+            return isAscending ? bValue - aValue : aValue - bValue;
+        } else { // String columns
+            return isAscending ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+        }
+    });
+
+    // Toggle arrow class
+    headerSpan.classList.toggle('asc', !isAscending);
+    headerSpan.classList.toggle('desc', isAscending);
+
+    // Re-render the table with sorted records
+    renderTable(tableId, records);
+}
+
+        // Add arrow icons to headers (excluding the Actions column)
+        document.addEventListener('DOMContentLoaded', () => {
+            const tables = ['fileRecordsTable', 'userRecordsTable'];
+            tables.forEach(tableId => {
+                const headers = document.querySelectorAll(`#${tableId} th:not(.actions)`); // Exclude Actions column
+                headers.forEach((header, index) => {
+                    const span = document.createElement('span');
+                    span.innerHTML = ''; // No initial arrow
+                    header.appendChild(span);
+                });
+            });
+        });
+
+        function editRow(icon) {
+    const row = icon.closest('tr');
+    const cells = row.querySelectorAll('td');
+    const isEditMode = row.classList.toggle('edit-mode');
+
+    if (isEditMode) {
+        cells.forEach((cell, index) => {
+            // Skip the User Type column (index 4) and the Actions column (last column)
+            if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+                const originalContent = cell.innerText;
+                cell.innerHTML = `<input type="text" value="${originalContent}">`;
+            }
+        });
+        icon.classList.remove('fa-edit');
+        icon.classList.add('fa-check');
+    } else {
+        cells.forEach((cell, index) => {
+            // Skip the User Type column (index 4) and the Actions column (last column)
+            if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+                const input = cell.querySelector('input');
+                cell.innerText = input.value;
+            }
+        });
+        icon.classList.remove('fa-check');
+        icon.classList.add('fa-edit');
+    }
+}
+
+        function deleteRow(icon) {
+            const row = icon.closest('tr');
+            const confirmDelete = confirm('Are you sure you want to delete this record?');
+            if (confirmDelete) {
+                row.remove();
+                // Here you can add code to delete the record from Firebase Firestore
+            }
+        }
+
+        window.onload = function () {
+            const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated');
+            if (!isAdminAuthenticated) {
+                redirectToLogin();
+            }
+            loadFileRecords();
+            loadUserRecords();
+        };
+
+        function redirectToLogin() {
+            showAlert('Please log in first.','primary');
+            window.location.replace('admin.html');
+        }
+
+
+
+    // Sticky Table Header
+
+
+    const tableWrapper = document.querySelector('.table-wrapper');
+    if (tableWrapper) {
+        const tableHeader = tableWrapper.querySelector('thead');
+        
+        tableWrapper.addEventListener('scroll', () => {
+            const scrollPosition = tableWrapper.scrollTop;
+            tableHeader.style.transform = `translateY(${scrollPosition}px)`;
+        });
+    }
+
+
+
+
+
+
+
+
+    // Function to export File Records as CSV NEW!--------------------------------------------------------------------------------------->
+function exportFileRecords() {
+    const table = document.getElementById('fileRecordsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add headers
+    const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
+    csvContent += headers.join(',') + '\n';
+
+    // Add rows
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td')).map(cell => {
+            // Handle user type and certificate columns
+            if (cell.querySelector('.user-type')) {
+                return cell.querySelector('.user-type').textContent.trim();
+            } else if (cell.querySelector('.fa-file-pdf')) {
+                return 'Certificate Available';
+            } else {
+                return cell.textContent.trim();
+            }
+        });
+        csvContent += cells.join(',') + '\n';
+    });
+
+    // Create a link and trigger download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'file_records.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Function to export File Records as CSV
+function exportFileRecords() {
+    const table = document.getElementById('fileRecordsTable');
+    const rows = table.querySelectorAll('tbody tr');
+
+    if (rows.length === 0) {
+        showAlert('No data available to export.', 'info');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add headers
+    const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
+    csvContent += headers.slice(0, -1).join(',') + '\n'; // Exclude the last column (Actions)
+
+    // Add rows
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td')).slice(0, -1).map(cell => { // Exclude the last column (Actions)
+            // Handle user type and certificate columns
+            if (cell.querySelector('.user-type')) {
+                return cell.querySelector('.user-type').textContent.trim();
+            } else if (cell.querySelector('.fa-file-pdf')) {
+                return 'Certificate Available';
+            } else {
+                return cell.textContent.trim();
+            }
+        });
+        csvContent += cells.join(',') + '\n';
+    });
+
+    // Create a link and trigger download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'NEUA_FileRecords.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Function to export User Records as CSV
+function exportUserRecords() {
+    const table = document.getElementById('userRecordsTable');
+    const rows = table.querySelectorAll('tbody tr');
+
+    if (rows.length === 0) {
+        showAlert('No data available to export.', 'info');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add headers
+    const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
+    csvContent += headers.slice(0, -1).join(',') + '\n'; // Exclude the last column (Actions)
+
+    // Add rows
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td')).slice(0, -1).map(cell => { // Exclude the last column (Actions)
+            // Handle user type and requests columns
+            if (cell.querySelector('.user-type')) {
+                return cell.querySelector('.user-type').textContent.trim();
+            } else if (cell.textContent.trim() === '') {
+                return '0'; // Replace empty requests with 0
+            } else {
+                return cell.textContent.trim();
+            }
+        });
+        csvContent += cells.join(',') + '\n';
+    });
+
+    // Create a link and trigger download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'NEUA_UserRecords.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Function to export Account Requests as CSV
+function exportAccountRequestsRecords() {
+    const table = document.getElementById('accountRequestsTable');
+    const rows = table.querySelectorAll('tbody tr');
+
+    if (rows.length === 0) {
+        showAlert('No data available to export.', 'info');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add headers
+    const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
+    csvContent += headers.slice(0, -1).join(',') + '\n'; // Exclude the last column (Actions)
+
+    // Add rows
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td')).slice(0, -1).map(cell => { // Exclude the last column (Actions)
+            // Handle certificate column
+            if (cell.querySelector('.fa-file-pdf')) {
+                return 'Certificate Available';
+            } else {
+                return cell.textContent.trim();
+            }
+        });
+        csvContent += cells.join(',') + '\n';
+    });
+
+    // Create a link and trigger download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'NEUA_AccountRequests.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+
+    
+</script>
+<script src="components.js"></script>
+<script src="signup.js"></script>
+</body>
+</html>
