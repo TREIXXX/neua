@@ -109,7 +109,8 @@ These changes should:
       cursor: pointer;
     }
 
-    .user-type {
+    #userRecordsTable tbody td:nth-child(5) .user-type,
+    #accountRequestsTable tbody td:nth-child(5) .user-type {
     display: inline-block;
     padding: 4px 16px;
     border-radius: 4px; /* Rounded corners */
@@ -243,7 +244,7 @@ These changes should:
             <div class="stat">
                 <i class="fa-solid fa-file"></i>
                 <div class="stat-info">
-                    <h3></h3>
+                    <h3 id="fileCount">0</h3> <!-- h3 id NEW!-->
                     <p>Files</p>
                 </div>
             </div>
@@ -252,10 +253,19 @@ These changes should:
             <div class="stat">
                 <i class="fa-solid fa-users"></i>
                 <div class="stat-info">
-                    <h3></h3>
+                    <h3 id="userCount">0</h3> <!-- h3 id NEW!-->
                     <p>Users</p>
                 </div>
             </div>
+
+            <div class="stat"> <!-- account request stat NEW!-->
+                <i class="fa-solid fa-user-plus"></i>
+                <div class="stat-info">
+                    <h3 id="accountRequestsCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Account Requests</p>
+                </div>
+            </div>
+
 
         
     </div>
@@ -267,9 +277,6 @@ These changes should:
             <div class="search-controls">
                 <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportFileRecords()">
                     <i class="fa-solid fa-share-from-square"></i> Export
-                </button>
-                <button type="button" class="btn btn-refresh btn-outline-secondary" onclick="refreshFileRecords()">
-                    <i class="fas fa-sync-alt"></i> Refresh
                 </button>
                 <input type="text" id="fileSearch" placeholder="Search file records..." oninput="filterFileRecords()">
             </div>
@@ -315,9 +322,6 @@ These changes should:
                 <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportUserRecords()">
                     <i class="fa-solid fa-share-from-square"></i> Export
                 </button>
-                <button type="button" class="btn btn-refresh btn-outline-secondary" onclick="refreshUserRecords()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
                 <input type="text" id="userSearch" placeholder="Search user records..." oninput="filterUserRecords()">
             </div>
         </div>
@@ -362,49 +366,50 @@ These changes should:
             <div id="userRecordsTablePagination" class="pagination"></div>
         </div>
     </div>
+
     <div class="container">
-    <!-- Account Requests Section -->
-    <div class="search-container">
-        <h2>Account Requests</h2>
-        <div class="search-controls">
-            <button type="button" class="btn btn-refresh btn-outline-secondary" onclick="refreshAccountRequests()">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <input type="text" id="requestSearch" placeholder="Search account requests..." oninput="filterAccountRequests()">
+        <!-- Account Requests Section NEW!---------------------------------------------------------------------------------->
+        <div class="search-container">
+            <h2>Account Requests</h2>
+            <div class="search-controls">
+                <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportAccountRequestsRecords()">
+                    <i class="fa-solid fa-share-from-square"></i> Export
+                </button>
+                <input type="text" id="accountRequestSearch" placeholder="Search account requests..." oninput="filterAccountRequests()">
+            </div>
         </div>
-    </div>
-    <div class="table-wrapper">
-        <table id="accountRequestsTable">
-            <thead>
-                <tr>
-                    <th onclick="sortTable('accountRequestsTable', 0)"># <span id="accountRequestsTableHeader0"></span></th>
-                    <th onclick="sortTable('accountRequestsTable', 1)">Full Name <span id="accountRequestsTableHeader1"></span></th>
-                    <th onclick="sortTable('accountRequestsTable', 2)">Email <span id="accountRequestsTableHeader2"></span></th>
-                    <th onclick="sortTable('accountRequestsTable', 3)">ID <span id="accountRequestsTableHeader3"></span></th>
-                    <th onclick="sortTable('accountRequestsTable', 4)">User Type <span id="accountRequestsTableHeader4"></span></th>
-                    <th>Certificate</th>
-                    <th class="actions">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Rows will be dynamically generated here -->
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table id="accountRequestsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('accountRequestsTable', 0)"># <span id="accountRequestsTableHeader0"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 1)">Name <span id="accountRequestsTableHeader1"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 2)">Email <span id="accountRequestsTableHeader2"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 3)">ID <span id="accountRequestsTableHeader3"></span></th>
+                        <th onclick="sortTable('accountRequestsTable', 4)">User Type <span id="accountRequestsTableHeader4"></span></th>
+                        <th>Certificate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically generated here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            <div class="rows-per-page">
+                <span>Showing</span>
+                <select id="accountRequestsRowsPerPage" onchange="changeAccountRequestsRowsPerPage()">
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>rows per page</span>
+            </div>
+            <div id="accountRequestsTablePagination" class="pagination"></div>
+        </div>
     </div>
 
-    <div class="pagination-container">
-        <div class="rows-per-page">
-            <span>Showing</span>
-            <select id="requestRowsPerPage" onchange="changeRequestRowsPerPage()">
-                <option value="20">20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-            <span>rows per page</span>
-        </div>
-        <div id="accountRequestsTablePagination" class="pagination"></div>
-    </div>
-</div>
     <div class="loader"></div>
     <footer>
         <p class="copyright">2024 © NEUA All rights reserved.</p>
@@ -449,12 +454,15 @@ These changes should:
         });
     }
 
-    window.onload = function () {
-    // Check if the admin is authenticated
+    window.onload = function() {
     const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated');
     if (!isAdminAuthenticated) {
         redirectToLogin();
     }
+    loadFileRecords();
+    loadUserRecords();
+    loadAccountRequests();
+    
 
     // Optionally clear the session when the user closes the browser or navigates away
     window.addEventListener("beforeunload", clearSessionOnExit);
@@ -786,6 +794,7 @@ function loadUserRecords() {
         });
 
         // Update the Users stat
+        const userCount = index > 0 ? index : 0;
         document.querySelector('.dashboard-stats .stat:nth-child(2) h3').textContent = index;
 
           // Render the table with all records
@@ -797,126 +806,19 @@ function loadUserRecords() {
         });
 }
 
-// Add to your existing JavaScript code
-let allAccountRequests = []; // Store all account requests
 
-function loadAccountRequests() {
-    const requestsTable = document.getElementById('accountRequestsTable').getElementsByTagName('tbody')[0];
+//Load Account Request Stat NEW!--------------------------------------------------------------------------------------->
+function loadAccountRequestsCount() {
     firestore.collection('accountRequests').get().then((querySnapshot) => {
-        requestsTable.innerHTML = '';
-        allAccountRequests = []; // Clear previous records
-        let index = 0;
-        
-        querySnapshot.forEach((doc) => {
-            index++;
-            const data = doc.data();
-            const row = requestsTable.insertRow();
-            
-            // Add cells
-            row.insertCell(0).textContent = index;
-            row.insertCell(1).textContent = data.name;
-            row.insertCell(2).textContent = data.email;
-            row.insertCell(3).textContent = data.ID;
-            
-            // User Type cell with styling
-            const userTypeCell = row.insertCell(4);
-            const userTypeSpan = document.createElement('span');
-            userTypeSpan.textContent = data.userType.charAt(0).toUpperCase() + data.userType.slice(1);
-            userTypeSpan.classList.add('user-type', data.userType.toLowerCase());
-            userTypeCell.appendChild(userTypeSpan);
-            
-            // Certificate cell with file icon
-            const certificateCell = row.insertCell(5);
-            const fileIcon = document.createElement('i');
-            fileIcon.className = 'fas fa-file-pdf';
-            fileIcon.style.cursor = 'pointer';
-            fileIcon.onclick = () => viewCertificate(data.certificateURL);
-            certificateCell.appendChild(fileIcon);
-            
-            // Actions cell
-            const actionsCell = row.insertCell(6);
-            actionsCell.className = 'actions';
-            actionsCell.innerHTML = `
-                <button class="btn btn-sm btn-success" onclick="acceptRequest('${doc.id}', '${data.email}')">
-                    <i class="fas fa-check"></i> Accept
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="rejectRequest('${doc.id}')">
-                    <i class="fas fa-times"></i> Reject
-                </button>
-            `;
-            
-            allAccountRequests.push({
-                id: doc.id,
-                ...data
-            });
-        });
-        
-        setupPagination('accountRequestsTable', Array.from(requestsTable.getElementsByTagName('tr')));
-    })
-    .catch((error) => {
-        console.error("Error loading account requests:", error);
-        showAlert('Failed to load account requests. Please try again.', 'danger');
+        const count = querySnapshot.size;
+        const accountRequestsCount = count > 0 ? count : 0;
+        document.getElementById('accountRequestsCount').textContent = accountRequestsCount;
+    }).catch((error) => {
+        console.error("Error loading account requests count:", error);
+        document.getElementById('accountRequestsCount').textContent = 'N/A'; // Display N/A if there's an error
     });
 }
 
-function viewCertificate(certificateURL) {
-    if (!certificateURL) {
-        showAlert('No certificate available', 'info');
-        return;
-    }
-    window.open(certificateURL, '_blank');
-}
-
-async function acceptRequest(requestId, userEmail) {
-    try {
-        // Send verification email
-        await auth.sendSignInLinkToEmail(userEmail, {
-            url: window.location.origin + '/verify.html',
-            handleCodeInApp: true
-        });
-        
-        // Update request status in Firestore
-        await firestore.collection('accountRequests').doc(requestId).update({
-            status: 'approved',
-            approvedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        showAlert('Verification email sent successfully', 'success');
-        loadAccountRequests(); // Refresh the table
-    } catch (error) {
-        console.error("Error accepting request:", error);
-        showAlert('Failed to process request. Please try again.', 'danger');
-    }
-}
-
-async function rejectRequest(requestId) {
-    if (confirm('Are you sure you want to reject this account request?')) {
-        try {
-            await firestore.collection('accountRequests').doc(requestId).delete();
-            showAlert('Request rejected successfully', 'success');
-            loadAccountRequests(); // Refresh the table
-        } catch (error) {
-            console.error("Error rejecting request:", error);
-            showAlert('Failed to reject request. Please try again.', 'danger');
-        }
-    }
-}
-
-function filterAccountRequests() {
-    const searchTerm = document.getElementById('requestSearch').value.toLowerCase();
-    const filteredRequests = allAccountRequests.filter(request => {
-        const name = request.name.toLowerCase();
-        const email = request.email.toLowerCase();
-        const id = request.ID.toLowerCase();
-        return name.includes(searchTerm) || email.includes(searchTerm) || id.includes(searchTerm);
-    });
-    renderAccountRequestsTable(filteredRequests);
-}
-
-function refreshAccountRequests() {
-    loadAccountRequests();
-    showAlert('Account requests refreshed successfully', 'success');
-}
 
 function filterFileRecords() {
     const searchTerm = document.getElementById('fileSearch').value.toLowerCase();
@@ -952,24 +854,17 @@ function filterUserRecords() {
         Object.values(record).forEach((value, index) => {
             const cell = row.insertCell();
             if (index === 5) { // Date Modified column
-                // Format the date to a simplified format (e.g., "YYYY-MM-DD")
                 const date = record.dateModified ? new Date(record.dateModified) : null;
                 cell.textContent = date ? date.toISOString().split('T')[0] : 'N/A';
-                cell.classList.add('uneditable'); // Add a class to make it uneditable
+                cell.classList.add('uneditable');
             } else if (index === 4) { // User Type column
-                // Capitalize the first letter of the user type
                 const capitalizedUserType = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-                // Create a span element for the user type
                 const span = document.createElement('span');
                 span.textContent = capitalizedUserType;
-                span.classList.add('user-type', value.toLowerCase()); // Add a class based on user type
+                span.classList.add('user-type', value.toLowerCase());
                 cell.appendChild(span);
             } else if (index === 5) { // Requests column
-                if (value > 0) {
-                    cell.textContent = value;
-                } else {
-                    cell.textContent = ''; // Don't display 0
-                }
+                cell.textContent = value > 0 ? value : '';
             } else {
                 cell.textContent = value;
             }
@@ -977,15 +872,32 @@ function filterUserRecords() {
 
         const actionsCell = row.insertCell();
         actionsCell.className = 'actions';
-        actionsCell.innerHTML = `
-            <i class="fas fa-eye" onclick="viewUser('${record.name}', '${record.email}', '${record.ID}', '${record.userType}', ${record.requests})"></i>
-            <i class="fas fa-edit" onclick="editRow(this)"></i>
-            <i class="fas fa-trash" onclick="deleteRow(this)"></i>
-        `;
+
+        // Different actions based on table type
+        if (tableId === 'fileRecordsTable') {
+            actionsCell.innerHTML = `
+                <i class="fas fa-eye" onclick="viewPdf('${record.fileName}')" title="View File"></i>
+                <i class="fas fa-edit" onclick="editRow(this)"></i>
+                <i class="fas fa-trash" onclick="deleteRow(this)"></i>
+            `;
+        } else if (tableId === 'userRecordsTable') {
+            actionsCell.innerHTML = `
+                <i class="fas fa-eye" onclick="viewUser('${record.name}', '${record.email}', '${record.ID}', '${record.userType}', ${record.requests})" title="View User"></i>
+                <i class="fas fa-edit" onclick="editRow(this)"></i>
+                <i class="fas fa-trash" onclick="deleteRow(this)"></i>
+            `;
+        }
     });
 
     setupPagination(tableId, Array.from(table.getElementsByTagName('tr')));
 }
+
+
+
+
+
+
+
 
 
 function viewPdf(fileName) {
@@ -1125,20 +1037,7 @@ function sortTable(tableId, columnIndex) {
             }
         }
 
-        window.onload = function () {
-            const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated');
-            if (!isAdminAuthenticated) {
-                redirectToLogin();
-            }
-            loadFileRecords();
-            loadUserRecords();
-            loadAccountRequests();
-        };
-
-        function redirectToLogin() {
-            showAlert('Please log in first.','primary');
-            window.location.replace('admin.html');
-        }
+        
 
 
 
@@ -1154,6 +1053,153 @@ function sortTable(tableId, columnIndex) {
             tableHeader.style.transform = `translateY(${scrollPosition}px)`;
         });
     }
+
+
+
+
+
+
+
+
+    // Function to export File Records as CSV NEW!--------------------------------------------------------------------------------------->
+function exportFileRecords() {
+    const table = document.getElementById('fileRecordsTable');
+    const rows = table.querySelectorAll('tbody tr');
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add headers
+    const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
+    csvContent += headers.join(',') + '\n';
+
+    // Add rows
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td')).map(cell => {
+            // Handle user type and certificate columns
+            if (cell.querySelector('.user-type')) {
+                return cell.querySelector('.user-type').textContent.trim();
+            } else if (cell.querySelector('.fa-file-pdf')) {
+                return 'Certificate Available';
+            } else {
+                return cell.textContent.trim();
+            }
+        });
+        csvContent += cells.join(',') + '\n';
+    });
+
+    // Create a link and trigger download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'file_records.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+
+
+function loadAccountRequests() {
+    const table = document.getElementById('accountRequestsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('accountRequests').get().then((querySnapshot) => {
+        table.innerHTML = '';
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const row = table.insertRow();
+            
+            // Add row cells
+            row.insertCell(0).textContent = table.rows.length; // Row number
+            row.insertCell(1).textContent = data.name;
+            row.insertCell(2).textContent = data.email;
+            row.insertCell(3).textContent = data.ID;
+            
+            // User Type cell with styling
+            const typeCell = row.insertCell(4);
+            const typeSpan = document.createElement('span');
+            typeSpan.textContent = data.userType.charAt(0).toUpperCase() + data.userType.slice(1);
+            typeSpan.classList.add('user-type', data.userType.toLowerCase());
+            typeCell.appendChild(typeSpan);
+
+            // Certificate View cell
+            const certCell = row.insertCell(5);
+            const viewBtn = document.createElement('i');
+            viewBtn.className = 'fas fa-file';
+            viewBtn.title = 'View Certificate';
+            viewBtn.onclick = () => window.open(data.certificateURL, '_blank');
+            certCell.appendChild(viewBtn);
+
+            // Actions cell
+            const actionsCell = row.insertCell(6);
+            actionsCell.innerHTML = `
+                <button class="btn btn-sm btn-success me-2" onclick="acceptRequest('${doc.id}', ${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                    <i class="fas fa-check"></i> Accept
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="rejectRequest('${doc.id}')">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            `;
+        });
+    });
+}
+
+
+async function acceptRequest(docId, userData) {
+    try {
+        // Create user account
+        const userCredential = await auth.createUserWithEmailAndPassword(userData.email, userData.password);
+        const user = userCredential.user;
+        
+        // Move certificate from pending to verified folder
+        const certificateFileName = userData.certificateURL.split('/').pop();
+        const oldStorageRef = storage.ref(`certificates/pending/${certificateFileName}`);
+        const newStorageRef = storage.ref(`certificates/verified/${user.uid}_${certificateFileName}`);
+        
+        // Copy file to new location
+        const certificateData = await oldStorageRef.getDownloadURL();
+        const response = await fetch(certificateData);
+        const blob = await response.blob();
+        await newStorageRef.put(blob);
+        const newCertificateURL = await newStorageRef.getDownloadURL();
+
+        // Save user data
+        await firestore.collection('users').doc(user.uid).set({
+            name: userData.name,
+            email: userData.email,
+            ID: userData.ID,
+            userType: userData.userType,
+            certificateURL: newCertificateURL,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Send verification email
+        await user.sendEmailVerification();
+
+        // Delete request and old certificate
+        await firestore.collection('accountRequests').doc(docId).delete();
+        await oldStorageRef.delete();
+
+        showAlert('Account request accepted and verification email sent', 'success');
+        loadAccountRequests();
+        loadAccountRequestsCount();
+        loadUserRecords();
+    } catch (error) {
+        console.error("Error accepting request:", error);
+        showAlert('Error accepting request: ' + error.message, 'danger');
+    }
+}
+
+function rejectRequest(docId) {
+    if (confirm('Are you sure you want to reject this request?')) {
+        firestore.collection('accountRequests').doc(docId).delete()
+            .then(() => {
+                showAlert('Account request rejected', 'success');
+                loadAccountRequests(); // Refresh the table
+                loadAccountRequestsCount(); // Update the counter
+            })
+            .catch((error) => {
+                showAlert('Error rejecting request: ' + error.message, 'danger');
+            });
+    }
+}
 
 </script>
 <script src="components.js"></script>
