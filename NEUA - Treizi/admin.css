@@ -380,7 +380,12 @@ th {
 #userRecordsTable tbody td:nth-child(1),
 #userRecordsTable tbody td:nth-child(5),
 #userRecordsTable tbody td:nth-child(6),
-#userRecordsTable tbody td:nth-child(7){
+#userRecordsTable tbody td:nth-child(7),
+
+#accountRequestsTable tbody td:nth-child(1),
+#accountRequestsTable tbody td:nth-child(5),
+#accountRequestsTable tbody td:nth-child(6),
+#accountRequestsTable tbody td:nth-child(7){
     text-align: center;
 }
                         
@@ -586,18 +591,3 @@ td.actions {
         font-size: 1rem;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-        
-
-        
-    
