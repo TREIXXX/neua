@@ -1,3 +1,19 @@
+student signup: replace the send verification button into submit, the student signup that has been submitted will reflect on account requests table and will be under review by admin, while the admin signup (create user) should skip under review process and directly reflect to the user records when email is verified.
+
+signup flow
+student signup: student signup > submit button > reflect on account requests > accept/ reject > send verification email if accepted by admin > reflect on user records once the email is verified.
+
+admin signup/ ccreate user: create user > send verification button> reflect directly on user records once the email is verified.
+
+These changes should:
+1. Change the button text based on signup type (student vs admin)
+2. Route student signups through the account requests system
+3. Handle admin approval process properly
+4. Send verification emails only after admin approval
+5. Move approved users to the main users collection after email verification
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
