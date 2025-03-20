@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+
+  <link rel="website icon" type="png" href="neu-logo.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  
+  
+  <style>
+    .modal-content {
+      border-radius: 1rem;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .container {
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .password-mismatch {
+      color: red;
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    .password-match {
+      color: green;
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    /* Custom Alert Styles */
+    .custom-alert {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1050;
+      min-width: 250px;
+      max-width: 400px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .custom-alert.show {
+      display: block;
+    }
+
+    .custom-alert .alert-icon {
+      font-size: 1.5rem;
+      margin-right: 12px;
+    }
+
+    .custom-alert .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #005580 !important;
+        border-color: #005580 !important;
+    }
+    .btn-orange:hover, 
+    .btn-orange:focus {
+        background-color: #004466 !important; /* Slightly darker shade on hover */
+        border-color: #004466 !important;
+    }
+
+    .btn-orange {
+        background-color: #FF9500 !important;
+        border-color: #FF9500 !important;
+        color: #ffffff !important;
+    }
+    .btn-orange:hover, 
+    .btn-orange:focus {
+        background-color: #e08300 !important; /* Slightly darker shade on hover */
+        border-color: #e08300 !important;
+        color: #ffffff !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Custom Alert -->
+  <div id="customAlert" class="custom-alert alert" role="alert">
+    <div class="d-flex align-items-center">
+      <span class="alert-icon"></span>
+      <span id="alertMessage"></span>
+      <button type="button" class="close-btn ms-auto" aria-label="Close" onclick="hideAlert()">&times;</button>
+    </div>
+  </div>
+
+  <div class="container text-center mt-5">
+    <h1 class="mb-4">Welcome to NEU Thesis Archives</h1>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="forgotPasswordModalLabel">Forgot Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="forgotPasswordForm">
+            <div class="mb-3">
+              <label for="forgotPasswordEmail" class="form-label">Enter your registered email address</label>
+              <input type="email" class="form-control" id="forgotPasswordEmail" placeholder="Email" required>
+            </div>
+            <button type="submit" class="btn btn-orange w-100">Reset Password</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student/Faculty Login Content -->
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header text-center">
+            <h5>Student / Faculty Login</h5>
+          </div>
+          <div class="card-body">
+            <form id="loginForm">
+              <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                <input type="email" class="form-control" id="userEmail" placeholder="Email" required>
+              </div>
+              <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                <input type="password" class="form-control" id="userPassword" placeholder="Password" required>
+              </div>
+              <p class="text-end mt-3">
+                <a href="#" id="forgotPassword" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+              </p>
+              <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+
+  <!-- Signup Modal -->
+<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signupModalLabel">Student Signup
+          <i class="fas fa-info-circle text-dark ms-2" 
+             data-bs-toggle="popover" 
+             data-bs-trigger="hover" 
+             data-bs-placement="right" 
+             data-bs-content="Alumni and Faculty may contact csd@neu.edu.ph for assistance.">
+          </i>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="signupForm">
+          <div class="mb-3">
+            <label for="userType" class="form-label">User Type</label>
+            <select class="form-select" id="userType" disabled>
+              <option value="">Select User Type</option>
+              <option value="student" id="studentUser" selected>Student</option>
+              <option value="alumni" id="alumniUser">Alumni</option>
+              <option value="faculty" id="facultyUser">Faculty</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="signupName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="signupName" placeholder="Last Name, First Name MI." required>
+          </div>
+          <div class="mb-3">
+            <label for="signupEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="mb-3">
+            <label for="signupID" class="form-label">ID</label>
+            <input type="text" class="form-control" id="signupID" placeholder="Enter your ID" required>
+          </div>
+          <div class="mb-3 row">
+            <div class="col-md-6">
+              <label for="signupPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="signupPassword" placeholder="at least 6 characters" required>
+            </div>
+            <div class="col-md-6">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="confirmPassword" placeholder="" required>
+              <div id="passwordMismatch" class="password-mismatch">Passwords do not match.</div>
+              <div id="passwordMatch" class="password-match">Passwords match!</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="certificateUpload" class="form-label">Upload Certificate of Matriculation (Latest)</label>
+            <input type="file" class="form-control" id="certificateUpload" accept="image/*" required>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="termsCheckbox">
+            <label class="form-check-label" for="termsCheckbox">
+              I agree to the <a href="#" id="termsLink">Terms and Conditions</a>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" id="submitSignupForm" disabled>Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  <p class="text-center mt-3">Don't have an account? 
+    <a href="#" class="text-primary" id="Studentsignup" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</a> 
+  </p>
+
+  <!-- Terms and Conditions Modal -->
+  <div class="modal fade" id="termsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Please read these terms and conditions carefully before using our service.</p>
+          <p><strong>1. Acceptance of Terms</strong></p>
+          <p>By accessing or using our service, you agree to be bound by these terms and conditions.</p>
+          <p><strong>2. User Responsibilities</strong></p>
+          <p>You are responsible for maintaining the confidentiality of your account and password.</p>
+          <p><strong>3. Privacy Policy</strong></p>
+          <p>Your use of our service is also governed by our Privacy Policy.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8eu7JXiwb7cxm0VnJ3JJ0wJqGgZanJ_w",
+      authDomain: "neua-5f9cd.firebaseapp.com",
+      databaseURL: "https://neua-5f9cd-default-rtdb.firebaseio.com",
+      projectId: "neua-5f9cd",
+      storageBucket: "neua-5f9cd.appspot.com",
+      messagingSenderId: "259473631559",
+      appId: "1:259473631559:web:e53ce11445550f5ad6c462",
+      measurementId: "G-QW3J7JZENG"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Firebase Authentication Reference
+    const auth = firebase.auth();
+    const firestore = firebase.firestore();
+    const storage = firebase.storage();
+
+    
+
+    // Handle Login Form Submission
+document.getElementById("loginForm").addEventListener("submit", function (event) {
+  event.preventDefault(); // Prevent default form submission
+
+  const email = document.getElementById("userEmail").value;
+  const password = document.getElementById("userPassword").value;
+
+  // Validate Email Format
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@(neu\.edu\.ph|gmail\.com)$/;
+  if (!emailPattern.test(email)) {
+    showAlert("Please enter a valid  email address.", 'danger');
+    return;
+  }
+
+  // Sign in with email and password
+  auth
+    .signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+
+      // Check if the user's email is verified
+      if (user.emailVerified) {
+        // Email is verified, allow login
+        sessionStorage.setItem("userAuthenticated", "true");
+        window.location.href = "index.html";
+      } else {
+        // Email is not verified, log the user out and show an error message
+        auth.signOut().then(() => {
+          showAlert("Please verify your email address before logging in. Check your inbox for the verification link.", 'danger');
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Error logging in: ", error);
+      showAlert("Login Failed. Please Try Again.", 'danger');
+    });
+});
+
+    // Handle Forgot Password Form Submission
+    document.getElementById("forgotPasswordForm").addEventListener("submit", function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const email = document.getElementById("forgotPasswordEmail").value;
+
+      // Validate Email Format (@neu.edu.ph)
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@(neu\.edu\.ph|gmail\.com)$/;
+      if (!emailPattern.test(email)) {
+        showAlert("Please enter a valid email address.", 'danger');
+        return;
+      }
+
+      // Send password reset email
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          showAlert("A password reset link has been sent to your email. Please check your inbox.", 'success');
+        })
+        .catch((error) => {
+          console.error("Error resetting password: ", error);
+          showAlert("Error: " + error.message, 'danger');
+        });
+
+      // Close the modal
+      const forgotPasswordModal = bootstrap.Modal.getInstance(document.getElementById("forgotPasswordModal"));
+      forgotPasswordModal.hide();
+    });
+
+   
+  </script>
+  <script src="components.js"></script>
+<script src="signup.js"></script>
+  
+  
+</body>
+</html>
