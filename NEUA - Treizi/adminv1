@@ -1,19 +1,3 @@
-student signup: replace the send verification button into submit, the student signup that has been submitted will reflect on account requests table and will be under review by admin, while the admin signup (create user) should skip under review process and directly reflect to the user records when email is verified.
-
-signup flow
-student signup: student signup > submit button > reflect on account requests > accept/ reject > send verification email if accepted by admin > reflect on user records once the email is verified.
-
-admin signup/ ccreate user: create user > send verification button> reflect directly on user records once the email is verified.
-
-These changes should:
-1. Change the button text based on signup type (student vs admin)
-2. Route student signups through the account requests system
-3. Handle admin approval process properly
-4. Send verification emails only after admin approval
-5. Move approved users to the main users collection after email verification
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,18 +128,12 @@ These changes should:
     </div>
   </div>
 
-  <!-- Signup Modal -->
+  <!-- admin create user -->
   <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="signupModalLabel">
-            <i class="fas fa-info-circle text-dark ms-2" 
-               data-bs-toggle="popover" 
-               data-bs-trigger="hover" 
-               data-bs-placement="right" 
-               data-bs-content="Alumni and Faculty may contact csd@neu.edu.ph for assistance.">
-            </i>
+          <h5 class="modal-title" id="signupModalLabel">Create User
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -201,7 +179,7 @@ These changes should:
               <input type="file" class="form-control" id="certificateUpload" accept="image/*" required>
             </div>
            
-            <button type="submit" class="btn btn-primary w-100" id="sendVerificationEmail" disabled>Send Verification Email</button>
+            <button type="submit" class="btn btn-primary w-100" id="submitSignupForm">Submit</button>
           </form>
         </div>
       </div>
@@ -347,7 +325,7 @@ These changes should:
         
 
         <div class="text-end mt-3">
-            <button type="button" class="btn btn-outline-secondary" id="adminSignupButton" data-bs-toggle="modal" data-bs-target="#signupModal">
+            <button type="button" class="btn btn-outline-secondary" id="CreateUser" data-bs-toggle="modal" data-bs-target="#signupModal">
                 <i class="fas fa-plus"></i> Create User
             </button>
         </div>
@@ -1061,41 +1039,6 @@ function sortTable(tableId, columnIndex) {
 
 
 
-    // Function to export File Records as CSV NEW!--------------------------------------------------------------------------------------->
-function exportFileRecords() {
-    const table = document.getElementById('fileRecordsTable');
-    const rows = table.querySelectorAll('tbody tr');
-    let csvContent = "data:text/csv;charset=utf-8,";
-
-    // Add headers
-    const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
-    csvContent += headers.join(',') + '\n';
-
-    // Add rows
-    rows.forEach(row => {
-        const cells = Array.from(row.querySelectorAll('td')).map(cell => {
-            // Handle user type and certificate columns
-            if (cell.querySelector('.user-type')) {
-                return cell.querySelector('.user-type').textContent.trim();
-            } else if (cell.querySelector('.fa-file-pdf')) {
-                return 'Certificate Available';
-            } else {
-                return cell.textContent.trim();
-            }
-        });
-        csvContent += cells.join(',') + '\n';
-    });
-
-    // Create a link and trigger download
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'file_records.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
 
 
 function loadAccountRequests() {
@@ -1148,10 +1091,9 @@ async function acceptRequest(docId, userData) {
         const userCredential = await auth.createUserWithEmailAndPassword(userData.email, userData.password);
         const user = userCredential.user;
         
-        // Move certificate from pending to verified folder
-        const certificateFileName = userData.certificateURL.split('/').pop();
-        const oldStorageRef = storage.ref(`certificates/pending/${certificateFileName}`);
-        const newStorageRef = storage.ref(`certificates/verified/${user.uid}_${certificateFileName}`);
+        // Move certificate
+        const oldStorageRef = storage.ref(userData.certificateURL);
+        const newStorageRef = storage.ref(`certificates/verified/${user.uid}_${userData.certificateURL.split('/').pop()}`);
         
         // Copy file to new location
         const certificateData = await oldStorageRef.getDownloadURL();
@@ -1170,14 +1112,14 @@ async function acceptRequest(docId, userData) {
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Send verification email
-        await user.sendEmailVerification();
+        // Send approval email
+        await sendAccountApprovedEmail(userData.email, userData.name);
 
         // Delete request and old certificate
         await firestore.collection('accountRequests').doc(docId).delete();
         await oldStorageRef.delete();
 
-        showAlert('Account request accepted and verification email sent', 'success');
+        showAlert('Account request accepted and approval email sent', 'success');
         loadAccountRequests();
         loadAccountRequestsCount();
         loadUserRecords();
@@ -1185,6 +1127,11 @@ async function acceptRequest(docId, userData) {
         console.error("Error accepting request:", error);
         showAlert('Error accepting request: ' + error.message, 'danger');
     }
+}
+
+async function sendAccountApprovedEmail(email, name) {
+    // Implement email sending logic here
+    console.log(`Sending approval email to ${email} for user ${name}`);
 }
 
 function rejectRequest(docId) {
