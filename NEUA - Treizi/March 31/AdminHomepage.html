@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    
+    <link rel="website icon" type="png" href="neu-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <link rel="stylesheet" href="fontawesome-free-6.7.1-web/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">
+    <link rel="stylesheet" href="admin.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+   
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfjs-dist/2.6.347/pdf.min.js"></script> <!-- PDF.js for extracting metadata -->
+
+    <!-- Include PDF.js library -->
+    <script type="module">
+        import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.worker.min.mjs';
+
+        window.pdfjsLib = pdfjsLib; // Expose pdfjsLib to the global window object
+    </script>
+
+    
+</head>
+<style>
+    .modal-content {
+      border-radius: 1rem;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+
+    a {
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .password-mismatch {
+      color: red;
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    .password-match {
+      color: green;
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    /* Custom Alert Styles */
+    .custom-alert {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1050;
+      min-width: 250px;
+      max-width: 400px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .custom-alert.show {
+      display: block;
+    }
+
+    .custom-alert .alert-icon {
+      font-size: 1.5rem;
+      margin-right: 12px;
+    }
+
+    .custom-alert .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    #userRecordsTable tbody td:nth-child(5) .user-type,
+    #accountRequestsTable tbody td:nth-child(5) .user-type {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff; /* White text color */
+}
+
+    .user-type.student {
+        color: #FF9500 !important;
+        background-color: #FFEACC; 
+        min-width: 80px;
+    }
+
+    .user-type.alumni {
+        color: #34C759 !important;
+        background-color: #D6F5DE; 
+        min-width: 80px;
+    }
+
+    .user-type.faculty {
+        
+        color: #0092CC !important;
+        background-color: #D2EDF9; 
+        min-width: 80px;
+    }
+
+    .user-type.admin {
+        color: #757575 !important;
+        background-color: #E6E6E6; 
+        min-width: 80px;
+    }
+
+    .table-wrapper thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    
+}
+
+
+.actions-dropdown {
+    position: relative;
+    display: inline-block;
+    
+}
+
+.actions-menu {
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 120px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    padding: 8px;
+    z-index: 2;
+    display: none;
+}
+
+.actions-menu.show {
+    display: block;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: #333;
+    border-radius: 4px;
+}
+
+.action-item:hover {
+    background-color: #f1f1f1;
+}
+
+.action-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+.actions-dropdown button {
+    border: none;
+    outline: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.actions-dropdown button:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.table-wrapper #fileRecordsTable td:nth-child(7),
+.table-wrapper #userRecordsTable td:nth-child(7) {
+    overflow: visible !important;
+}
+
+.form-label::after {
+        content: " *";
+        color: red;
+    }
+
+.nav-tabs .nav-link {
+    font-size: 1.2rem;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    color: #6c757d; /* Gray color for inactive tabs */
+}
+
+.nav-tabs .nav-link.active {
+    color: #005580; /* Blue color for active tab */
+    border-bottom: 3px solid #005580; /* Add bottom border to active tab */
+}
+
+.nav-tabs {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+
+td:nth-child(2)[title="Click to copy"]:hover,
+td:nth-child(3)[title="Click to copy"]:hover,
+td:nth-child(4)[title="Click to copy"]:hover {
+    background-color: #f8f9fa ;
+    transition: background-color 0.2s;
+}
+
+td:nth-child(2)[title="Click to copy"]:active,
+td:nth-child(3)[title="Click to copy"]:active,
+td:nth-child(4)[title="Click to copy"]:active {
+    background-color: #e9ecef;
+}
+
+    </style>
+
+<body>
+     <!-- Custom Alert -->
+  <div id="customAlert" class="custom-alert alert" role="alert">
+    <div class="d-flex align-items-center">
+      <span class="alert-icon"></span>
+      <span id="alertMessage"></span>
+      <button type="button" class="close-btn ms-auto" aria-label="Close" onclick="hideAlert()">&times;</button>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="fileUploadModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileUploadModalLabel">Upload Files</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <div class="file-box" onclick="document.getElementById('pdfFile').click();">
+                <div class="file-upload-wrapper">
+                    <div class="upload-elements"> <!-- Wrap elements to hide -->
+                        <i class="fas fa-cloud-upload-alt upload"></i> 
+                        <h1>Drag and Drop File</h1>
+                        <h1>or</h1>
+                        <button type="button" class="btn btn-secondary">Browse</button>
+                    </div>
+                    <input type="file" id="pdfFile" accept=".pdf" multiple required>
+                    <span class="file-name"></span>
+                </div>
+            </div>
+            <div class="upload-status mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-remove" onclick="removeFile()">
+                     Remove
+                </button>
+                <button type="button" class="btn btn-primary btn-upload">
+                     Upload
+                </button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View User -->
+  <div class="modal fade" id="viewUser" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewUserModalLabel">View User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="user-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value" id="viewName"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value" id="viewEmail"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">ID:</span>
+                        <span class="detail-value" id="viewID"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">User Type:</span>
+                        <span class="detail-value" id="viewUserType"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Creation Date:</span>
+                        <span class="detail-value" id="viewCreationDate"></span>
+                    </div>
+                    <div class="detail-row certificate-container">
+                        <span class="detail-label">Certificate:</span>
+                        <div class="certificate-view" id="viewCertificate">
+                            <img id="certificateImage" src="" alt="Certificate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+
+  <!-- Admin Create User -->
+  <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="signupModalLabel">Create User
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="signupForm">
+            <div class="mb-3">
+              <label for="userType" class="form-label">User Type</label>
+              <select class="form-select" id="userType" required>
+                <option value="" selected disabled>Select User Type</option>
+                <option value="student" id="studentUser">Student</option>
+                <option value="alumni" id="alumniUser">Alumni</option>
+                <option value="faculty" id="facultyUser">Faculty</option>
+                <option value="admin" id="adminUser">Admin</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <div class="row">
+                <div class="col-md-5">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="lastName" placeholder="Dela Cruz" required>
+                </div>
+                <div class="col-md-5">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="firstName" placeholder="Juan" required>
+                </div>
+                <div class="col-md-2">
+                  <label for="middleInitial" class="form-label">MI</label>
+                  <input type="text" class="form-control" id="middleInitial" placeholder="P" maxlength="">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="signupEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="mb-3" id="idField">
+              <label for="signupID" class="form-label">ID</label>
+              <input type="text" class="form-control" id="signupID" placeholder="Enter your ID" required>
+            </div>
+            <div class="mb-3 row">
+              <div class="col-md-6">
+                <label for="signupPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="signupPassword" placeholder="at least 6 characters" required>
+              </div>
+              <div class="col-md-6">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="" required>
+                <div id="passwordMismatch" class="password-mismatch">Passwords do not match.</div>
+                <div id="passwordMatch" class="password-match">Passwords match!</div>
+              </div>
+            </div>
+            <div class="mb-3" id="certificateField">
+              <label for="certificateUpload" class="form-label">Upload Certificate of Matriculation (Latest)</label>
+              <input type="file" class="form-control" id="certificateUpload" accept="image/*" required>
+            </div>
+           
+            <button type="submit" class="btn btn-primary w-100" id="submitSignupForm">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+  <header>
+    <h1>Admin Dashboard</h1>
+    <div class="nav-links">
+        <a href="index.html">NEUA</a>
+        <div class="separator"></div>
+        <button type="button" onclick="logout()">Logout</button>
+    </div>
+  </header>
+    
+    <div class="container-fluid">
+        
+
+        
+    
+       
+        <div class="dashboard-stats">
+
+            <div class="stat">
+                <i class="fa-solid fa-file"></i>
+                <div class="stat-info">
+                    <h3 id="fileCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Files</p>
+                </div>
+            </div>
+        
+        
+            <div class="stat">
+                <i class="fa-solid fa-users"></i>
+                <div class="stat-info">
+                    <h3 id="userCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Users</p>
+                </div>
+            </div>
+
+            <div class="stat"> <!-- account request stat NEW!-->
+                <i class="fa-solid fa-user-plus"></i>
+                <div class="stat-info">
+                    <h3 id="accountRequestsCount">0</h3> <!-- h3 id NEW!-->
+                    <p>Account Requests</p>
+                </div>
+            </div>
+
+
+        
+    </div>
+
+    <div class="container">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button" role="tab" aria-controls="files" aria-selected="true">
+                    File Records
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">
+                    User Records
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
+                    Account Requests
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="adminTabsContent">
+            <!-- File Records Tab -->
+            <div class="tab-pane fade show active" id="files" role="tabpanel" aria-labelledby="files-tab">
+                <div class="search-container">
+                    <h2>File Records</h2>
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshFileRecords()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportFileRecords()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+                        <input type="text" id="fileSearch" placeholder="Search file records..." oninput="filterFileRecords()">
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="fileRecordsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('fileRecordsTable', 0)"># <span id="fileRecordsTableHeader0"></span></th>
+                                <th onclick="sortTable('fileRecordsTable', 1)">Title <span id="fileRecordsTableHeader1"></span></th>
+                                <th onclick="sortTable('fileRecordsTable', 2)">Author <span id="fileRecordsTableHeader2"></span></th>
+                                <th onclick="sortTable('fileRecordsTable', 3)">Year <span id="fileRecordsTableHeader3"></span></th>
+                                <th onclick="sortTable('fileRecordsTable', 4)">Course <span id="fileRecordsTableHeader4"></span></th>
+                                <th onclick="sortTable('fileRecordsTable', 5)">Date Modified <span id="fileRecordsTableHeader5"></span></th>
+                                <th class="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-end mt-3">
+                    <button type="button" class="btn btn-outline-secondary" id="FileUpload" data-bs-toggle="modal" data-bs-target="#fileUploadModal">
+                        <i class="fas fa-plus"></i> Add File
+                    </button>
+                </div>
+
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="fileRecordsTablePagination" class="pagination"></div>
+                </div>
+            </div>
+
+            <!-- User Records Tab -->
+            <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+                <div class="search-container">
+                    <h2>User Records</h2>
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshUserRecords()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportUserRecords()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+                        <input type="text" id="userSearch" placeholder="Search user records..." oninput="filterUserRecords()">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="userRecordsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('userRecordsTable', 0)"># <span id="userRecordsTableHeader0"></span></th>
+                                <th onclick="sortTable('userRecordsTable', 1)">Name <span id="userRecordsTableHeader1"></span></th>
+                                <th onclick="sortTable('userRecordsTable', 2)">Email <span id="userRecordsTableHeader2"></span></th>
+                                <th onclick="sortTable('userRecordsTable', 3)">ID <span id="userRecordsTableHeader3"></span></th>
+                                <th onclick="sortTable('userRecordsTable', 4)">User Type <span id="userRecordsTableHeader4"></span></th>
+                                <th onclick="sortTable('userRecordsTable', 5)">Requests <span id="userRecordsTableHeader5"></span></th>
+                                <th class="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-end mt-3">
+                    <button type="button" class="btn btn-outline-secondary" id="CreateUser" data-bs-toggle="modal" data-bs-target="#signupModal">
+                        <i class="fas fa-plus"></i> Create User
+                    </button>
+                </div>
+
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="userRecordsTablePagination" class="pagination"></div>
+                </div>
+            </div>
+
+            <!-- Account Requests Tab -->
+            <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+                <div class="search-container">
+                    <h2>Account Requests</h2>
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshAccountRequestsRecords()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportAccountRequestsRecords()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+                        <input type="text" id="accountRequestSearch" placeholder="Search account requests..." oninput="filterAccountRequests()">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="accountRequestsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('accountRequestsTable', 0)"># <span id="accountRequestsTableHeader0"></span></th>
+                                <th onclick="sortTable('accountRequestsTable', 1)">Name <span id="accountRequestsTableHeader1"></span></th>
+                                <th onclick="sortTable('accountRequestsTable', 2)">Email <span id="accountRequestsTableHeader2"></span></th>
+                                <th onclick="sortTable('accountRequestsTable', 3)">ID <span id="accountRequestsTableHeader3"></span></th>
+                                <th onclick="sortTable('accountRequestsTable', 4)">User Type <span id="accountRequestsTableHeader4"></span></th>
+                                <th>Certificate</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="accountRequestsTablePagination" class="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="loader"></div>
+    <footer>
+        <p class="copyright">2024 © NEUA All rights reserved.</p>
+    </footer>
+
+
+<!-- Your custom script -->
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyC8eu7JXiwb7cxm0Vnq3JJ0wJqGgZanJ_w",
+        authDomain: "neua-5f9cd.firebaseapp.com",
+        databaseURL: "https://neua-5f9cd-default-rtdb.firebaseio.com",
+        projectId: "neua-5f9cd",
+        storageBucket: "neua-5f9cd.appspot.com",
+        messagingSenderId: "259473631559",
+        appId: "1:259473631559:web:e53ce11445550f5ad6c462",
+        measurementId: "G-QW3J7JZENG"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+
+    // Firebase services
+    const auth = firebase.auth();
+    const storage = firebase.storage();
+    const firestore = firebase.firestore();
+
+    function logout() {
+        // Sign out from Firebase
+        firebase.auth().signOut().then(() => {
+            console.log("User signed out");
+
+            // Clear session storage
+            sessionStorage.clear();
+
+            // Redirect to the login page
+            window.location.href = "login.html";
+        }).catch((error) => {
+            console.error("Sign out error:", error);
+            showAlert("Error signing out. Please try again.", 'danger');
+        });
+    }
+
+    window.onload = function() {
+    const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated');
+    if (!isAdminAuthenticated) {
+        redirectToLogin();
+    }
+    loadFileRecords();
+    loadUserRecords();
+    loadAccountRequests();
+    
+
+    //  Clear the session when the user closes the browser or navigates away
+    window.addEventListener("beforeunload", clearSessionOnExit);
+};
+
+function redirectToLogin() {
+    showAlert('Please log in first.','primary');
+    window.location.replace('login.html'); // Prevent back button navigation to this page
+}
+
+function clearSessionOnExit() {
+    // Remove the session storage key on exit
+    sessionStorage.removeItem('adminAuthenticated');
+}
+
+            const dropArea = document.querySelector('.file-box');
+            const fileInput = document.getElementById("pdfFile");
+            const fileNameDisplay = document.querySelector(".file-name");
+            const uploadElements = document.querySelector('.upload-elements');
+            const uploadStatus = document.querySelector('.upload-status');
+            let selectedFiles = []; // Array to hold selected files
+
+            // Handle file input change
+            fileInput.addEventListener("change", function() {
+                const files = Array.from(this.files); // Convert FileList to Array
+
+                if (files.length + selectedFiles.length > 20) {
+                    showAlert("You can only upload up to 20 PDF files.",'info');
+                    return;
+                }
+
+                // Add new files to the selectedFiles array
+                selectedFiles = selectedFiles.concat(files);
+                const fileNames = selectedFiles.map(file => file.name).join(', ');
+                fileNameDisplay.textContent = fileNames;
+                uploadElements.style.display = 'none'; // Hide the upload elements
+            });
+
+            // Handle file drop
+            dropArea.addEventListener('drop', handleDrop, false);
+            dropArea.addEventListener('dragover', handleDragOver, false);
+            dropArea.addEventListener('dragleave', handleDragLeave, false);
+
+            function handleDragOver(event) {
+                event.preventDefault();
+                dropArea.classList.add('dragging');
+            }
+
+            function handleDragLeave(event) {
+                event.preventDefault();
+                dropArea.classList.remove('dragging');
+            }
+
+            function handleDrop(event) {
+                event.preventDefault();
+                dropArea.classList.remove('dragging');
+
+                const files = Array.from(event.dataTransfer.files); // Convert FileList to Array
+
+                if (files.length + selectedFiles.length > 20) {
+                    showAlert("You can only upload up to 20 PDF files.",'info');
+                    return;
+                }
+
+                // Add dropped files to the selectedFiles array
+                selectedFiles = selectedFiles.concat(files);
+                const fileNames = selectedFiles.map(file => file.name).join(', ');
+                fileNameDisplay.textContent = fileNames;
+                uploadElements.style.display = 'none'; // Hide upload elements
+            }
+
+            // Handle Upload button click
+            document.querySelector(".btn-upload").addEventListener("click", async function() {
+                if (selectedFiles.length === 0) {
+                    showAlert("Please Select PDF Files First.",'primary');
+                    return;
+                }
+
+                for (const pdfFile of selectedFiles) {
+                    const storageRef = storage.ref();
+                    const pdfRef = storageRef.child(`pdfs/${pdfFile.name}`);
+                    const uploadTask = pdfRef.put(pdfFile);
+
+                    uploadStatus.textContent = `Uploading ${pdfFile.name}...`;
+
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            uploadStatus.textContent = `Upload ${pdfFile.name} is ${Math.round(progress)}% done`;
+                        },
+                        (error) => {
+                            console.error('Error Uploading PDF:', error);
+                            showAlert(`Error Uploading ${pdfFile.name}. Please Try Again.`,'danger');
+                            uploadStatus.textContent = `Upload Failed for ${pdfFile.name}`;
+                            uploadStatus.style.color = '#CE0000'; 
+                        },
+                        async () => {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            console.log('File available at', downloadURL);
+
+                            // Extract metadata and text from the uploaded PDF URL
+                            const metadata = await extractMetadata(downloadURL);
+                            const text = await extractTextFromPDF(downloadURL);
+
+                            // Save flattened metadata and text to Firestore
+                            firestore.collection('pdfMetadata').add({
+                                fileName: pdfFile.name,
+                                url: downloadURL,
+                                metadata: metadata,
+                                text: text,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(() => {
+                                console.log('Metadata and Text Saved Successfully');
+                                uploadStatus.textContent = `Upload complete for: ${pdfFile.name}!`;
+                                uploadStatus.style.color = '#002635';  // Reset color after success
+                            }).catch((error) => {
+                                console.error('Error saving metadata:', error);
+                                uploadStatus.textContent = `Error Saving Metadata for ${pdfFile.name}!`;
+                            });
+                        }
+                    );
+                }
+
+                // Clear the file input and display
+                fileInput.value = ''; // Clear the file input
+                fileNameDisplay.textContent = ''; // Clear the displayed file names
+                selectedFiles = []; // Reset the selected files
+            });
+
+            // Handle Remove button click
+            document.querySelector(".btn-remove").addEventListener("click", removeFile);
+
+            function removeFile() {
+                // Reset the file input and related variables
+                selectedFiles = [];
+                fileInput.value = ''; // Clear the file input element
+                fileNameDisplay.textContent = ''; // Clear the displayed file names
+                uploadStatus.style.color = '#002635';  // Reset color after for new upload
+                
+                // Show upload elements again for the user to upload new files
+                uploadElements.style.display = 'block'; // Re-display the upload instructions
+
+                // Clear any upload status messages
+                uploadStatus.textContent = '';
+            }
+
+            // Function to extract PDF metadata using PDF.js
+            async function extractMetadata(url) {
+                try {
+                    const pdf = await pdfjsLib.getDocument(url).promise;
+                    const metadata = await pdf.getMetadata();
+
+                    return {
+                        title: metadata.info.Title || null,
+                        author: metadata.info.Author || null,
+                        subject: metadata.info.Subject || null,
+                        keywords: metadata.info.Keywords || null,
+                        creationDate: metadata.info.CreationDate || null,
+                        modificationDate: metadata.info.ModDate || null,
+                        creator: metadata.info.Creator || null,
+                        producer: metadata.info.Producer || null
+                    };
+                } catch (error) {
+                    console.error('Error extracting metadata:', error);
+                    return {}; // Return empty object on error
+                }
+            }
+
+            // Function to extract text from PDF using PDF.js
+            async function extractTextFromPDF(url) {
+                try {
+                    const pdf = await pdfjsLib.getDocument(url).promise;
+                    let text = '';
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        text += pageText + ' ';
+                    }
+
+                    return text.trim();
+                } catch (error) {
+                    console.error('Error extracting text from PDF:', error);
+                    return ''; // Return empty string on error
+                }
+            }
+        ;
+    ;
+
+    function sortTable(tableId, columnIndex) {
+    let records;
+    if (tableId === 'fileRecordsTable') {
+        records = filteredFileRows.length > 0 ? filteredFileRows : allFileRecords;
+    } else if (tableId === 'userRecordsTable') {
+        records = filteredUserRows.length > 0 ? filteredUserRows : allUserRecords;
+    } else if (tableId === 'accountRequestsTable') {
+        records = filteredAccountRequests.length > 0 ? filteredAccountRequests : allAccountRequests;
+    } else {
+        return;
+    }
+
+    const headerSpan = document.getElementById(`${tableId}Header${columnIndex}`);
+    const isAscending = headerSpan.classList.contains('asc');
+
+    // Clear all arrow classes
+    document.querySelectorAll(`#${tableId} th span`).forEach(span => {
+        span.classList.remove('asc', 'desc');
+    });
+
+    // Sort Records
+    records.sort((a, b) => {
+        let aValue = Object.values(a)[columnIndex];
+        let bValue = Object.values(b)[columnIndex];
+
+        // Convert to numbers if sorting the index column (columnIndex === 0)
+        if (columnIndex === 0) {
+            aValue = parseInt(aValue) || 0;
+            bValue = parseInt(bValue) || 0;
+        } else {
+            // For other columns, convert to strings for comparison
+            aValue = aValue ? aValue.toString() : '';
+            bValue = bValue ? bValue.toString() : '';
+        }
+        
+        // Compare values
+        if (columnIndex === 0) {
+            return isAscending ? aValue - bValue : bValue - aValue;
+        } else {
+            return isAscending ? 
+                aValue.localeCompare(bValue) : 
+                bValue.localeCompare(aValue);
+        }
+    });
+
+    // Toggle arrow class
+    headerSpan.classList.toggle('asc', !isAscending);
+    headerSpan.classList.toggle('desc', isAscending);
+
+    // Re-render the table
+    renderTable(tableId, records);
+}
+
+
+    let rowsPerPage = 20;
+        let filteredFileRows = []; // Store filtered rows for file records
+        let filteredUserRows = []; // Store filtered rows for user records
+        let filteredAccountRequests = []; // Store filtered account requests
+
+        function changeRowsPerPage() {
+    rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+    renderTable('fileRecordsTable', filteredFileRows.length > 0 ? filteredFileRows : allFileRecords);
+    renderTable('userRecordsTable', filteredUserRows.length > 0 ? filteredUserRows : allUserRecords);
+    renderTable('accountRequestsTable', filteredAccountRequests.length > 0 ? filteredAccountRequests : allAccountRequests);
+}
+
+
+        // Pagination logic
+        function setupPagination(tableId, rows) {
+    const pagination = document.getElementById(`${tableId}Pagination`);
+    if (!pagination) {
+        console.error(`Pagination container for ${tableId} not found`);
+        return;
+    }
+
+    let currentPage = 1;
+
+    function showPage(page) {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
+
+        updatePaginationButtons(page);
+    }
+
+   function updatePaginationButtons(page) {
+    pagination.innerHTML = '';
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    const createButton = (iconClass, pageNum, disabled = false) => {
+        const button = document.createElement('button');
+        button.disabled = disabled;
+
+        // Create an icon element
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+
+        // Append the icon to the button
+        button.appendChild(icon);
+
+        // Add click event listener
+        button.addEventListener('click', () => {
+            currentPage = pageNum;
+            showPage(currentPage);
+        });
+
+        return button;
+    };
+
+    // Previous Button
+    const prevButton = createButton('fa-solid fa-chevron-left', currentPage - 1, currentPage === 1);
+    pagination.appendChild(prevButton);
+
+    // Page Number Buttons
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        pageButton.disabled = i === currentPage;
+        pageButton.addEventListener('click', () => {
+            currentPage = i;
+            showPage(currentPage);
+        });
+        pagination.appendChild(pageButton);
+    }
+
+    // Next Button
+    const nextButton = createButton('fa-solid fa-chevron-right', currentPage + 1, currentPage === totalPages);
+    pagination.appendChild(nextButton);
+}
+
+    showPage(currentPage);
+}
+
+
+        // Call setupPagination after loading records
+        let allFileRecords = []; // Store all file records
+        let allUserRecords = []; // Store all user records
+        let allAccountRequests = []; // Store all account requests
+
+// Table Loading Functions
+function loadFileRecords() {
+    const fileRecordsTable = document.getElementById('fileRecordsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('pdfMetadata').get().then((querySnapshot) => {
+        fileRecordsTable.innerHTML = '';
+        allFileRecords = []; 
+        let index = 0;
+        querySnapshot.forEach((doc) => {
+            index++;
+            const data = doc.data();
+            const row = {
+                index: index,
+                fileName: data.fileName,
+                author: data.metadata?.author || 'N/A',
+                year: data.timestamp ? new Date(data.timestamp.toDate()).getFullYear() : 'N/A',
+                course: 'N/A',
+                dateModified: data.timestamp ? data.timestamp.toDate() : null
+            };
+            allFileRecords.push(row);
+        });
+
+        document.querySelector('.dashboard-stats .stat:nth-child(1) h3').textContent = index;
+        renderTable('fileRecordsTable', allFileRecords);
+    })
+    .catch((error) => {
+        console.error("Error loading file records:", error);
+        showAlert('Failed to load file records. Please check your internet connection and try again.', 'danger');
+    });
+}
+
+function loadUserRecords() {
+    const userRecordsTable = document.getElementById('userRecordsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('users').get().then((querySnapshot) => {
+        userRecordsTable.innerHTML = '';
+        allUserRecords = [];
+        let index = 0;
+        querySnapshot.forEach((doc) => {
+            index++;
+            const data = doc.data();
+            const row = {
+                index: index,
+                name: data.name,
+                email: data.email,
+                ID: data.ID,
+                userType: data.userType || 'N/A',
+                requests: data.requests || 0,
+            };
+            allUserRecords.push(row);
+        });
+        
+        document.querySelector('.dashboard-stats .stat:nth-child(2) h3').textContent = index;
+        renderTable('userRecordsTable', allUserRecords);
+    })
+    .catch((error) => {
+        console.error("Error loading user records:", error);
+        showAlert('Failed to load user records. Please check your internet connection and try again.', 'danger');
+    });
+}
+
+function loadAccountRequests() {
+    const table = document.getElementById('accountRequestsTable').getElementsByTagName('tbody')[0];
+    firestore.collection('accountRequests').get().then((querySnapshot) => {
+        table.innerHTML = '';
+        allAccountRequests = [];
+        filteredAccountRequests = [];
+        let index = 0;
+        querySnapshot.forEach((doc) => {
+            index++;
+            const data = doc.data();
+            const row = {
+                index: index,
+                name: data.name || 'N/A',
+                email: data.email || 'N/A',
+                ID: data.ID || 'N/A',
+                userType: data.userType || 'N/A',
+                certificateURL: data.certificateURL || '',
+                docId: doc.id,
+                password: data.password
+            };
+            allAccountRequests.push(row);
+        });
+
+
+
+        document.querySelector('.dashboard-stats .stat:nth-child(3) h3').textContent = index;
+            renderTable('accountRequestsTable', allAccountRequests);
+        })
+        .catch((error) => {
+            console.error("Error loading account requests:", error);
+            showAlert('Failed to load account requests', 'danger');
+        });
+}
+
+function filterFileRecords() {
+    const searchTerm = document.getElementById('fileSearch').value.toLowerCase();
+    filteredFileRows = allFileRecords.filter(record => {
+        const title = record.fileName.toLowerCase();
+        const author = record.author.toLowerCase();
+        const year = record.year.toString().toLowerCase();
+        return title.includes(searchTerm) || 
+               author.includes(searchTerm) || 
+               year.includes(searchTerm);
+    });
+    renderTable('fileRecordsTable', filteredFileRows);
+}
+
+function filterUserRecords() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const table = document.getElementById('userRecordsTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = tbody.getElementsByTagName('tr');
+
+    Array.from(rows).forEach(row => {
+        const name = row.cells[1].textContent.toLowerCase();
+        const email = row.cells[2].textContent.toLowerCase();
+        const id = row.cells[3].textContent.toLowerCase();
+        const userType = row.cells[4].textContent.toLowerCase();
+
+        const matches = name.includes(searchTerm) || 
+                       email.includes(searchTerm) || 
+                       id.includes(searchTerm) || 
+                       userType.includes(searchTerm);
+
+        row.style.display = matches ? '' : 'none';
+    });
+
+    setupPagination('userRecordsTable', Array.from(rows).filter(row => row.style.display !== 'none'));
+}
+
+function filterAccountRequests() {
+    const searchTerm = document.getElementById('accountRequestSearch').value.toLowerCase();
+    const table = document.getElementById('accountRequestsTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = tbody.getElementsByTagName('tr');
+
+    Array.from(rows).forEach(row => {
+        const name = row.cells[1].textContent.toLowerCase();
+        const email = row.cells[2].textContent.toLowerCase();
+        const id = row.cells[3].textContent.toLowerCase();
+        const userType = row.cells[4].textContent.toLowerCase();
+
+        const matches = name.includes(searchTerm) || 
+                       email.includes(searchTerm) || 
+                       id.includes(searchTerm) || 
+                       userType.includes(searchTerm);
+
+        row.style.display = matches ? '' : 'none';
+    });
+
+    setupPagination('accountRequestsTable', Array.from(rows).filter(row => row.style.display !== 'none'));
+}
+
+    // Re-render the table with filtered rows
+    function renderTable(tableId, records) {
+    const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+    table.innerHTML = '';
+
+    records.forEach(record => {
+        const row = table.insertRow();
+        
+        if (tableId === 'accountRequestsTable') {
+            
+            Object.values(record).slice(0, 5).forEach((value, index) => {
+                const cell = row.insertCell();
+                if (index === 4) { // User Type column
+                    const span = document.createElement('span');
+                    const capitalizedUserType = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+                    span.textContent = capitalizedUserType;
+                    span.classList.add('user-type', value.toLowerCase());
+                    cell.appendChild(span);
+                } else {
+                    cell.textContent = value;
+                    // Add copy functionality only to columns 2, 3, and 4
+                    if (index >= 1 && index <= 3) {
+                        cell.setAttribute('title', 'Click to copy');
+                        cell.style.cursor = 'pointer';
+                        cell.onclick = () => copyToClipboard(value);
+                    }
+                }
+            });
+
+            // Certificate column
+            const certificateCell = row.insertCell();
+            const viewButton = document.createElement('button');
+            viewButton.className = 'btn btn-sm btn-outline-secondary';
+            viewButton.innerHTML = 'View';
+            viewButton.onclick = () => window.open(record.certificateURL, '_blank');
+            certificateCell.appendChild(viewButton);
+
+            // Actions column
+            const actionsCell = row.insertCell();
+            actionsCell.className = 'actions';
+            actionsCell.innerHTML = `
+                <button class="btn btn-sm" onclick="acceptRequest('${record.docId}', ${JSON.stringify(record)})">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm" onclick="rejectRequest('${record.docId}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+        } else {
+            // File and user records tables
+            Object.values(record).forEach((value, index) => {
+                const cell = row.insertCell();
+                if (index === 5) { // Date Modified column
+                    const date = record.dateModified ? new Date(record.dateModified) : null;
+                    cell.textContent = date ? date.toISOString().split('T')[0] : '';
+                    cell.classList.add('uneditable');
+                } else if (index === 4) { // User Type column
+                    const capitalizedUserType = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+                    const span = document.createElement('span');
+                    span.textContent = capitalizedUserType;
+                    span.classList.add('user-type', value.toLowerCase());
+                    cell.appendChild(span);
+                } else {
+                    cell.textContent = value;
+                    // Add copy functionality only to columns 2, 3, and 4
+                    if (index >= 1 && index <= 3) {
+                        cell.setAttribute('title', 'Click to copy');
+                        cell.style.cursor = 'pointer';
+                        cell.onclick = () => copyToClipboard(value);
+                    }
+                }
+            });
+
+            // Actions for file and user records
+            const actionsCell = row.insertCell();
+            actionsCell.className = 'actions';
+            if (tableId === 'fileRecordsTable' || tableId === 'userRecordsTable') {
+                const dropdownHtml = `
+                    <div class="actions-dropdown">
+                        <button class="btn btn-sm" onclick="toggleActionsMenu(this)">
+                            <i class="fas fa-ellipsis"></i>
+                        </button>
+                        <div class="actions-menu">
+                            ${tableId === 'fileRecordsTable' 
+                                ? `<div class="action-item" onclick="viewPdf('${record.fileName}')">
+                                     <i class="fas fa-eye"></i>View
+                                   </div>`
+                                : `<div class="action-item" onclick="viewUser('${record.name}', '${record.email}', '${record.ID}', '${record.userType}', ${record.requests}, '${record.certificateURL}', '${record.creationDate}')">
+                                     <i class="fas fa-eye"></i>View
+                                   </div>`
+                            }
+                            <div class="action-item" onclick="editRow(this.closest('.actions-dropdown'))">
+                                <i class="fas fa-edit"></i>Edit
+                            </div>
+                            <div class="action-item delete-action" onclick="deleteRow(this.closest('.actions-dropdown'))">
+                                <i class="fas fa-trash"></i>Delete
+                            </div>
+                        </div>
+                    </div>`;
+                actionsCell.innerHTML = dropdownHtml;
+            }
+        }
+    });
+
+    setupPagination(tableId, Array.from(table.getElementsByTagName('tr')));
+}
+
+
+
+
+
+
+
+
+
+function viewPdf(fileName) {
+    if (!fileName || fileName === 'N/A' || fileName === '') {
+        showAlert('No PDF file available','info');
+        return;
+    }
+
+    function viewUser(name, email, ID, userType, requests) {
+    // Populate the modal with user details
+    document.getElementById('viewUserName').textContent = name;
+    document.getElementById('viewUserEmail').textContent = email;
+    document.getElementById('viewUserID').textContent = ID;
+    document.getElementById('viewUserType').textContent = userType;
+    document.getElementById('viewUserRequests').textContent = requests > 0 ? requests : 'No requests';
+
+    // Show the modal
+    const viewUserModal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+    viewUserModal.show();
+}
+
+    // Initialize Firebase Storage
+    const storage = firebase.storage();
+    const storageRef = storage.ref();
+    const pdfRef = storageRef.child(`pdfs/${fileName}`);
+
+    // Get the download URL
+    pdfRef.getDownloadURL()
+        .then((url) => {
+            // Open PDF in new tab
+            window.open(url, '_blank');
+        })
+        .catch((error) => {
+            console.error("Error getting PDF URL:", error);
+            switch (error.code) {
+                case 'storage/object-not-found':
+                showAlert('Error: PDF file not found','primary');
+                    break;
+                case 'storage/unauthorized':
+                showAlert('Error: Unauthorized access','primary');
+                    break;
+                default:
+                showAlert('Error accessing PDF file','primary');
+            }
+        });
+}
+
+
+
+        // Add arrow icons to headers (excluding the Actions column)
+        document.addEventListener('DOMContentLoaded', () => {
+            const tables = ['fileRecordsTable', 'userRecordsTable', 'accountRequestsTable'];
+            tables.forEach(tableId => {
+                const headers = document.querySelectorAll(`#${tableId} th:not(.actions)`); // Exclude Actions column
+                headers.forEach((header, index) => {
+                    const span = document.createElement('span');
+                    span.innerHTML = ''; // No initial arrow
+                    header.appendChild(span);
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tables = ['fileRecordsTable', 'userRecordsTable', 'accountRequestsTable'];
+            tables.forEach(tableId => {
+                const headers = document.querySelectorAll(`#${tableId} th:not(.actions)`);
+                headers.forEach((header, index) => {
+                    const span = document.createElement('span');
+                    span.id = `${tableId}Header${index}`;
+                    span.innerHTML = ''; // No initial arrow
+                    header.appendChild(span);
+                });
+            });
+        });
+
+        function editRow(dropdown) {
+    const row = dropdown.closest('tr');
+    const cells = row.querySelectorAll('td');
+    const menuButton = dropdown.querySelector('button');
+    
+    // Enter edit mode
+    row.classList.add('edit-mode');
+    
+    // Store original values for potential cancel
+    row.dataset.originalValues = JSON.stringify(
+        Array.from(cells)
+            .filter((_, index) => index !== 0 && index !== 4 && index !== cells.length - 1 && !cells[index].classList.contains('uneditable'))
+            .map(cell => cell.textContent)
+    );
+    
+    cells.forEach((cell, index) => {
+        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+            const originalContent = cell.innerText;
+            cell.innerHTML = `<input type="text" value="${originalContent}">`;
+        }
+    });
+    
+    // Check and cancel icons
+    menuButton.innerHTML = `
+        <i class="fas fa-check" onclick="saveChanges(this.closest('tr')); event.stopPropagation();"></i>
+        <i class="fas fa-times" onclick="cancelEdit(this.closest('tr')); event.stopPropagation();" style="margin-left: 8px;"></i>
+    `;
+    
+    // Close the dropdown
+    dropdown.querySelector('.actions-menu').classList.remove('show');
+}
+
+function cancelEdit(row) {
+    const cells = row.querySelectorAll('td');
+    const originalValues = JSON.parse(row.dataset.originalValues);
+    const menuButton = row.querySelector('.actions-dropdown button');
+    let valueIndex = 0;
+    
+    cells.forEach((cell, index) => {
+        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+            cell.textContent = originalValues[valueIndex];
+            valueIndex++;
+        }
+    });
+    
+    // Reset button to three dots and remove edit mode
+    menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
+    row.classList.remove('edit-mode');
+}
+
+function saveChanges(row) {
+    const cells = row.querySelectorAll('td');
+    const tableId = row.closest('table').id;
+    const updatedData = {};
+    const menuButton = row.querySelector('.actions-dropdown button');
+    
+    cells.forEach((cell, index) => {
+        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+            const input = cell.querySelector('input');
+            if (input) {
+                const newValue = input.value;
+                cell.textContent = newValue;
+                
+                let fieldName;
+                if (tableId === 'fileRecordsTable') {
+                    fieldName = ['', 'fileName', 'author', 'year', 'course'][index];
+                } else if (tableId === 'userRecordsTable') {
+                    fieldName = ['', 'name', 'email', 'ID'][index];
+                }
+                
+                if (fieldName) {
+                    updatedData[fieldName] = newValue;
+                }
+            }
+        }
+    });
+
+    // Save to Firebase based on table type
+    if (Object.keys(updatedData).length > 0) {
+        try {
+            if (tableId === 'fileRecordsTable') {
+                firestore.collection('pdfMetadata')
+                    .where('fileName', '==', updatedData.fileName)
+                    .get()
+                    .then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            doc.ref.update(updatedData)
+                                .then(() => showAlert('Changes saved successfully', 'success'))
+                                .catch(error => {
+                                    console.error("Error updating record:", error);
+                                    showAlert('Error saving changes', 'danger');
+                                });
+                        });
+                    });
+            } else if (tableId === 'userRecordsTable') {
+                firestore.collection('users')
+                    .where('email', '==', updatedData.email)
+                    .get()
+                    .then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            doc.ref.update(updatedData)
+                                .then(() => showAlert('Changes saved successfully', 'success'))
+                                .catch(error => {
+                                    console.error("Error updating record:", error);
+                                    showAlert('Error saving changes', 'danger');
+                                });
+                        });
+                    });
+            }
+        } catch (error) {
+            console.error("Error saving changes:", error);
+            showAlert('Error saving changes', 'danger');
+        }
+    }
+
+    // Reset button to three dots and remove edit mode
+    menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
+    row.classList.remove('edit-mode');
+}
+
+function cancelEdit(row) {
+    try {
+        const cells = row.querySelectorAll('td');
+        const originalValues = JSON.parse(row.dataset.originalValues);
+        const menuButton = row.querySelector('.actions-dropdown button');
+        let valueIndex = 0;
+        
+        cells.forEach((cell, index) => {
+            if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+                cell.textContent = originalValues[valueIndex];
+                valueIndex++;
+            }
+        });
+        
+        // Reset button to three dots and remove edit mode
+        menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
+        row.classList.remove('edit-mode');
+        
+        showAlert('Edit cancelled', 'info');
+    } catch (error) {
+        console.error("Error cancelling edit:", error);
+        showAlert('Error cancelling edit', 'danger');
+    }
+}
+        function deleteRow(icon) {
+            const row = icon.closest('tr');
+            const confirmDelete = confirm('Are you sure you want to delete this record?');
+            if (confirmDelete) {
+                row.remove();
+                // Note: Add logic to delete the record from Firestore here
+            }
+        }
+
+        
+
+
+async function acceptRequest(docId, userData) {
+    try {
+        // Create user account
+        const userCredential = await auth.createUserWithEmailAndPassword(userData.email, userData.password);
+        const user = userCredential.user;
+        
+        // Move certificate
+        const oldStorageRef = storage.ref(userData.certificateURL);
+        const newStorageRef = storage.ref(`certificates/verified/${user.uid}_${userData.certificateURL.split('/').pop()}`);
+        
+        // Copy file to new location
+        const certificateData = await oldStorageRef.getDownloadURL();
+        const response = await fetch(certificateData);
+        const blob = await response.blob();
+        await newStorageRef.put(blob);
+        const newCertificateURL = await newStorageRef.getDownloadURL();
+
+        // Save user data
+        await firestore.collection('users').doc(user.uid).set({
+            name: userData.name,
+            email: userData.email,
+            ID: userData.ID,
+            userType: userData.userType,
+            certificateURL: newCertificateURL,
+            status: 'active',
+            password: userData.password, // Store password for reference
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Delete request and old certificate
+        await firestore.collection('accountRequests').doc(docId).delete();
+        await oldStorageRef.delete();
+
+        showAlert('Account request accepted successfully', 'success');
+        loadAccountRequests();
+        loadAccountRequestsCount();
+        loadUserRecords();
+    } catch (error) {
+        console.error("Error accepting request:", error);
+        showAlert('Error accepting request: ' + error.message, 'danger');
+    }
+}
+
+async function sendAccountApprovedEmail(email, name) {
+    // Implement email sending logic here
+    console.log(`Sending approval email to ${email} for user ${name}`);
+}
+
+function rejectRequest(docId) {
+    if (confirm('Are you sure you want to reject this request?')) {
+        firestore.collection('accountRequests').doc(docId).delete()
+            .then(() => {
+                showAlert('Account request rejected', 'success');
+                loadAccountRequests(); // Refresh the table
+                loadAccountRequestsCount(); // Update the counter
+            })
+            .catch((error) => {
+                showAlert('Error rejecting request: ' + error.message, 'danger');
+            });
+    }
+}
+
+
+
+    document.getElementById('fileUploadModal').addEventListener('hidden.bs.modal', function () {
+    // Reset the file input and related elements
+    document.getElementById('pdfFile').value = ''; // Clear the file input
+    document.querySelector('.file-name').textContent = ''; // Clear the displayed file names
+    document.querySelector('.upload-elements').style.display = 'block'; // Show the upload elements again
+    document.querySelector('.upload-status').textContent = ''; // Clear any upload status messages
+    selectedFiles = []; // Reset the selected files array
+});
+
+//View User Modal
+function viewUser(name, email, ID, userType, requests, certificateURL, creationDate) {
+    try {
+        const viewUserModal = new bootstrap.Modal(document.getElementById('viewUser'));
+        
+        if (!viewUserModal) {
+            throw new Error('View user modal not found');
+        }
+
+        // Set the values
+        document.getElementById('viewName').textContent = name || 'N/A';
+        document.getElementById('viewEmail').textContent = email || 'N/A';
+        document.getElementById('viewID').textContent = ID || 'N/A';
+        
+        // Set user type with styling
+        const userTypeElement = document.getElementById('viewUserType');
+        userTypeElement.textContent = userType || 'N/A';
+        userTypeElement.className = `user-type ${userType.toLowerCase()}`;
+        
+        // Set creation date
+        const dateStr = creationDate ? new Date(creationDate).toLocaleDateString() : 'N/A';
+        document.getElementById('viewCreationDate').textContent = dateStr;
+
+        // Handle certificate display
+        const certificateImage = document.getElementById('certificateImage');
+        if (certificateURL) {
+            certificateImage.src = certificateURL;
+            certificateImage.style.display = 'block';
+        } else {
+            certificateImage.style.display = 'none';
+            document.getElementById('viewCertificate').textContent = 'No certificate available';
+        }
+
+        viewUserModal.show();
+    } catch (error) {
+        console.error('Error displaying user details:', error);
+        showAlert('Error displaying user details. Please try again.', 'danger');
+    }
+}
+
+// Add these new functions to your script
+function toggleActionsMenu(button) {
+    const row = button.closest('tr');
+    const menu = button.nextElementSibling;
+    
+    // If in edit mode, save changes instead of toggling menu
+    if (row.classList.contains('edit-mode')) {
+        saveChanges(row);
+        button.innerHTML = '<i class="fas fa-ellipsis"></i>';
+        row.classList.remove('edit-mode');
+    } else {
+        // Normal menu toggle behavior
+        document.querySelectorAll('.actions-menu.show').forEach(m => {
+            if (m !== menu) m.classList.remove('show');
+        });
+        menu.classList.toggle('show');
+    }
+}
+
+function editRow(dropdown) {
+    const row = dropdown.closest('tr');
+    const cells = row.querySelectorAll('td');
+    const menuButton = dropdown.querySelector('button');
+    
+    // Enter edit mode
+    row.classList.add('edit-mode');
+    
+    // Store original values for potential cancel
+    row.dataset.originalValues = JSON.stringify(
+        Array.from(cells)
+            .filter((_, index) => index !== 0 && index !== 4 && index !== cells.length - 1 && !cells[index].classList.contains('uneditable'))
+            .map(cell => cell.textContent)
+    );
+    
+    cells.forEach((cell, index) => {
+        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+            const originalContent = cell.innerText;
+            cell.innerHTML = `<input type="text" value="${originalContent}">`;
+        }
+    });
+    
+    // Add both check and cancel icons
+    menuButton.innerHTML = `
+        <i class="fas fa-check" onclick="saveChanges(this.closest('tr')); event.stopPropagation();"></i>
+        <i class="fas fa-times" onclick="cancelEdit(this.closest('tr')); event.stopPropagation();" style="margin-left: 8px;"></i>
+    `;
+    
+    // Close the dropdown
+    dropdown.querySelector('.actions-menu').classList.remove('show');
+}
+
+function cancelEdit(row) {
+    const cells = row.querySelectorAll('td');
+    const originalValues = JSON.parse(row.dataset.originalValues);
+    const menuButton = row.querySelector('.actions-dropdown button');
+    let valueIndex = 0;
+    
+    cells.forEach((cell, index) => {
+        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+            cell.textContent = originalValues[valueIndex];
+            valueIndex++;
+        }
+    });
+    
+    // Reset button to three dots and remove edit mode
+    menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
+    row.classList.remove('edit-mode');
+}
+function saveChanges(row) {
+    const cells = row.querySelectorAll('td');
+    const tableId = row.closest('table').id;
+    const updatedData = {};
+    const menuButton = row.querySelector('.actions-dropdown button');
+    
+    cells.forEach((cell, index) => {
+        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+            const input = cell.querySelector('input');
+            if (input) {
+                const newValue = input.value;
+                cell.textContent = newValue;
+                
+                let fieldName;
+                if (tableId === 'fileRecordsTable') {
+                    fieldName = ['', 'fileName', 'author', 'year', 'course'][index];
+                } else if (tableId === 'userRecordsTable') {
+                    fieldName = ['', 'name', 'email', 'ID'][index];
+                }
+                
+                if (fieldName) {
+                    updatedData[fieldName] = newValue;
+                }
+            }
+        }
+    });
+
+    // Save to Firebase based on table type
+    if (Object.keys(updatedData).length > 0) {
+        try {
+            if (tableId === 'fileRecordsTable') {
+                firestore.collection('pdfMetadata')
+                    .where('fileName', '==', updatedData.fileName)
+                    .get()
+                    .then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            doc.ref.update(updatedData)
+                                .then(() => showAlert('Changes saved successfully', 'success'))
+                                .catch(error => {
+                                    console.error("Error updating record:", error);
+                                    showAlert('Error saving changes', 'danger');
+                                });
+                        });
+                    });
+            } else if (tableId === 'userRecordsTable') {
+                firestore.collection('users')
+                    .where('email', '==', updatedData.email)
+                    .get()
+                    .then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            doc.ref.update(updatedData)
+                                .then(() => showAlert('Changes saved successfully', 'success'))
+                                .catch(error => {
+                                    console.error("Error updating record:", error);
+                                    showAlert('Error saving changes', 'danger');
+                                });
+                        });
+                    });
+            }
+        } catch (error) {
+            console.error("Error saving changes:", error);
+            showAlert('Error saving changes', 'danger');
+        }
+    }
+
+    // Reset button to three dots and remove edit mode
+    menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
+    row.classList.remove('edit-mode');
+}
+
+function cancelEdit(row) {
+    try {
+        const cells = row.querySelectorAll('td');
+        const originalValues = JSON.parse(row.dataset.originalValues);
+        const menuButton = row.querySelector('.actions-dropdown button');
+        let valueIndex = 0;
+        
+        cells.forEach((cell, index) => {
+            if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
+                cell.textContent = originalValues[valueIndex];
+                valueIndex++;
+            }
+        });
+        
+        // Reset button to three dots and remove edit mode
+        menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
+        row.classList.remove('edit-mode');
+        
+        showAlert('Edit cancelled', 'info');
+    } catch (error) {
+        console.error("Error cancelling edit:", error);
+        showAlert('Error cancelling edit', 'danger');
+    }
+}
+        function deleteRow(icon) {
+            const row = icon.closest('tr');
+            const confirmDelete = confirm('Are you sure you want to delete this record?');
+            if (confirmDelete) {
+                row.remove();
+                // Note: Add logic to delete the record from Firestore here
+            }
+        }
+
+        
+
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.actions-dropdown')) {
+        document.querySelectorAll('.actions-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+
+
+
+// Copy-to-clipboard function
+function copyToClipboard(text) {
+    // Create a temporary textarea element
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    
+    // Select and copy the text
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        showAlert('Text copied to clipboard!', 'success');
+    } catch (err) {
+        console.error('Failed to copy text:', err);
+        showAlert('Failed to copy text', 'danger');
+    }
+    
+    // Remove the temporary textarea
+    document.body.removeChild(textarea);
+}
+
+</script>
+<script src="signup.js"></script>
+<script src="components.js"></script>
+
+</body>
+</html>
