@@ -1,0 +1,1364 @@
+main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;    
+}
+
+
+
+#menu-hr {
+    border: 0;
+    height: 1px;
+    background-color: #757575;
+    margin: 1rem 0;
+  }
+
+  .main-menu {
+    margin-bottom: 80px;
+  }
+  
+.nav-link, .menu-header{
+    color: #ffffff;
+    font-size: 1.2rem;
+    margin: 0 16px;
+    
+}
+
+.nav-link:hover{
+    color: #ffffff;
+}
+
+#sidebarToggle {
+    border: none; /* Remove border */
+  }
+  
+  #sidebarToggle .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255,255,255,1)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); /* White icon */
+  }
+
+ /* Sidebar styles (hidden by default) */
+ #sidebarMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    background-color: #f5f5f5;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1050;
+  }
+
+  #sidebarMenu.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    display: none;
+  }
+
+  .sidebar-backdrop.show {
+    display: block;
+  }
+
+
+
+    header {
+        background: #005580;
+        color: #fff;
+        box-shadow: 0 0 10px #002635;
+        z-index: 10;
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;  
+        height: 80px;
+        width: 100%;
+        padding: 0 80px; 
+        
+    }
+
+    
+    
+
+    .logo-container {
+        display: flex; /* Flexbox for aligning logo and text */
+        align-items: center;
+    }
+
+    .logo-container img {
+        height: 50px;
+        width: auto;
+        margin-right: 20px; 
+    }
+
+    
+
+    #dropdownUser {
+        margin-top: 0px !important;
+        height: 100%;
+        background-color: transparent !important;
+        color: #ffffff;
+        border: 1px solid #fff;
+    }
+
+    #dropdownOption {
+        width: 280px;
+    }
+
+    #user {
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        overflow: hidden; /* Hide overflow text */
+        text-overflow: ellipsis; 
+    }
+
+    #dropdownField {
+        margin-top: 0px !important;
+        height: 100%;
+        background-color: #f5f5f5 !important;
+        color: #000;
+        width: 100%;
+    }
+
+    /* General Dropdown Styles */
+.dropdown-content {
+    display: none; /* Hidden by default */
+    position: absolute;
+    background-color: #fff; /* White background */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Dropdown shadow */
+    min-width: 160px;
+    padding: 10px; /* Add padding inside the dropdown */
+    z-index: 1; /* Ensure it is on top of other elements */
+}
+
+/* Dropdown Header */
+.dropdown-header {
+    font-size: 1.2rem; 
+    font-weight: bold; 
+    margin: 16px ; 
+    color: #000; 
+}
+
+/* Dropdown Divider */
+.dropdown-divider {
+    border: none; /* Remove default border */
+    height: 1px; /* Thickness */
+    background-color: #ccc; /* Gray color */
+    margin: 8px 0; /* Add spacing above and below */
+}
+
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+
+/* Reading mode filter */
+.reading-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 235, 204, 0.7); /* Yellowish tint */
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: multiply;
+    transition: 0.3s;
+  }
+
+  .form-check-label {
+    color: #000000;
+  }
+
+  .form-check-input:checked {
+    background-color:#005580 !important;
+  }
+  
+  /* Label and switch alignment */
+  .reading-mode-toggle, .high-contrast-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Distribute space evenly */
+        margin: 8px 16px ;
+  }
+
+
+  /* High contrast text using text shadow */
+.high-contrast-text * {
+    text-shadow: 1px 1px 2px #000, 0 0 1px #000; /* Black shadow for better contrast */
+  }
+
+#logout {
+    color: #CE0000;
+}
+
+#logout:hover {
+    color: #ffffff;
+    background-color: #CE0000;
+}
+
+
+.dropdown-search-container {
+    display: flex;      
+}
+
+#dropdown-search {
+    margin: 4px;
+}
+    
+    .search-container {
+        width: 480px; 
+        max-width: 800px;
+        margin: 0 auto; 
+        display: flex;
+        margin: 4px;
+    }
+    
+
+    .search-input {
+        flex: 1;
+        padding: 12px;
+        border: transparent;
+        border-radius: 8px 0 0 8px;
+        box-sizing: border-box;
+        font-size: 1rem;
+        
+        
+    }
+
+    .search-button {
+        background-color: #005580;
+        color: #fff;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+        font-size: 1.2rem;
+    }
+
+    .search-button:hover {
+        background-color: #004466;
+        transition: 0.3s;
+    }
+    
+
+    .box-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 30px;
+    }
+
+    #myBtn {
+        display: none; 
+        position: fixed; 
+        bottom: 60px;
+        right: 40px;
+        z-index: 99;
+        border: none;
+        outline: none;
+        background-color: #005580; 
+        color: white;
+        cursor: pointer;
+        border-radius: 50px;
+        font-size: 1.8rem;
+        height: 60px;
+        width: 60px;
+        opacity: 0.7;
+    }
+
+    
+
+    #myBtn:hover {
+        background-color: #004466;
+        transition: 0.3s;
+        opacity: 1;
+    }
+
+    .bold {
+        font-weight: bold !important;
+    }
+    
+   
+
+    footer {
+        background-color: #171717;
+        color: white;
+        text-align: center; 
+        padding: 5px 0;  
+    }
+
+    .footer {
+        display: flex;
+        justify-content: space-around;
+        text-align: left;
+        width: 100%;
+        max-width: 1400px; 
+        margin: auto;
+        margin-bottom: 60px;
+    }
+
+    .footer div {
+        flex: 0 0 30%;
+        padding: 0px 20px ;
+        font-size: 1rem;  
+        margin-top: 40px;
+    }
+
+    .footer-title {
+        font-size: 1.3rem;
+        margin: 12px 0px;
+        font-weight: bold;
+    }
+
+    .footer a {
+        display: block;
+        color: #f5f5f5;
+        text-decoration: none;
+        margin-bottom: 5px;
+    }
+
+    .footer a:hover {
+        text-decoration: underline;
+    }
+
+    .fa-envelope, .fa-phone-flip {
+        font-size: 0.95rem;
+        margin-right: 10px;
+    }
+
+    .copyright {
+        font-size: 1rem;
+        color: #e0e0e0;
+    }
+
+
+
+
+
+
+    /*INDEX------------------------------------------------------------------------------------------------------------------*/
+    /*INDEX------------------------------------------------------------------------------------------------------------------*/
+    .homebox {
+        align-items: center;
+        justify-content: center;
+        height: 600px;
+        width: 100%;
+        display: flex;
+        color: #f5f5f5;
+        background-image: url('neuaindex.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        text-align: center;
+        flex-direction: column;
+    }
+
+    :root {
+        --heading-font-size: 5rem;
+        --heading-line-height: 1.2;
+    }
+    
+    .homebox #heading {
+        font-size: var(--heading-font-size);
+        font-weight: bolder;
+        line-height: var(--heading-line-height);
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 4px solid;  /* Blinking caret */
+        animation: blink-caret 0.75s step-end infinite;  /* Caret blinking */
+    }
+    
+    @keyframes blink-caret {
+        from, to {
+            border-color: transparent;
+        }
+        50% {
+            border-color: #fff;
+        }
+    }
+
+
+    .hidden {
+        opacity: 0;
+        transform: translateY(20px); 
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    
+    /* Fade-in animation on scroll */
+   
+
+    .course-container {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 2.28fr .72fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "banner programs"
+            "cards cards";
+        padding: 20px;
+        max-width: 1100px;
+        width: 90%;
+        margin: 80px auto;
+        opacity: 0;
+        animation: fadeIn 1s ease-in-out forwards;     
+    }
+    
+    /* Fade In on Initial Load */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    
+    .banner {
+        grid-area: banner;
+        background-color: #e6e6e6;
+        color: #005580;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background-image: url('coursebg.png');
+        background-size:contain;
+        background-repeat:no-repeat;
+        background-position:bottom;
+    }
+    
+    .banner .text-content h1 {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        gap: 5px;
+        opacity: 0;
+        animation: fadeIn 1s ease-in-out forwards;
+    }
+    
+    .banner .computer-studies {
+        font-size: 2.4rem;
+        font-weight: bolder;
+          
+    }
+    
+    .programs {
+        display: block;
+        grid-area: programs;
+        background-color: #e6e6e6;
+        border-radius: 8px;
+        color: #2c2c2c;
+        padding: 16px;
+        opacity: 0;
+        animation: fadeIn 1s ease-in-out forwards;
+        animation-delay: 0.3s;
+    }
+    
+    .programs h2 {
+        margin-bottom: 18px;
+        color: #2c2c2c;
+        font-size: 1.2rem;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .home-cards {
+        grid-area: cards;
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(4, 1fr);
+        opacity: 0;
+        animation: fadeIn 1s ease-in-out forwards;
+        animation-delay: 0.6s; 
+    }
+    
+    .course-card {
+        background-color: #005580;
+       padding: 12px 8px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 2.4rem;
+        position: relative;
+        font-weight: bolder;
+        transform: scale(1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden; 
+    }
+
+    .home-cardcont a, .home-cardcont span a, .highlight a {
+        text-decoration: none;
+        color: #ffffff;
+    }
+    
+    .course-card span {
+        display: block;
+        font-size: 1rem;
+        font-weight: normal;
+        transition: color 0.3s ease;
+        
+    }
+    
+    /* Scale and Shadow on Hover for Cards */
+    .course-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .highlight {
+        background-color: #757575;
+    }
+
+    .highlight i {
+        margin-left: 16px;
+    }
+
+    .box3 {
+        height: auto;
+        width: 100%;
+        background-image: url('neuadescbg.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed; /* This keeps the background in place */
+        display: flex;
+        align-items: center; 
+        justify-content: center;
+        margin: auto;
+    }
+    
+    #neua-desc {
+        font-size: 1.2rem;
+        margin: 120px 50px;
+        max-width: 800px;
+        width: 80%;
+        text-align: left;
+        color: #f5f5f5;
+    }
+    
+    .vertical-line {
+        width: 4px;     
+        flex-shrink: 0;  
+        height: 180px;            
+        background-color: #ffffff;
+        margin-left: 40px;        
+    }
+   
+    
+
+
+
+    /*SEARCH DOCUMENT CSS----------------------------------------------------------------------------------------------------------*/
+    /*SEARCH DOCUMENT CSS----------------------------------------------------------------------------------------------------------*/   
+    .box1 {
+        align-items: center;
+        justify-content: center;
+        height: 420px;
+        width: 100%;
+        display: flex;
+        color: #f5f5f5;
+        background-image: url('neuaindex.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        text-align: center;
+        flex-direction: column;
+    }
+
+    :root {
+        --title-font-size: 3.5rem;
+        --title-line-height: 1;
+    }
+    
+    #heading {
+        font-size: var(--title-font-size);
+        font-weight: bolder;
+        line-height: var(--title-line-height);
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 4px solid;  /* Blinking caret */
+        animation: blink-caret 0.75s step-end infinite;  /* Caret blinking */
+    }
+    
+    @keyframes blink-caret {
+        from, to {
+            border-color: transparent;
+        }
+        50% {
+            border-color: #fff;
+        }
+    }
+
+
+    .box2 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 1000px;
+        margin: 80px auto; 
+    }
+                   
+    #result, #faq {
+        font-size: 1.8rem; 
+    }
+    
+    #sort {
+        color: #CE0000;
+    }
+
+    .dropdown-content {
+        font-size: 1rem;
+        margin-top: 6px;
+    }
+    
+    .dropdown-block {
+        display: flex;
+        align-items: end;
+        margin: 8px auto;
+        width: 90%;
+        flex-direction: column;
+    }
+    
+    .dropdown-btn {
+        background-color: #e0e0e0;
+        color: #000000;
+        font-size: 1rem; 
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-top: 8px;
+        
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: white;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+        z-index: 1;
+        width: 180px;
+        margin-top: 8px;
+        border-radius: 8px;
+        font-size: 1.2rem;
+    }
+    
+    .dropdown-content a {
+        color: #000000;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+        border-radius: 8px;
+    }
+    
+    .card-deck, .faq {
+        display: flex;        
+        align-items: center;
+        justify-content: center;
+        margin: 8px auto;
+        width: 90%;
+        flex-direction: column;
+    }
+
+    .card {
+        width: 100%;
+        height: 40px;
+        height: auto;
+        border-radius: 8px;
+        box-sizing: border-box;
+        margin: 8px auto;
+        padding: 8px;
+        transition: 0.3s;
+        border: 2px solid #e0e0e0;
+        font-size: 1rem; 
+        color: #757575; 
+    }
+
+    .card-body {
+        padding: 12px;
+    }
+    
+    #title1 i, #author i, #year i {
+        margin-right: 8px;
+    }
+    
+    #title1 {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #003144;
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        overflow: hidden; /* Hide overflow text */
+        text-overflow: ellipsis; 
+        
+    }
+
+    #author {
+        display: inline-block;
+        width: 70%;
+    }
+    
+    #year {
+        display: inline-block;        
+    }
+    
+    .card:hover {
+        border: 2px solid #004466;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    
+    .page {
+        display: flex;
+        justify-content: center;
+        margin: 60px;
+    }
+    
+    .page-item a {
+        background-color: #ebebeb;
+        color: #005580;
+        font-size: 1.25rem; 
+        text-decoration: none;
+    }
+    
+    .page-item a:hover {
+        background-color: #004466;
+        color: #f5f5f5;
+    }
+    
+    
+    
+
+
+
+
+    /*DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    /*DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    #infoContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 80px 0;
+    }
+    
+    .info-box {
+        background-color: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 60px;
+        max-width: 1000px;
+        width: 90%;
+        height: auto; 
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+        margin: 20px auto; 
+        font-size: 1.2rem;
+    }
+    
+    .info-box p {
+        margin: 0;
+        padding: 8px 0;
+        width: 90%;
+        
+    }
+
+    .request-document {
+        margin: 24px 0;
+        text-align: start;
+        
+        
+
+    }
+    
+    .request-btn {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        
+    }
+    
+    .request-btn i {
+        margin-right: 16px;
+        font-size: 1.5rem;
+    }
+
+
+    .modal-body .row {
+        margin-bottom: 10px; /* Adjust spacing between rows */
+    }
+    
+    .modal-body .col-4 {
+        font-weight: bold; /* Make labels bold */
+    }
+
+    #documentTitle {
+        white-space: nowrap; /* Prevent text from wrapping */
+        overflow: hidden; /* Hide overflow text */
+        text-overflow: ellipsis; /* Show ellipsis for overflow text */
+        display: inline-block; /* Ensure the ellipsis works properly */
+        max-width: 100%; /* Ensure the title doesn't exceed its container's width */
+      }
+
+    .separator {
+        border: none;
+        border-top: 1px solid #6b6b6b;
+        margin: 24px 0;
+    }
+    
+    .terms-container {
+    background-color: #f5f5f5;
+     border-radius: 8px;
+    }   
+
+    .detail-row {
+        display: flex;
+        align-items: center; /* Vertically center align items */
+        margin: 16px; /* Ensures 16px margin */
+    }
+    .detail-label {
+        flex: 0 0 25%; /* Fixed width for labels */
+        max-width: 25%;
+    }
+    .detail-value {
+        flex: 0 0 75%; /* Fixed width for values */
+        max-width: 75%;
+    }
+
+
+    #pdfContainer {
+        width: 100%;
+        height: 1000px;
+      overflow-y: auto;
+        overflow-y: auto;
+        margin-top: 20px;
+    }
+
+    /* Style for individual canvas elements */
+    .pdf-page-canvas {
+      width: 100%;
+      
+        display: block;
+        margin: 10px auto;
+        
+        border: 1px solid #ccc;
+        
+    }
+
+    #documentTitle {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+
+    
+
+
+
+
+
+    /*FAQ PAGE----------------------------------------------------------------------------------------------------------*/
+    /*FAQ PAGE----------------------------------------------------------------------------------------------------------*/
+    
+    .content {
+        max-height:100vh; 
+        background: linear-gradient(white, gray);
+    }
+
+    .accordion {
+        width: 85%;
+        margin: 60px auto 80px auto;
+    }
+    
+    .accordion-button:hover {
+        background-color: #e1eef4;
+    }
+    
+    .accordion-item  {
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .accordion-body {
+        font-size: 1rem;
+        width: 90%;
+    }
+    
+    .accordion-button{
+        font-size: 1.3rem;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #ACC6D2;
+        color: #000000;
+    }
+    
+    .accordion-item {
+        margin: 0px;  
+    }
+    
+    .faq-report {
+        width: auto;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #757575;
+        font-size: 1rem; 
+        margin: 60px;
+    }
+    
+    .faq-report:hover {
+        color: #2c2c2c;
+    }
+    
+
+
+
+
+     /*---------------------------------------------------------------------------------------------------------1024px            +++++*/
+     @media only screen and (max-width: 1024px) {
+    
+        .home-cards {
+        grid-template-columns: repeat(2, 1fr); /* Show one card per row */
+        gap: 10px;
+    }
+    }
+
+
+    
+
+
+    /*---------------------------------------------------------------------------------------------------------768px            +++++*/
+     /* Hide the sidebar toggle button for larger screens */
+  @media (min-width: 768px) {
+    #sidebarToggle {
+      display: none;
+    }
+
+    #navbarNav {
+      display: flex !important;
+    }
+  }
+
+
+    @media only screen and (max-width: 768px) {
+    header {
+        justify-content: space-between;
+        align-items: center;
+        top: 0px;
+        width: 100%;
+        height: 70px;
+        background: #005580;
+        box-shadow: none;
+        border-radius: 0;
+        
+    }
+
+    .logo-container img {
+       display: none;
+    }
+
+    
+ 
+
+  /* Display the sidebar for smaller screens */
+ 
+    #navbarNav {
+      display: none;
+    }
+
+    #sidebarToggle {
+      display: inline-block;
+    }
+  
+    .nav-link, .menu-header{
+        color: #000000;
+        margin: 0px 8px;
+        padding: 16px;
+        border-radius: 8px;
+    }
+    
+    .nav-link:hover{
+        color: #000000;
+        background-color: #ececec;
+    }
+    
+    #menu-gap {
+        margin-top: 8px;
+    }
+    
+
+    .footer {
+        flex-direction: column;
+        width: 80%; 
+        padding: 16px;
+    }
+ 
+    .footer div {
+        flex: 0 0 25%;
+        padding: 8px;
+        margin-top: 10px;
+        max-width: 450px;
+    }
+ 
+ 
+
+
+
+
+    /*INDEX------------------------------------------------------------------------------------------------------------------*/
+    /*INDEX------------------------------------------------------------------------------------------------------------------*/
+    .homebox {
+        height: 480px;
+    }
+
+    .homebox #heading {
+        font-size: 3.4rem;
+    }
+
+    .course-container {
+        grid-template-columns: 1fr; /* Single column */
+        grid-template-areas:
+            "banner"
+            "programs"
+            "cards"; /* Stacking all areas vertically */
+        gap: 15px; 
+        padding: 15px; 
+        margin: 20px auto; 
+        width: 100%; 
+    }
+
+    .banner {
+        background-image: url('coursebg1.png');
+        background-size:contain;
+        background-repeat:no-repeat;
+        background-position:bottom;
+    }
+
+    .banner .computer-studies {
+        font-size: 2rem;
+    }
+
+
+    .course-card {
+        font-size: 2rem;
+    }
+
+    .banner .text-content h1 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #neua-desc {
+        
+        width: 70%;
+        margin: 100px 40px;
+    }
+
+    .vertical-line {
+        width: 3px;     
+        
+    }
+
+    
+
+
+
+    /*SEARCH DOCUMENT----------------------------------------------------------------------------------------------------------*/
+    /*SEARCH DOCUMENT----------------------------------------------------------------------------------------------------------*/
+    .box1 {
+        height: 360px;
+    }   
+    #heading { 
+    font-size: 2.8rem;
+    }
+    .dropdown-block {
+        width: 95%;
+    }
+
+    .dropdown-btn {
+        font-size: 0.875rem; 
+        padding: 10px 14px; 
+        margin-top: 6px; /
+    }
+
+    
+
+    .dropdown-content a {
+        padding: 10px 14px;
+    }
+
+    .card-deck {
+        width: 95%;
+    }
+
+    
+    .page {
+        margin: 40px;
+    }
+
+
+    /*DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    /*DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    .info-box {
+        padding: 40px; 
+        margin: 16px auto; 
+        width: 100%;
+    }
+
+    .info-box p {
+        padding: 6px 0; 
+    }
+
+
+
+
+
+    /*FAQ PAGE----------------------------------------------------------------------------------------------------------*/
+    /*FAQ PAGE----------------------------------------------------------------------------------------------------------*/
+    
+        .faq {
+            margin: 60px auto; 
+        }
+    
+        .accordion {
+            margin-top: 40px;
+            margin-bottom: 60px; 
+            width: 90%;
+        }
+    }
+
+
+
+
+/*---------------------------------------------------------------------------------------------------------480px            +++++*/
+    @media only screen and (max-width: 480px) {
+    .box-text {
+        margin: 10px; 
+    }
+
+    .dropdown-search-container {
+        display: flex;
+        flex-direction: column;      
+    }
+    
+    .search-container {
+        max-width: 250px; 
+    }
+    .search-input {
+        padding: 8px; 
+        font-size: 0.8rem; 
+        
+    }
+    .search-button {
+        font-size: 0.8rem; 
+        padding: 6px 14px;
+    }
+
+    #myBtn {
+        font-size: 1.5rem;
+        height: 42px;
+        width: 42px;
+    }
+
+
+    .footer {
+        width: 90%; 
+        padding: 16px;
+     }
+ 
+    .footer div {
+        flex: 0 0 25%;
+        padding: 8px;
+        font-size: 0.8rem;
+        margin-top: 10px;
+    }
+ 
+    .footer-title {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    
+    
+    
+
+    
+    /*INDEX------------------------------------------------------------------------------------------------------------------*/
+    /*INDEX------------------------------------------------------------------------------------------------------------------*/
+    .homebox {
+        height: 420px;
+    }
+    
+    .homebox #heading {
+        font-size: 2.8rem;
+        font-weight: bolder;
+        line-height: 1;
+    }
+
+    
+
+
+    .banner {
+        background-image: url('coursebg.png');
+        background-size:cover;
+        background-repeat:no-repeat;
+        background-position:center;
+    }
+
+    .banner .computer-studies {
+        font-size: 1.5rem;
+    }
+
+    .course-card {
+        font-size: 1.5rem;
+        padding: 10px;
+    }
+
+
+    .course-card span {
+        display: block;
+        font-size: 0.8rem;
+    }
+
+    #neua-desc {
+        font-size: 1rem;
+        width: 90%;
+        margin: 60px 30px;
+    }
+
+
+
+
+    
+    /*SEARCH DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    /*SEARCH DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    .box1 {
+            height: 300px;
+    }
+    
+    #heading {
+        font-size: 2rem;
+        margin-top: 60px;
+    }
+    .card-deck {
+        width: 90%;
+    }
+
+    #result, #faq {
+        font-size: 1.5rem; 
+    }
+
+    .dropdown-block {
+        width: 97%;
+    }
+    .dropdown-btn {
+        font-size: 0.75rem; 
+        padding: 8px 12px; 
+        margin-top: 8px; 
+    }
+
+    .dropdown-content {
+        width: 140px; 
+        margin-top: 8px; 
+        font-size: 0.8rem;
+    }
+
+    .dropdown-content a {
+        padding: 8px 12px; 
+    }
+
+    .card {
+        font-size: 0.8rem;
+        margin: 4px auto;
+    }
+
+    .card-deck {
+        width: 97%;
+    }
+
+    .card-body {
+        padding: 8px;
+    }
+    
+    #title1 {
+        font-size: 1rem; 
+    }
+    
+
+    .page {
+        margin: 30px; 
+    }
+
+    .page-item a {
+        font-size: 1rem; 
+    }
+
+
+
+    
+    /*DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    /*DOCUMENT PAGE----------------------------------------------------------------------------------------------------------*/
+    
+    .info-box {
+        padding: 16px; 
+        width: 100%; 
+        font-size: 1rem; 
+        margin: 12px auto; 
+    }
+
+    .info-box p {
+        padding: 4px 0; 
+    }
+
+
+
+
+
+    /*FAQ PAGE----------------------------------------------------------------------------------------------------------*/
+    /*FAQ PAGE----------------------------------------------------------------------------------------------------------*/
+    .faq {
+        margin: 40px auto; 
+    }
+
+    .accordion {
+        margin-top: 30px;
+        margin-bottom: 40px; 
+        width: 100%;
+    }
+
+    .accordion-button  {
+        font-size: 1.1rem; 
+    }
+
+    .accordion-item, .accordion-body {
+        font-size: 0.9rem; 
+    }
+
+    .faq-report {
+        font-size: 1rem; 
+    }
+    }

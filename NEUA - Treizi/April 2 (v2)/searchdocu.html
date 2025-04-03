@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources</title>
+
+    <link rel="website icon" type="png" href="neu-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="bootstrap-5.3.3/css/bootstrap.min.css"> <!-- bootstrap local dev -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+     <link rel="stylesheet" href="fontawesome-free-6.7.1-web/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">
+    <link rel="stylesheet" href="syntax.css">
+    <link rel="stylesheet" href="main.css">
+
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+</head>
+
+<body>
+<main>
+    <header>
+        <div class="logo-container">
+            <a href="https://neu.edu.ph/main/">
+                <img src="neu-logo.png" alt="NEU Logo">
+            </a>
+            <!-- Navbar -->
+    <nav class="navbar navbar-light d-flex justify-content-between">
+        <button class="navbar-toggler" type="button" id="sidebarToggle" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbarNav" class="d-none">
+          <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="searchdocu.html?sort=year" id="archivalResourcesLink"><b>Resources</b></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="faq.html">FAQs</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  
+    <!-- Sidebar -->
+<div id="sidebarMenu" class="bg-light">
+    <!-- Sidebar Header -->
+    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+      <h5 class="menu-header">NEUA</h5>
+      <button type="button" class="btn-close" aria-label="Close" onclick="closeSidebar()"></button>
+    </div>
+    
+    <!-- Sidebar Navigation -->
+    <ul class="nav flex-column px-3 main-menu">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html" id="menu-gap">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="searchdocu.html?sort=year" id="archivalResourcesLink"><b>Resources</b></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="faq.html">FAQs</a>
+      </li>
+    </ul>
+    <hr class="my-3" id="menu-hr">
+
+    <ul class="nav flex-column px-3">
+        <li class="nav-item">
+          <a class="nav-link" href="https://neu.edu.ph/main/">NEU Main</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://neuvle.neu.edu.ph/">NEUVLE</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="automate.html">Automate</a>
+          </li>
+        
+      </ul>
+  </div>
+  
+    <!-- Sidebar backdrop -->
+    <div class="sidebar-backdrop"></div>
+    
+        </div>
+        <div class="dropdown">
+            <button class="dropdown-btn" id="dropdownUser">
+                <i class="fa-solid fa-user"></i> <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-content" id="dropdownOption">
+                <h1 class="dropdown-header" id="userName">User</h1>
+                <h1 class="dropdown-header" id="userEmail">@neu.edu.ph</h1>
+                <hr class="dropdown-divider">
+                
+                <div class="reading-mode-toggle d-flex justify-content-between align-items-center">
+                    <label for="flexSwitchCheckChecked" class="form-check-label">Reading Mode</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked">
+                    </div>
+                </div>
+
+                <hr class="dropdown-divider">
+                <a href="#" id="logout" onclick="logout()">Logout</a>
+
+                
+            </div>
+        </div>
+    </header>
+
+    <div id="customAlert" class="custom-alert alert" role="alert">
+        <div class="d-flex align-items-center">
+          <span class="alert-icon"></span>
+          <span id="alertMessage"></span>
+          <button type="button" class="close-btn ms-auto" aria-label="Close" onclick="hideAlert()">&times;</button>
+        </div>
+      </div>
+
+    <div class="box1">
+        <div class="box-text">
+            <p id="heading">Thesis / Dissertations</p>
+            
+            </div>
+            <div class="dropdown-search-container">
+                <div class="dropdown" id="dropdown-search">
+                    <button class="dropdown-btn" id="dropdownField">
+                        Any Field <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="dropdownCategory">
+                        <a href="#" data-value="Any Field" id="sort">Any Field</a>
+                        <a href="#" data-value="Title">Title</a>
+                        <a href="#" data-value="Author">Author</a>
+                        <a href="#" data-value="Abstract">Abstract</a>
+                    </div>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search">
+                    <button id="searchButton" class="search-button"><i class="fa fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box2" id="scroll-target">
+        <div class="container">
+            <p id="result">Results</p>
+   
+            <hr>
+            <div class="dropdown-block">
+
+                <div class="dropdown">
+                    <button class="dropdown-btn" id="dropdownBtn">
+                        Sort by date <i class="fa fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="dropdownMenu">
+                        <a href="#" data-value="Any time" id="sort">Any time</a>
+                        <a href="#" data-value="Sort by date" id="sort">Sort by date</a>
+                        <a href="#" id="lastYear">Since</a>
+                        <a href="#" id="fiveYearsAgo">Since</a>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div id="documentList" class="card-deck">
+
+                
+                
+            <div class="card">
+                <div class="card-body">
+                    <p id="title1"><i class="fa-solid fa-box-archive"></i> Title</p>
+                    <div class="card-sub" id="author"><i class="fa-solid fa-user"></i> Author</div>
+                    <div class="card-sub1" id="year"><i class="fa-regular fa-calendar"></i> Year</div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="page">
+            <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+                </li>
+            </ul>
+            </nav>
+       </div>
+</main>
+<footer>
+    <div class="footer">
+        <div class="f1">
+            <h4 class="footer-title">NEUA</h4>
+            <p>NEUA is the official thesis archiving database of New Era University, providing a secure platform for college students to store and access their academic research.</p>
+        </div>
+        <div class="f2">
+            <h4 class="footer-title">New Era University</h4>
+            <a href="https://www.neu.edu.ph/main/index.html">Home</a>
+            <a href="https://www.neu.edu.ph/main/about.html">About</a>
+            <a href="https://www.neu.edu.ph/main/programs.html">Academics</a>
+            <a href="https://www.neu.edu.ph/main/admission.html">Admission and Enrollment</a>
+            <a href="https://www.neu.edu.ph/main/campus.html">Data Privacy</a>
+            <a href="https://neu.edu.ph/main/img/School_calendar.pdf">School Calendar</a>
+        </div>
+        <div class="f3">
+            <h4 class="footer-title">Contact Info</h4>
+            <a href="https://www.google.com/maps/search/?api=1&query=9+Central+Ave,+New+Era,+Quezon+City,+1107+Metro+Manila" target="_blank">9 Central Ave, New Era, Quezon City, 1107 Metro Manila</a>
+            <a href="mailto:info@neu.edu.ph"><i class="fa-solid fa-envelope" id="#footer-icon"></i></i>info@neu.edu.ph</a>
+            <p><i class="fa-solid fa-phone-flip" id="#footer-icon"></i>(02) 8981 4221</p>
+        </div>
+    </div>
+
+    <hr>
+    <p class="copyright">2024 © NEUA All rights reserved.</p>
+</footer>
+
+   <div class="to-top-btn">
+        <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-angle-up"></i></button>
+    </div>
+    <div class="loader">
+        <div class="loader-backdrop"></div>
+        <div class="loader-container">
+            <div class="loader-spinner"></div>
+        </div>
+    </div>
+    
+
+    <script src="firebase.js"></script>
+    <script src="components.js"></script>
+</body>
+
+
+
+
+</html>
