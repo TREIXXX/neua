@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    
+    <link rel="website icon" type="png" href="neu-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <link rel="stylesheet" href="fontawesome-free-6.7.1-web/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="main.css">
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </script>
+
+    
+</head>
+    
+
+
+<body>
+    <!-- Custom Alert -->
+ <div id="customAlert" class="custom-alert alert" role="alert">
+   <div class="d-flex align-items-center">
+     <span class="alert-icon"></span>
+     <span id="alertMessage"></span>
+     <button type="button" class="close-btn ms-auto" aria-label="Close" onclick="hideAlert()">&times;</button>
+   </div>
+ </div>
+
+
+ <div class="modal fade" id="fileUploadModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered modal-lg">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="fileUploadModalLabel">Upload Files</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+           <div class="file-box" onclick="document.getElementById('pdfFile').click();">
+               <div class="file-upload-wrapper">
+                   <div class="upload-elements"> <!-- Wrap elements to hide -->
+                       <i class="fas fa-cloud-upload-alt upload"></i> 
+                       <h1>Drag and Drop File</h1>
+                       <h1>or</h1>
+                       <button type="button" class="btn btn-secondary">Browse</button>
+                   </div>
+                   <input type="file" id="pdfFile" accept=".pdf" multiple required>
+                   <div class="selected-files-container"></div>
+               </div>
+           </div>
+           <div class="upload-status mt-3"></div>
+           </div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-outline-secondary btn-remove" onclick="removeFile()">
+                    Remove
+               </button>
+               <button type="button" class="btn btn-primary btn-upload">
+                    Upload
+               </button>
+           </div>
+           </div>
+       </div>
+   </div>
+
+   <!-- View User -->
+ <div class="modal fade" id="viewUser" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="viewUserModalLabel">View User Details</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+               <div class="user-details">
+                   <div class="detail-row">
+                       <span class="detail-label">Name:</span>
+                       <span class="detail-value" id="viewName"></span>
+                   </div>
+                   <div class="detail-row">
+                       <span class="detail-label">Email:</span>
+                       <span class="detail-value" id="viewEmail"></span>
+                   </div>
+                   <div class="detail-row">
+                       <span class="detail-label">ID:</span>
+                       <span class="detail-value" id="viewID"></span>
+                   </div>
+                   <div class="detail-row">
+                       <span class="detail-label">User Type:</span>
+                       <span class="detail-value" id="viewUserType"></span>
+                   </div>
+                   <div class="detail-row">
+                       <span class="detail-label">Creation Date:</span>
+                       <span class="detail-value" id="viewCreationDate"></span>
+                   </div>
+                   <div class="detail-row certificate-container">
+                       <span class="detail-label">Certificate:</span>
+                       <div class="certificate-view" id="viewCertificate">
+                           <img id="certificateImage" src="" alt="Certificate">
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+   
+
+
+ <!-- Admin Create User -->
+ <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="signupModalLabel">Create User
+         </h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+       </div>
+       <div class="modal-body">
+         <form id="signupForm">
+           <div class="mb-3">
+             <label for="userType" class="form-label">User Type</label>
+             <select class="form-select" id="userType" required>
+               <option value="" selected disabled>Select User Type</option>
+               <option value="student" id="studentUser">Student</option>
+               <option value="alumni" id="alumniUser">Alumni</option>
+               <option value="faculty" id="facultyUser">Faculty</option>
+               <option value="admin" id="adminUser">Admin</option>
+             </select>
+           </div>
+           <div class="mb-3">
+             <div class="row">
+               <div class="col-md-5">
+                 <label for="lastName" class="form-label">Last Name</label>
+                 <input type="text" class="form-control" id="lastName" placeholder="Dela Cruz" required>
+               </div>
+               <div class="col-md-5">
+                 <label for="firstName" class="form-label">First Name</label>
+                 <input type="text" class="form-control" id="firstName" placeholder="Juan" required>
+               </div>
+               <div class="col-md-2">
+                 <label for="middleInitial" class="form-label">MI</label>
+                 <input type="text" class="form-control" id="middleInitial" placeholder="P" maxlength="">
+               </div>
+             </div>
+           </div>
+           <div class="mb-3">
+             <label for="signupEmail" class="form-label">Email</label>
+             <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+           </div>
+           <div class="mb-3" id="idField">
+             <label for="signupID" class="form-label">ID</label>
+             <input type="text" class="form-control" id="signupID" placeholder="Enter your ID" required>
+           </div>
+           <div class="mb-3 row">
+             <div class="col-md-6">
+               <label for="signupPassword" class="form-label">Password</label>
+               <input type="password" class="form-control" id="signupPassword" placeholder="at least 6 characters" required>
+             </div>
+             <div class="col-md-6">
+               <label for="confirmPassword" class="form-label">Confirm Password</label>
+               <input type="password" class="form-control" id="confirmPassword" placeholder="" required>
+               <div id="passwordMismatch" class="password-mismatch">Passwords do not match.</div>
+               <div id="passwordMatch" class="password-match">Passwords match!</div>
+             </div>
+           </div>
+           <div class="mb-3" id="certificateField">
+             <label for="certificateUpload" class="form-label">Upload Certificate of Matriculation (Latest)</label>
+             <input type="file" class="form-control" id="certificateUpload" accept="image/*" required>
+           </div>
+          
+           <button type="submit" class="btn btn-primary w-100" id="submitSignupForm">Submit</button>
+         </form>
+       </div>
+     </div>
+   </div>
+ </div>
+   
+ <header>
+   <h1>Admin Dashboard</h1>
+   <div class="nav-links">
+       <a href="index.html">NEUA</a>
+       <div class="separator"></div>
+       <button type="button" onclick="logout()">Logout</button>
+   </div>
+ </header>
+   
+   <div class="container-fluid">
+       
+
+       
+   
+      
+       <div class="dashboard-stats">
+
+           <div class="stat">
+               <i class="fa-solid fa-file"></i>
+               <div class="stat-info">
+                   <h3 id="fileCount">0</h3> <!-- h3 id NEW!-->
+                   <p>Files</p>
+               </div>
+           </div>
+       
+       
+           <div class="stat">
+               <i class="fa-solid fa-users"></i>
+               <div class="stat-info">
+                   <h3 id="userCount">0</h3> <!-- h3 id NEW!-->
+                   <p>Users</p>
+               </div>
+           </div>
+
+           <div class="stat"> <!-- account request stat NEW!-->
+               <i class="fa-solid fa-user-plus"></i>
+               <div class="stat-info">
+                   <h3 id="accountRequestsCount">0</h3> <!-- h3 id NEW!-->
+                   <p>Account Requests</p>
+               </div>
+           </div>
+
+
+       
+   </div>
+
+   <div class="container">
+       
+       <!-- Tab Navigation -->
+       <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+           <li class="nav-item" role="presentation">
+               <button class="nav-link active" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button" role="tab" aria-controls="files" aria-selected="true">
+                   File Records
+               </button>
+           </li>
+           <li class="nav-item" role="presentation">
+               <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">
+                   User Records
+               </button>
+           </li>
+           <li class="nav-item" role="presentation">
+               <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
+                   Account Requests
+               </button>
+           </li>
+       </ul>
+
+       <!-- Tab Content -->
+       <div class="tab-content" id="adminTabsContent">
+           <!-- File Records Tab -->
+           <div class="tab-pane fade show active" id="files" role="tabpanel" aria-labelledby="files-tab">
+               <div class="search-container">
+                <input type="text" id="fileSearch" placeholder="Search file records..." oninput="filterFileRecords()">
+
+                   <div class="search-controls">
+                       
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('fileRecordsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshFileRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportFileRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                       <button type="button" class="btn btn-outline-secondary ms-2" id="FileUpload" data-bs-toggle="modal" data-bs-target="#fileUploadModal">
+                        <i class="fas fa-plus"></i> Add File
+                    </button>
+                       
+                   </div>
+               </div>
+               
+               <div class="table-wrapper">
+                   <table id="fileRecordsTable">
+                       <thead>
+                           <tr>
+                               <th><input type="checkbox" id="selectAllFiles" onchange="toggleSelectAll('fileRecordsTable', this)"></th>
+                               <th onclick="sortTable('fileRecordsTable', 1)">ID <span id="fileRecordsTableHeader1"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 2)">Title <span id="fileRecordsTableHeader2"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 3)">Author <span id="fileRecordsTableHeader3"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 4)">Year <span id="fileRecordsTableHeader4"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 5)">Course <span id="fileRecordsTableHeader5"></span></th>
+                               <th class="actions">Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <!-- Rows will be dynamically generated here -->
+                       </tbody>
+                   </table>
+               </div>
+
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="fileRecordsTablePagination" class="pagination"></div>
+               </div>
+           </div>
+
+           <!-- User Records Tab -->
+           <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+               <div class="search-container">
+                <input type="text" id="userSearch" placeholder="Search user records..." oninput="filterUserRecords()">
+                   <div class="search-controls">
+                       
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('userRecordsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshUserRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportUserRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                       
+                        <button type="button" class="btn btn-outline-secondary ms-2" id="CreateUser" data-bs-toggle="modal" data-bs-target="#signupModal">
+                            <i class="fas fa-plus"></i> Create User
+                        </button>
+                    
+                       
+                   </div>
+               </div>
+               <div class="table-wrapper">
+                   <table id="userRecordsTable">
+                       <thead>
+                           <tr>
+                               <th><input type="checkbox" id="selectAllUsers" onchange="toggleSelectAll('userRecordsTable', this)"></th>
+                               <th onclick="sortTable('userRecordsTable', 1)">Name <span id="userRecordsTableHeader1"></span></th>
+                               <th onclick="sortTable('userRecordsTable', 2)">Email <span id="userRecordsTableHeader2"></span></th>
+                               <th onclick="sortTable('userRecordsTable', 3)">ID <span id="userRecordsTableHeader3"></span></th>
+                               <th onclick="sortTable('userRecordsTable', 4)">User Type <span id="userRecordsTableHeader4"></span></th>
+                               <th onclick="sortTable('userRecordsTable', 5)">Requests <span id="userRecordsTableHeader5"></span></th>
+                               <th class="actions">Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <!-- Rows will be dynamically generated here -->
+                       </tbody>
+                   </table>
+               </div>
+
+        
+
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="userRecordsTablePagination" class="pagination"></div>
+               </div>
+           </div>
+
+           <!-- Account Requests Tab -->
+           <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+               <div class="search-container">
+                <input type="text" id="accountRequestSearch" placeholder="Search account requests..." oninput="filterAccountRequests()">
+                   <div class="search-controls">
+                       
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('accountRequestsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-danger me-2" onclick="refreshAccountRequestsRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-danger" onclick="exportAccountRequestsRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                       
+                   </div>
+               </div>
+               <div class="table-wrapper">
+                   <table id="accountRequestsTable">
+                       <thead>
+                           <tr>
+                               <th><input type="checkbox" id="selectAllRequests" onchange="toggleSelectAll('accountRequestsTable', this)"></th>
+                               <th onclick="sortTable('accountRequestsTable', 1)">Name <span id="accountRequestsTableHeader1"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 2)">Email <span id="accountRequestsTableHeader2"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 3)">ID <span id="accountRequestsTableHeader3"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 4)">User Type <span id="accountRequestsTableHeader4"></span></th>
+                               <th>Certificate</th>
+                               <th>Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <!-- Rows will be dynamically generated here -->
+                       </tbody>
+                   </table>
+               </div>
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="accountRequestsTablePagination" class="pagination"></div>
+               </div>
+           </div>
+       </div>
+   </div>
+   </div>
+
+   <div class="loader"></div>
+   <footer>
+       <p class="copyright">2024 © NEUA All rights reserved.</p>
+   </footer>
+   <div class="to-top-btn">
+       <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-angle-up"></i></button>
+   </div>
+
+<script src="admin.js"></script>
+<script src="components.js"></script>
+
+</body>
+</html>
