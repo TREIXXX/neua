@@ -1,0 +1,1028 @@
+footer {
+    display: flex;
+    justify-content: center;
+}
+
+p {
+    font-size: 1rem;
+    color: #7e7e7e;
+}
+
+a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+
+/*-----------------------------------------------------------------------------------------------------admin*/
+
+
+h4 {
+    font-weight: bold;
+    text-align: center;
+    margin: 1.5rem auto;
+    color: #005580;
+    font-size: 1.8rem; 
+}
+
+::placeholder {
+    color: #ccc;
+}
+
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------------------upload*/
+.container-fluid {
+
+    max-width: 1200px;
+    height: auto;
+
+
+   
+    
+}
+
+.container {
+    flex-direction: column;
+    max-width: 1200px;
+    height: auto;
+    margin:12px auto;
+    padding: 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 2px solid #e0e0e0;
+}
+
+.file-upload-wrapper {
+    position: relative;
+    display: inline-block;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#pdfFile {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-name {
+    margin-top: 10px;
+    color: #000000;
+    font-weight: bold;
+}
+
+/* Selected Files Styling */
+.selected-files-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+}
+
+.selected-file {
+    display: flex;
+    align-items: center;
+    min-width: 150px;
+    max-width: 210px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+    padding-right: 30px; /* Add padding to prevent overlap with the remove icon */
+}
+
+.selected-file.invalid-file {
+    border-color: #dc3545;
+}
+
+.selected-file.invalid-file .file-icon {
+    color: #dc3545;
+}
+
+.selected-file .file-icon {
+    margin-right: 10px;
+    color: #005580;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.selected-file .file-details {
+    flex: 1;
+    overflow: hidden;
+    padding-right: 24px;
+}
+
+.selected-file .file-name {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+    color: #333;
+    flex-grow: 1; 
+}
+
+.selected-file .remove-file {
+    position: absolute;
+    right: 10px;
+    display: none;
+    color: #757575;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 20px; 
+    height: 20px; 
+    flex-shrink: 0;
+}
+
+.selected-file:hover .remove-file {
+    display: block;
+}
+
+.selected-file:hover {
+    background: #f8f9fa;
+}
+
+.selected-file.invalid-file .file-icon {
+    color: #dc3545; 
+}
+
+
+.upload {
+    font-size: 120px; 
+    color: #e0e0e0;
+    display: flex;
+    margin: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.btn-upload,
+.btn-remove {
+    min-width: 150px;
+    
+}
+
+.btn-home, .btn-logout {
+    font-size: 1.8rem;
+    color: #757575;
+    border: 2px solid #757575;
+}
+
+
+
+
+.btn-home:hover, .btn-home:active, 
+.btn-logout:hover, .btn-logout:active {
+    color: #757575;
+    border: 2px solid #757575;
+    background-color: #e0e0e0;
+}
+
+
+
+
+
+.btn-upload i {
+    margin-right: 12px;
+    color: #f5f5f5;
+    font-size: 1rem; 
+}
+
+header {
+    background: #005580;
+    color: #fff;
+    box-shadow: 0 0 10px #002635;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    width: 100%;
+    padding: 0 80px;
+    margin-bottom: 60px;
+}
+
+header h1 {
+    color: #fff;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+header .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+header .nav-links a,
+header .nav-links button {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.2s ease;
+}
+
+header .nav-links a:hover,
+header .nav-links button:hover {
+    opacity: 0.8;
+}
+
+header .nav-links .separator {
+    width: 1px;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 10px;
+}
+
+.file-box {
+    width: auto;
+    height: 320px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    margin: auto;
+    margin-bottom: 16px;
+    border: 2px dashed #757575;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow-y: auto;
+}
+
+h1{
+    color: #e0e0e0;
+    font-size: 1rem;
+}
+
+.upload-status {
+    color: #002635;
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------------------table*/
+
+.dashboard-stats {
+    height: auto;
+    margin: auto;
+    display: flex;
+    gap: 20px;
+}
+
+.stat {
+    
+   
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 1rem; 
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+    display: flex;
+    flex: 1;
+    margin:12px auto;
+}
+
+.stat i {
+    font-size: 4rem;
+    color: #005580;
+    margin-right: 16px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2; /* Adjust line spacing */
+    align-items: end;
+}
+
+.stat-info h3 {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.stat-info p {
+    font-size: 1.2rem;
+    color: #757575;
+    margin: 0;
+}
+
+/* Navigation Tabs */
+.nav-tabs .nav-link {
+    font-size: 1.2rem;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    color: #6c757d; /* Gray color for inactive tabs */
+}
+
+.nav-tabs .nav-link.active {
+    color: #005580; /* Blue color for active tab */
+    border-bottom: 3px solid #005580; /* Add bottom border to active tab */
+}
+
+.nav-tabs {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+
+.search-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    margin-bottom: 16px;
+}
+
+.search-controls {
+    display: flex;
+    
+}
+
+.search-container input {
+    padding: 8px;
+    border: 1px solid #757575;
+    border-radius: 8px;
+    width: 300px;
+}
+
+.search-filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 8px;
+}
+
+.dropdown-filter {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-filter button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.dropdown-filter .selected-count {
+    background: #005580;
+    color: white;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    display: none;
+}
+
+.dropdown-filter .selected-count.show {
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 120%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    min-width: 160px;
+    padding: 8px 0;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Custom Label Styling */
+.dropdown-menu label {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    padding-left: 40px;
+}
+
+/* Hide default checkboxes/radio buttons */
+.dropdown-menu label input[type="checkbox"],
+.dropdown-menu label input[type="radio"] {
+    display: none;
+}
+
+/* Use Font Awesome check icon */
+.dropdown-menu label::before {
+    font-family: "Font Awesome 6 Free";
+    content: '\f00c';  /* Font Awesome check icon */
+    position: absolute;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 1000;
+    font-size: 16px;
+    opacity: 0;
+    color: #005580;
+    transition: opacity 0.2s ease;
+}
+
+/* Show semi-transparent check on hover */
+.dropdown-menu label:not(:has(input:checked)):hover::before {
+    opacity: 0.3;
+}
+
+/* Show solid check when selected */
+.dropdown-menu label:has(input:checked)::before {
+    opacity: 1;
+}
+
+/* Special styling for "with requests" option */
+.dropdown-menu label:has(input[value="with_requests"]:checked)::before {
+    color: #757575;
+}
+
+/* Special styling for "with requests" option */
+.dropdown-menu label input[value="with_requests"]:checked + ::before {
+    color: #757575;
+}
+
+.dropdown-menu label:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-menu input {
+    margin-right: 8px;
+}
+
+/* Copy Table Cells */
+td:nth-child(2)[title="Click to copy"]:hover,
+td:nth-child(3)[title="Click to copy"]:hover,
+td:nth-child(4)[title="Click to copy"]:hover {
+    background-color: #f5f5f5 ;
+    transition: background-color 0.2s;
+}
+
+td:nth-child(2)[title="Click to copy"]:active,
+td:nth-child(3)[title="Click to copy"]:active,
+td:nth-child(4)[title="Click to copy"]:active {
+    background-color: #e9ecef;
+}
+
+/* Table Styles */
+.table-wrapper {
+    max-height: 1000px; 
+    overflow-y: auto;
+    position: relative;
+    border-radius: 8px; 
+    
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    
+}
+
+.table-wrapper thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+th, td {
+    padding: 12px 15px;
+    border-right: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+th {
+    background-color: #005580;
+    color: #fff;
+    text-align: center;
+    overflow: visible !important;
+
+}
+
+th span.asc::after {
+    font-size: 12px;
+    margin-left: 5px;
+    content: '▲'; 
+}
+
+th span.desc::after {
+    font-size: 12px;
+    margin-left: 5px;
+    content: '▼'; 
+}
+
+td {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+td.actions {
+    max-width: none;
+    white-space: normal;
+}
+
+
+#fileRecordsTable tbody td:nth-child(1),
+#fileRecordsTable tbody td:nth-child(2),
+#fileRecordsTable tbody td:nth-child(4),
+#fileRecordsTable tbody td:nth-child(5),
+#fileRecordsTable tbody td:nth-child(6),
+#fileRecordsTable tbody td:nth-child(7),
+
+#userRecordsTable tbody td:nth-child(1),
+#userRecordsTable tbody td:nth-child(5),
+#userRecordsTable tbody td:nth-child(6),
+#userRecordsTable tbody td:nth-child(7),
+
+#accountRequestsTable tbody td:nth-child(1),
+#accountRequestsTable tbody td:nth-child(5),
+#accountRequestsTable tbody td:nth-child(6),
+#accountRequestsTable tbody td:nth-child(7){
+    text-align: center ;
+    
+}
+
+/* User Type Badge */
+    #userRecordsTable tbody td:nth-child(5) .user-type,
+    #accountRequestsTable tbody td:nth-child(5) .user-type {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff; /* White text color */
+}
+
+    .user-type.student {
+        color: #FF9500 !important;
+        background-color: #FFEACC; 
+        min-width: 80px;
+    }
+
+    .user-type.alumni {
+        color: #34C759 !important;
+        background-color: #D6F5DE; 
+        min-width: 80px;
+    }
+
+    .user-type.faculty {
+        
+        color: #0092CC !important;
+        background-color: #D2EDF9; 
+        min-width: 80px;
+    }
+
+    .user-type.admin {
+        color: #757575 !important;
+        background-color: #E6E6E6; 
+        min-width: 80px;
+    }
+                        
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+td.actions {
+    position: relative;
+    overflow: visible !important;
+}
+
+.actions {
+    text-align: center;
+}
+
+.actions i {
+    cursor: pointer;
+    margin: 0 5px;
+    color: #2c2c2c;
+}
+
+/* Action Dropdown */
+.table-wrapper #fileRecordsTable td:nth-child(7),
+.table-wrapper #userRecordsTable td:nth-child(7) {
+    overflow: visible !important;
+}
+
+.actions-dropdown {
+    position: relative;
+    display: inline-block;
+    
+}
+
+.actions-menu {
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 120px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    padding: 8px;
+    z-index: 2;
+    display: none;
+}
+
+.actions-menu.show {
+    display: block;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: #333;
+    border-radius: 4px;
+}
+
+.action-item:hover {
+    background-color: #f1f1f1;
+}
+
+.action-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+.actions-dropdown button {
+    border: none;
+    outline: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.actions-dropdown button:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+/* Delete Action */
+.action-item.delete-action {
+    color: #dc3545;
+    border-radius: 4px;
+}
+
+.action-item.delete-action i {
+    color: #dc3545;
+}
+
+.action-item.delete-action:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-item.delete-action:hover i {
+    color: white;
+}
+
+/* Deactivated User Row */
+tr.deactivated {
+    background-color: #f5f5f5;
+    color: #999;
+}
+
+tr.deactivated:hover {
+    background-color: #e9e9e9;
+}
+
+/* Action Buttons */
+.action-item.deactivate-action {
+    color: #dc3545;
+}
+
+.action-item.deactivate-action i {
+    color: #dc3545;
+}
+
+.action-item.deactivate-action:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-item.deactivate-action:hover i {
+    color: white;
+}
+
+.action-item.activate-action {
+    color: #28a745;
+}
+
+.action-item.activate-action i {
+    color: #28a745;
+}
+
+.action-item.activate-action:hover {
+    background-color: #28a745;
+    color: white;
+}
+
+.action-item.activate-action:hover i {
+    color: white;
+}
+
+.edit-mode input {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+
+
+/* Scrollbar Styling for Modern Browsers */
+.file-box::-webkit-scrollbar, .table-wrapper::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.file-box::-webkit-scrollbar-thumb, .table-wrapper::-webkit-scrollbar-thumb {
+    background-color: #d3d3d3; 
+    border-radius: 16px;     
+}
+
+.file-box::-webkit-scrollbar-thumb:hover, .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #c0c0c0; 
+}
+
+.file-box::-webkit-scrollbar-track,  .table-wrapper::-webkit-scrollbar-track {
+    background-color: #f0f0f0; 
+    border-radius: 16px;
+}
+
+/* Scrollbar for Firefox */
+.file-box, .table-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #d3d3d3 #f0f0f0;
+}
+
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #003b51;
+    background-color: #fff;
+    color: #002635;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.pagination button:disabled {
+    background-color: #002635;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #f0f0f0;
+}
+
+.rows-per-page {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rows-per-page select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
+/* Add to your existing CSS */
+.user-details .detail-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+.user-details .detail-label {
+    min-width: 120px;
+    font-weight: 600;
+    color: #333;
+}
+
+.user-details .detail-value {
+    flex: 1;
+    color: #666;
+}
+
+.certificate-container {
+    align-items: flex-start;
+}
+
+.certificate-view {
+    flex: 1;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.certificate-view img {
+    width: 100%;
+    height: auto;
+}
+
+/* Style for user type badge in modal */
+#viewUserType {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+}
+
+#myBtn {
+    display: none; 
+    position: fixed; 
+    bottom: 60px;
+    right: 40px;
+    z-index: 99;
+    border: none;
+    outline: none;
+    background-color: #005580; 
+    color: white;
+    cursor: pointer;
+    border-radius: 50px;
+    font-size: 1.8rem;
+    height: 60px;
+    width: 60px;
+    opacity: 0.7;
+}
+
+
+
+#myBtn:hover {
+    background-color: #004466;
+    transition: 0.3s;
+    opacity: 1;
+}
+
+.dropdown-divider {
+    height: 1px;
+    margin: 8px 0;
+    overflow: hidden;
+    background-color: #e9ecef;
+}
+
+/*------------------------------------------------------------------------------------------------------480---------++++++*/
+@media (max-width: 480px) {
+
+    .top-container {
+        padding: 40px 20px;
+    }
+
+    h4 {
+        font-size: 1.5rem; 
+        margin: 0.8rem auto;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        padding: 8px;
+        
+    }
+
+   
+
+    
+
+    .file-box {
+    max-height: 280px;
+    }
+
+
+    .upload {
+        margin: 10px;
+        display: none;
+    }
+
+    .btn-home, .btn-logout {
+        font-size: 1.3rem; 
+        
+    }
+
+    
+
+   
+        .custom-layout {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .btn-group {
+          display: flex;
+          gap: 0.75rem; /* Space between buttons */
+          margin-top: 0.75rem;
+        }
+      
+      
+
+    .file-name {
+        margin-top: 6px;
+        font-size: 0.85rem; 
+    }
+
+    .upload-status {
+        margin-top: 8px;
+        font-size: 1rem;
+    }
+
+    ::placeholder {
+        font-size: 1rem;
+    }
+
+    header {
+        padding: 0 20px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    header .nav-links {
+        gap: 15px;
+    }
+
+    header .nav-links a,
+    header .nav-links button {
+        font-size: 0.9rem;
+    }
+}
+
