@@ -97,10 +97,20 @@
                        <span class="detail-label">Creation Date</span>
                        <span class="detail-value" id="viewCreationDate"></span>
                    </div>
-                   <div class="detail-row certificate-container">
-                       <span class="detail-label">Certificate</span>
-                       <div class="certificate-view" id="viewCertificate">
-                           <img id="certificateImage" src="" alt="Certificate">
+                   <div class="accordion mb-3">
+                       <div class="accordion-item">
+                           <h2 class="accordion-header">
+                               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#certificateAccordion">
+                                   <span class="detail-label">Certificate</span>
+                               </button>
+                           </h2>
+                           <div id="certificateAccordion" class="accordion-collapse collapse">
+                               <div class="accordion-body p-0">
+                                   <div class="certificate-view" id="viewCertificate">
+                                       <img id="certificateImage" src="" alt="Certificate">
+                                   </div>
+                               </div>
+                           </div>
                        </div>
                    </div>
                </div>
@@ -329,7 +339,7 @@
                <div class="pagination-container">
                    <div class="rows-per-page">
                        <span>Showing</span>
-                       <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                       <select id="fileRowsPerPage" onchange="changeRowsPerPage('fileRecordsTable', this.value)">
                            <option value="20">20</option>
                            <option value="50">50</option>
                            <option value="100">100</option>
@@ -414,7 +424,7 @@
                <div class="pagination-container">
                    <div class="rows-per-page">
                        <span>Showing</span>
-                       <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                       <select id="userRowsPerPage" onchange="changeRowsPerPage('userRecordsTable', this.value)">
                            <option value="20">20</option>
                            <option value="50">50</option>
                            <option value="100">100</option>
@@ -434,10 +444,10 @@
                        <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('accountRequestsTable')" style="display: none;">
                            <i class="fas fa-trash"></i>
                        </button>
-                       <button type="button" class="btn btn-refresh btn-outline-danger me-2" onclick="refreshAccountRequestsRecords()">
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshAccountRequestsRecords()">
                            <i class="fa-solid fa-arrows-rotate"></i>
                        </button>
-                       <button type="button" class="btn btn-export btn-outline-danger" onclick="exportAccountRequestsRecords()">
+                       <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportAccountRequestsRecords()">
                            <i class="fa-solid fa-share-from-square"></i>
                        </button>
                        
@@ -464,7 +474,7 @@
                <div class="pagination-container">
                    <div class="rows-per-page">
                        <span>Showing</span>
-                       <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                       <select id="accountRowsPerPage" onchange="changeRowsPerPage('accountRequestsTable', this.value)">
                            <option value="20">20</option>
                            <option value="50">50</option>
                            <option value="100">100</option>
@@ -489,6 +499,7 @@
 
 <script src="admin.js"></script>
 <script src="components.js"></script>
+<script src="signup.js"></script>
 
 </body>
 </html>

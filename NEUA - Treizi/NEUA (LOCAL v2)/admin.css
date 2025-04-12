@@ -41,10 +41,51 @@ h4 {
     background-color: #f5f5f5;
 }
 
+/* User Details Certificate Accordion */
+.user-details .accordion {
+    border: none;
+}
 
+.user-details .accordion-item {
+    border: none;
+    background: none;
+}
 
+.user-details .accordion-button {
+    padding: 0.5rem 0;
+    background: none;
+    width: 100%;
+    
+    color: #333;
+    font-weight: 600;
+    border: none;
+}
 
+.user-details .accordion-button:not(.collapsed) {
+    background: none;
+    color: #333;
+    box-shadow: none;
+}
 
+.user-details .accordion-button::after {
+    font-family: 'Font Awesome 6 Free';
+    content: '\f107';
+    background-image: none;
+    font-weight: 900;
+    color: #005580;
+    width: auto;
+    height: auto;
+    font-size: 1.2rem;
+}
+
+.user-details .accordion-button:not(.collapsed)::after {
+    content: '\f106';
+    transform: none;
+}
+
+.user-details .certificate-view {
+    margin-top: 0.5rem;
+}
 
 /*-----------------------------------------------------------------------------------------------------upload*/
 .container-fluid {
@@ -293,16 +334,6 @@ h1{
     color: #002635;
     font-weight: bold;
 }
-
-
-
-
-
-
-
-
-
-
 
 /*-----------------------------------------------------------------------------------------------------table*/
 
@@ -791,7 +822,20 @@ tr.deactivated:hover {
     box-sizing: border-box;
 }
 
+.edit-mode .actions-dropdown button {
+    z-index: 5;
+    position: relative;
+}
 
+.edit-mode .fa-check,
+.edit-mode .fa-times {
+    pointer-events: auto;
+    z-index: 6;
+}
+
+.edit-mode .actions-menu {
+    display: none !important; /* Force hide dropdown when in edit mode */
+}
 
 /* Scrollbar Styling for Modern Browsers */
 .file-box::-webkit-scrollbar, .table-wrapper::-webkit-scrollbar {
@@ -942,6 +986,48 @@ tr.deactivated:hover {
     background-color: #e9ecef;
 }
 
+/* Certificate Overlay */
+.certificate-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    padding: 40px;
+    box-sizing: border-box;
+    cursor: pointer; 
+}
+
+.certificate-overlay.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.certificate-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    cursor: default;
+}
+
+.certificate-overlay .close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px;
+    transition: transform 0.2s;
+}
+
+
 /*------------------------------------------------------------------------------------------------------480---------++++++*/
 @media (max-width: 480px) {
 
@@ -1024,5 +1110,15 @@ tr.deactivated:hover {
     header .nav-links button {
         font-size: 0.9rem;
     }
+}
+
+.edit-mode td[title="Click to copy"] {
+    cursor: default !important;
+    pointer-events: none;
+}
+
+.edit-mode td[title="Click to copy"]::before {
+    content: attr(title);
+    display: none;
 }
 

@@ -18,6 +18,13 @@ let originalFileRecords = [];
 let originalUserRecords = [];
 let originalAccountRequests = [];
 
+// Add this at the top with other global variables
+const tableSettings = {
+    fileRecordsTable: { rowsPerPage: 20, currentPage: 1 },
+    userRecordsTable: { rowsPerPage: 20, currentPage: 1 },
+    accountRequestsTable: { rowsPerPage: 20, currentPage: 1 }
+};
+
 function logout() {
     // Call PHP logout endpoint
     fetch('logout.php')
@@ -380,80 +387,88 @@ function sortTable(tableId, columnIndex) {
 
 let rowsPerPage = 20;
 
-function changeRowsPerPage() {
-    rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
-    renderTable('fileRecordsTable', filteredFileRows.length > 0 ? filteredFileRows : allFileRecords);
-    renderTable('userRecordsTable', filteredUserRows.length > 0 ? filteredUserRows : allUserRecords);
-    renderTable('accountRequestsTable', filteredAccountRequests.length > 0 ? filteredAccountRequests : allAccountRequests);
+function changeRowsPerPage(tableId, newValue) {
+    // Update the table settings
+    tableSettings[tableId].rowsPerPage = parseInt(newValue);
+    tableSettings[tableId].currentPage = 1; // Reset to first page
+    
+    // Get current data for the table
+    let currentData;
+    switch (tableId) {
+        case 'fileRecordsTable':
+            currentData = filteredFileRows.length > 0 ? filteredFileRows : allFileRecords;
+            break;
+        case 'userRecordsTable':
+            currentData = filteredUserRows.length > 0 ? filteredUserRows : allUserRecords;
+            break;
+        case 'accountRequestsTable':
+            currentData = filteredAccountRequests.length > 0 ? filteredAccountRequests : allAccountRequests;
+            break;
+    }
+
+    // Re-render the table with new page size
+    renderTable(tableId, currentData);
 }
 
 // Pagination logic
 function setupPagination(tableId, rows) {
     const pagination = document.getElementById(`${tableId}Pagination`);
-    if (!pagination) {
-        console.error(`Pagination container for ${tableId} not found`);
-        return;
+    if (!pagination) return;
+
+    const settings = tableSettings[tableId];
+    const totalPages = Math.ceil(rows.length / settings.rowsPerPage);
+    
+    // Ensure current page is valid
+    if (settings.currentPage > totalPages) {
+        settings.currentPage = totalPages || 1;
     }
 
-    let currentPage = 1;
-
     function showPage(page) {
-        const start = (page - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
+        settings.currentPage = page;
+        const start = (page - 1) * settings.rowsPerPage;
+        const end = start + settings.rowsPerPage;
 
-        rows.forEach((row, index) => {
-            row.style.display = (index >= start && index < end) ? '' : 'none';
-        });
+        // Hide all rows
+        rows.forEach(row => row.style.display = 'none');
+
+        // Show rows for current page
+        for (let i = start; i < Math.min(end, rows.length); i++) {
+            rows[i].style.display = '';
+        }
 
         updatePaginationButtons(page);
     }
 
-    function updatePaginationButtons(page) {
+    function updatePaginationButtons(currentPage) {
         pagination.innerHTML = '';
-        const totalPages = Math.ceil(rows.length / rowsPerPage);
 
-        const createButton = (iconClass, pageNum, disabled = false) => {
-            const button = document.createElement('button');
-            button.disabled = disabled;
-
-            // Create an icon element
-            const icon = document.createElement('i');
-            icon.className = iconClass;
-
-            // Append the icon to the button
-            button.appendChild(icon);
-
-            // Add click event listener
-            button.addEventListener('click', () => {
-                currentPage = pageNum;
-                showPage(currentPage);
-            });
-
-            return button;
-        };
-
-        // Previous Button
-        const prevButton = createButton('fa-solid fa-chevron-left', currentPage - 1, currentPage === 1);
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+        prevButton.disabled = currentPage === 1;
+        prevButton.onclick = () => showPage(currentPage - 1);
         pagination.appendChild(prevButton);
 
-        // Page Number Buttons
+        // Page numbers
         for (let i = 1; i <= totalPages; i++) {
             const pageButton = document.createElement('button');
             pageButton.textContent = i;
             pageButton.disabled = i === currentPage;
-            pageButton.addEventListener('click', () => {
-                currentPage = i;
-                showPage(currentPage);
-            });
+            pageButton.onclick = () => showPage(i);
+            pageButton.className = i === currentPage ? 'active' : '';
             pagination.appendChild(pageButton);
         }
 
-        // Next Button
-        const nextButton = createButton('fa-solid fa-chevron-right', currentPage + 1, currentPage === totalPages);
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.onclick = () => showPage(currentPage + 1);
         pagination.appendChild(nextButton);
     }
 
-    showPage(currentPage);
+    // Show initial page
+    showPage(settings.currentPage);
 }
 
 // Call setupPagination after loading records
@@ -682,7 +697,13 @@ function renderTable(tableId, records) {
                         cell.textContent = value;
                         cell.setAttribute('title', 'Click to copy');
                         cell.style.cursor = 'pointer';
-                        cell.onclick = () => copyToClipboard(value);
+                        cell.onclick = (e) => {
+                            // Don't copy if row is in edit mode
+                            if (e.target.closest('tr').classList.contains('edit-mode')) {
+                                return;
+                            }
+                            copyToClipboard(value);
+                        };
                     } else {
                         cell.textContent = value;
                     }
@@ -708,23 +729,35 @@ function renderTable(tableId, records) {
                 break;
 
             case 'userRecordsTable':
-                const nameCell = row.insertCell();
-                nameCell.textContent = record.name || '';
-                
-                const emailCell = row.insertCell();
-                emailCell.textContent = record.email || '';
-                
-                const idCell = row.insertCell();
-                idCell.textContent = record.ID || '';
-                
-                const userTypeCell = row.insertCell();
-                const userTypeSpan = document.createElement('span');
-                userTypeSpan.className = `user-type ${(record.userType || '').toLowerCase()}`;
-                userTypeSpan.textContent = record.userType || '';
-                userTypeCell.appendChild(userTypeSpan);
-                
-                const requestsCell = row.insertCell();
-                requestsCell.textContent = record.requests || '0';
+                // Add cells for user records with copy functionality
+                ['name', 'email', 'ID', 'userType', 'requests'].forEach((prop, index) => {
+                    const cell = row.insertCell();
+                    const value = record[prop] || '';
+
+                    if (prop === 'userType') {
+                        // Special handling for user type badge
+                        const userTypeSpan = document.createElement('span');
+                        userTypeSpan.className = `user-type ${(value || '').toLowerCase()}`;
+                        userTypeSpan.textContent = value;
+                        cell.appendChild(userTypeSpan);
+                    } else if (prop === 'requests') {
+                        // Special handling for requests count
+                        cell.textContent = parseInt(value) > 0 ? value : '';
+                    } else if (index <= 2) { // Copy functionality for name, email, and ID
+                        cell.textContent = value;
+                        cell.setAttribute('title', 'Click to copy');
+                        cell.style.cursor = 'pointer';
+                        cell.onclick = (e) => {
+                            // Don't copy if row is in edit mode
+                            if (e.target.closest('tr').classList.contains('edit-mode')) {
+                                return;
+                            }
+                            copyToClipboard(value);
+                        };
+                    } else {
+                        cell.textContent = value;
+                    }
+                });
 
                 // Add actions column with data attributes for user identification
                 const userActionsCell = row.insertCell();
@@ -764,19 +797,26 @@ function renderTable(tableId, records) {
                         cell.textContent = value;
                         cell.setAttribute('title', 'Click to copy');
                         cell.style.cursor = 'pointer';
-                        cell.onclick = () => copyToClipboard(value);
+                        cell.onclick = (e) => {
+                            // Don't copy if row is in edit mode
+                            if (e.target.closest('tr').classList.contains('edit-mode')) {
+                                return;
+                            }
+                            copyToClipboard(value);
+                        };
                     } else {
                         cell.textContent = value;
                     }
                 });
 
                 // Certificate cell
-                const certCell = row.insertCell();
-                const viewButton = document.createElement('button');
-                viewButton.className = 'btn btn-sm btn-outline-secondary';
-                viewButton.innerHTML = 'View';
-                viewButton.onclick = () => window.open(record.certificateURL, '_blank');
-                certCell.appendChild(viewButton);
+                
+                    const certCell = row.insertCell();
+                    const viewButton = document.createElement('button');
+                    viewButton.className = 'btn btn-sm btn-outline-secondary';
+                    viewButton.innerHTML = 'View';
+                    viewButton.onclick = () => showCertificateOverlay(record.certificateURL);
+                    certCell.appendChild(viewButton);
 
                 // Actions cell
                 const reqActionsCell = row.insertCell();
@@ -807,7 +847,6 @@ function viewPdf(fileName) {
 }
 
 function viewUser(name, email, ID, userType, creationDate, certificateURL) {
-    // Populate the modal with user details
     document.getElementById('viewName').textContent = name || 'N/A';
     document.getElementById('viewEmail').textContent = email || 'N/A';
     document.getElementById('viewID').textContent = ID || 'N/A';
@@ -824,15 +863,19 @@ function viewUser(name, email, ID, userType, creationDate, certificateURL) {
     
     document.getElementById('viewCreationDate').textContent = creationDate || 'Not available';
 
-    // Handle certificate image
-    const certificateImage = document.getElementById('certificateImage');
-    const certificateContainer = document.getElementById('viewCertificate');
-    
-    if (certificateURL && certificateURL !== 'undefined') {
-        certificateImage.src = certificateURL;
-        certificateContainer.style.display = 'block';
+    // Show/Hide certificate section based on user type
+    const certificateSection = document.querySelector('.accordion.mb-3');
+    if (userType.toLowerCase() === 'faculty') {
+        certificateSection.style.display = 'none';
     } else {
-        certificateContainer.style.display = 'none';
+        certificateSection.style.display = 'block';
+        const certificateImage = document.getElementById('certificateImage');
+        if (certificateURL && certificateURL !== 'undefined') {
+            certificateImage.src = certificateURL;
+            document.getElementById('viewCertificate').style.display = 'block';
+        } else {
+            document.getElementById('viewCertificate').style.display = 'none';
+        }
     }
 
     // Show the modal
@@ -993,29 +1036,46 @@ function editRow(dropdown) {
     const row = dropdown.closest('tr');
     const cells = row.querySelectorAll('td');
     const menuButton = dropdown.querySelector('button');
+    const tableId = row.closest('table').id;
     
     // Enter edit mode
     row.classList.add('edit-mode');
     
+    let editableCells = [];
+    
+    // Define editable columns based on table type
+    if (tableId === 'fileRecordsTable') {
+        // Make all columns except checkbox and actions editable
+        editableCells = Array.from(cells).slice(1, 6); // columns 1-5 (id, title, author, year, course)
+    } else if (tableId === 'userRecordsTable') {
+        // Make only name, email, and ID editable
+        editableCells = Array.from(cells).slice(1, 4); // columns 1-3 (name, email, ID)
+    }
+    
     // Store original values for potential cancel
     row.dataset.originalValues = JSON.stringify(
-        Array.from(cells)
-            .filter((_, index) => index !== 0 && index !== 4 && index !== cells.length - 1 && !cells[index].classList.contains('uneditable'))
-            .map(cell => cell.textContent)
+        editableCells.map(cell => cell.textContent)
     );
     
-    cells.forEach((cell, index) => {
-        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
-            const originalContent = cell.innerText;
-            cell.innerHTML = `<input type="text" value="${originalContent}">`;
-        }
+    // Convert editable cells to input fields
+    editableCells.forEach(cell => {
+        const originalContent = cell.textContent;
+        cell.innerHTML = `<input type="text" value="${originalContent}">`;
     });
     
-    // Check and cancel icons
+    // Check and cancel icons with improved event handling
     menuButton.innerHTML = `
-        <i class="fas fa-check" onclick="saveChanges(this.closest('tr')); event.stopPropagation();"></i>
-        <i class="fas fa-times" onclick="cancelEdit(this.closest('tr')); event.stopPropagation();" style="margin-left: 8px;"></i>
+        <i class="fas fa-check" onclick="event.stopPropagation(); saveChanges(this.closest('tr'));"></i>
+        <i class="fas fa-times" onclick="event.stopPropagation(); cancelEdit(this.closest('tr'));" style="margin-left: 8px;"></i>
     `;
+    
+    // Prevent clicks on the button from triggering the dropdown while in edit mode
+    menuButton.onclick = (e) => {
+        e.stopPropagation();
+        if (!row.classList.contains('edit-mode')) {
+            toggleActionsMenu(menuButton);
+        }
+    };
     
     // Close the dropdown
     dropdown.querySelector('.actions-menu').classList.remove('show');
@@ -1025,14 +1085,20 @@ function cancelEdit(row) {
     const cells = row.querySelectorAll('td');
     const originalValues = JSON.parse(row.dataset.originalValues);
     const menuButton = row.querySelector('.actions-dropdown button');
-    let valueIndex = 0;
+    const tableId = row.closest('table').id;
     
-    cells.forEach((cell, index) => {
-        if (index !== 0 && index !== 4 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
-            cell.textContent = originalValues[valueIndex];
-            valueIndex++;
+    // Restore original values based on table type
+    if (tableId === 'fileRecordsTable') {
+        // Restore columns 1-5
+        for (let i = 1; i <= 5; i++) {
+            cells[i].textContent = originalValues[i-1];
         }
-    });
+    } else if (tableId === 'userRecordsTable') {
+        // Restore columns 1-3
+        for (let i = 1; i <= 3; i++) {
+            cells[i].textContent = originalValues[i-1];
+        }
+    }
     
     // Reset button to three dots and remove edit mode
     menuButton.innerHTML = '<i class="fas fa-ellipsis"></i>';
@@ -1045,28 +1111,27 @@ function saveChanges(row) {
     const updatedData = {};
     const menuButton = row.querySelector('.actions-dropdown button');
     
-    cells.forEach((cell, index) => {
-        if (index !== 0 && index !== cells.length - 1 && !cell.classList.contains('uneditable')) {
-            const input = cell.querySelector('input');
+    if (tableId === 'fileRecordsTable') {
+        // Get values from columns 1-5
+        ['documentId', 'fileName', 'author', 'year', 'course'].forEach((field, index) => {
+            const input = cells[index + 1].querySelector('input');
             if (input) {
-                const newValue = input.value;
-                cell.textContent = newValue;
-                
-                // Map column index to field name
-                let fieldName;
-                if (tableId === 'fileRecordsTable') {
-                    fieldName = ['fileName', 'author', 'year', 'course'][index - 1];
-                } else if (tableId === 'userRecordsTable') {
-                    fieldName = ['name', 'email', 'ID', 'userType'][index - 1];
-                }
-                
-                if (fieldName) {
-                    updatedData[fieldName] = newValue;
-                }
+                updatedData[field] = input.value;
+                cells[index + 1].textContent = input.value;
             }
-        }
-    });
-
+        });
+    } else if (tableId === 'userRecordsTable') {
+        // Get values from columns 1-3
+        ['name', 'email', 'ID'].forEach((field, index) => {
+            const input = cells[index + 1].querySelector('input');
+            if (input) {
+                updatedData[field] = input.value;
+                cells[index + 1].textContent = input.value;
+            }
+        });
+    }
+    
+    // ...rest of save changes code remains the same...
     if (Object.keys(updatedData).length > 0) {
         const formData = new FormData();
         formData.append('action', tableId === 'fileRecordsTable' ? 'updateFile' : 'updateUser');
@@ -1957,4 +2022,45 @@ async function copyToClipboard(text) {
             document.body.removeChild(textarea);
         }
     }
+}
+
+// Add this after your existing initialization code
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // Add certificate overlay to body
+    const overlay = document.createElement('div');
+    overlay.className = 'certificate-overlay';
+    overlay.innerHTML = `
+        <button class="close-button" onclick="closeCertificateOverlay()">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="overlayImage" src="" alt="Certificate">
+    `;
+    document.body.appendChild(overlay);
+});
+
+function showCertificateOverlay(certificateURL) {
+    const overlay = document.querySelector('.certificate-overlay');
+    const image = overlay.querySelector('#overlayImage');
+    
+    image.src = certificateURL;
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // Add click event listener
+    overlay.onclick = (e) => {
+        // Close only if clicking the dark overlay, not the image
+        if (e.target === overlay) {
+            closeCertificateOverlay();
+        }
+    };
+}
+
+function closeCertificateOverlay() {
+    const overlay = document.querySelector('.certificate-overlay');
+    overlay.classList.remove('show');
+    
+    // Restore body scrolling
+    document.body.style.overflow = '';
 }
