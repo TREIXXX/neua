@@ -1,0 +1,214 @@
+<!-- Added new tab in navigation -->
+<li class="nav-item" role="presentation">
+    <button class="nav-link" id="document-requests-tab" data-bs-toggle="tab" data-bs-target="#document-requests" type="button" role="tab" aria-controls="document-requests" aria-selected="false">
+        Document Requests
+    </button>
+</li>
+
+<!-- Added new tab content -->
+<div class="tab-pane fade" id="document-requests" role="tabpanel" aria-labelledby="document-requests-tab">
+    <div class="search-container">
+        <div class="search-filters">
+            <input type="text" id="documentRequestSearch" placeholder="Search document requests..." oninput="filterDocumentRequests()">
+            
+            <div class="filter-group">
+                <div class="dropdown-filter">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                        Status <span class="selected-count"></span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <label><input type="checkbox" value="released"> Released</label>
+                        <label><input type="checkbox" value="completed"> Completed</label>
+                        <label><input type="checkbox" value="overdue"> Overdue</label>
+                        <label><input type="checkbox" value="broken"> Broken</label>
+                        <label><input type="checkbox" value="missing"> Missing</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="search-controls">
+            <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('documentRequestsTable')" style="display: none;">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button type="button" class="btn btn-refresh btn-outline-secondary me-2" onclick="refreshDocumentRequestsRecords()">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+            <button type="button" class="btn btn-export btn-outline-secondary" onclick="exportDocumentRequestsRecords()">
+                <i class="fa-solid fa-share-from-square"></i>
+            </button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table id="documentRequestsTable">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllDocumentRequests" onchange="toggleSelectAll('documentRequestsTable', this)"></th>
+                    <th onclick="sortTable('documentRequestsTable', 1)">Reference <span id="documentRequestsTableHeader1"></span></th>
+                    <th onclick="sortTable('documentRequestsTable', 2)">Doc ID <span id="documentRequestsTableHeader2"></span></th>
+                    <th onclick="sortTable('documentRequestsTable', 3)">Title <span id="documentRequestsTableHeader3"></span></th>
+                    <th onclick="sortTable('documentRequestsTable', 4)">Borrower <span id="documentRequestsTableHeader4"></span></th>
+                    <th onclick="sortTable('documentRequestsTable', 5)">Date Released <span id="documentRequestsTableHeader5"></span></th>
+                    <th onclick="sortTable('documentRequestsTable', 6)">Status <span id="documentRequestsTableHeader6"></span></th>
+                    <th class="actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically generated here -->
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination-container">
+        <div class="rows-per-page">
+            <span>Showing</span>
+            <select id="documentRequestsRowsPerPage" onchange="changeRowsPerPage('documentRequestsTable', this.value)">
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            <span>rows per page</span>
+        </div>
+        <div id="documentRequestsTablePagination" class="pagination"></div>
+    </div>
+</div>
+
+
+
+
+
+
+
+/* Document Request Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    min-width: 100px;
+}
+
+.status-badge.released {
+    color: #34C759;
+    background-color: #D6F5DE;
+}
+
+.status-badge.completed {
+    color: #0092CC;
+    background-color: #D2EDF9;
+}
+
+.status-badge.overdue {
+    color: #FF9500;
+    background-color: #FFEACC;
+}
+
+.status-badge.broken {
+    color: #FF3B30;
+    background-color: #FFE5E5;
+}
+
+.status-badge.missing {
+    color: #757575;
+    background-color: #E6E6E6;
+}
+
+/* Document Request Table Specific Styles */
+#documentRequestsTable td:nth-child(6) {
+    white-space: nowrap;
+}
+
+#documentRequestsTable td:nth-child(1),
+#documentRequestsTable td:nth-child(2),
+#documentRequestsTable td:nth-child(5),
+#documentRequestsTable td:nth-child(7),
+#documentRequestsTable td:nth-child(8) {
+    text-align: center;
+}
+
+
+
+
+
+
+// Added to global variables
+let allDocumentRequests = [];
+let filteredDocumentRequests = [];
+let originalDocumentRequests = [];
+
+// Added to table settings
+const tableSettings = {
+    // ... existing settings ...
+    documentRequestsTable: { rowsPerPage: 20, currentPage: 1 }
+};
+
+// Added to filter states
+const filterStates = {
+    // ... existing states ...
+    documentRequests: {
+        status: []
+    }
+};
+
+// Main loading function
+function loadDocumentRequests() {
+    // Example data - replace with actual API call
+    const documentRequests = [
+        {
+            reference: '25001',
+            docId: 'CSU-3100-24',
+            title: 'Cybersecurity Module 2',
+            borrower: '25-12345-678',
+            dateReleased: '10/20/25 02:30 PM',
+            status: 'released'
+        },
+        // ... more example data ...
+    ];
+
+    allDocumentRequests = documentRequests;
+    renderTable('documentRequestsTable', documentRequests);
+    setupPagination('documentRequestsTable', documentRequests);
+}
+
+// Filter function
+function filterDocumentRequests() {
+    const searchTerm = document.getElementById('documentRequestSearch').value.toLowerCase();
+    filteredDocumentRequests = allDocumentRequests.filter(record => {
+        return Object.values(record).some(value => 
+            String(value).toLowerCase().includes(searchTerm)
+        );
+    });
+    renderTable('documentRequestsTable', filteredDocumentRequests);
+}
+
+// Refresh function
+function refreshDocumentRequestsRecords() {
+    showAlert('Refreshing document requests...', 'info');
+    document.getElementById('documentRequestSearch').value = '';
+    filteredDocumentRequests = [];
+    loadDocumentRequests();
+    showAlert('Document requests refreshed!', 'success');
+}
+
+// Export function
+function exportDocumentRequestsRecords() {
+    const headers = ['Reference', 'Doc ID', 'Title', 'Borrower', 'Date Released', 'Status'];
+    const rows = Array.from(document.querySelectorAll('#documentRequestsTable tbody tr')).map(row => {
+        return Array.from(row.children)
+            .slice(1, 7)
+            .map(cell => cell.textContent.trim());
+    });
+    
+    downloadCSV(headers, rows, 'document_requests.csv');
+}
+
+// Added document requests to initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing initialization ...
+    loadDocumentRequests();
+    
+    const documentRequestSearch = document.getElementById('documentRequestSearch');
+    if (documentRequestSearch) {
+        documentRequestSearch.addEventListener('input', filterDocumentRequests);
+    }
+});
