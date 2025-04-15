@@ -36,3 +36,276 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.dashboard-stats {
+    height: auto;
+    margin: auto;
+    display: flex;
+    gap: 20px;
+}
+
+.stat {
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    padding: 20px 40px;
+    border-radius: 16px;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+    display: flex;
+    flex: 1;
+    margin: 12px auto;
+    position: relative;
+    min-width: 400px;
+}
+
+.chart-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin-right: 20px;
+}
+
+.chart-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.chart-center h3 {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin: 0;
+    color: #005580;
+}
+
+.chart-center p {
+    font-size: 1.2rem;
+    color: #757575;
+    margin: 0;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+    .dashboard-stats {
+        flex-direction: column;
+    }
+    
+    .stat {
+        padding: 20px;
+        min-width: auto;
+    }
+    
+    .chart-container {
+        width: 150px;
+        height: 150px;
+        margin-right: 0;
+    }
+    
+    .chart-center h3 {
+        font-size: 2em;
+    }
+    
+    .chart-center p {
+        font-size: 1rem;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let fileChart;
+let userChart;
+let requestChart;
+
+function initializeCharts() {
+    // Common chart options
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'right',
+                align: 'center',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: {
+                        size: 12,
+                        family: 'Helvetica'
+                    },
+                    generateLabels: function(chart) {
+                        const data = chart.data;
+                        if (data.labels.length && data.datasets.length) {
+                            return data.labels.map((label, i) => {
+                                const dataset = data.datasets[0];
+                                const value = dataset.data[i];
+                                return {
+                                    text: `${label}: ${value}`,
+                                    fillStyle: dataset.backgroundColor[i],
+                                    strokeStyle: dataset.backgroundColor[i],
+                                    lineWidth: 0,
+                                    hidden: false,
+                                    index: i
+                                };
+                            });
+                        }
+                        return [];
+                    }
+                }
+            }
+        }
+    };
+
+    // Initialize File Chart (Programs distribution)
+    const fileCtx = document.getElementById('fileChart').getContext('2d');
+    fileChart = new Chart(fileCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['BSIT', 'BSCS', 'BSIS', 'BLIS'],
+            datasets: [{
+                data: [0, 0, 0, 0],
+                backgroundColor: [
+                    '#FF9500',
+                    '#34C759',
+                    '#0092CC',
+                    '#757575'
+                ],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Initialize User Chart (User types + pending)
+    const userCtx = document.getElementById('userChart').getContext('2d');
+    userChart = new Chart(userCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Student', 'Alumni', 'Faculty', 'Pending'],
+            datasets: [{
+                data: [0, 0, 0, 0],
+                backgroundColor: [
+                    '#FF9500',
+                    '#34C759',
+                    '#0092CC',
+                    '#757575'
+                ],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Initialize Request Chart (Document requests status)
+    const requestCtx = document.getElementById('requestChart').getContext('2d');
+    requestChart = new Chart(requestCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Released', 'Completed', 'Overdue', 'Broken', 'Missing'],
+            datasets: [{
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: [
+                    '#34C759', // Green for Released
+                    '#0092CC', // Blue for Completed
+                    '#FF9500', // Orange for Overdue
+                    '#FF3B30', // Red for Broken
+                    '#757575'  // Gray for Missing
+                ],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: chartOptions
+    });
+}
+
+function updateCharts(fileData, userData, requestData) {
+    // Update File Chart
+    fileChart.data.datasets[0].data = [
+        fileData.bsit || 0,
+        fileData.bscs || 0,
+        fileData.bsis || 0,
+        fileData.blis || 0
+    ];
+    fileChart.update();
+
+    // Update User Chart
+    userChart.data.datasets[0].data = [
+        userData.student || 0,
+        userData.alumni || 0,
+        userData.faculty || 0,
+        userData.pending || 0
+    ];
+    userChart.update();
+
+    // Update Request Chart
+    requestChart.data.datasets[0].data = [
+        requestData.released || 0,
+        requestData.completed || 0,
+        requestData.overdue || 0,
+        requestData.broken || 0,
+        requestData.missing || 0
+    ];
+    requestChart.update();
+
+    // Update center counts
+    document.getElementById('fileCount').textContent = 
+        (fileData.bsit || 0) + (fileData.bscs || 0) + (fileData.bsis || 0) + (fileData.blis || 0);
+    document.getElementById('userCount').textContent = 
+        (userData.student || 0) + (userData.alumni || 0) + (userData.faculty || 0);
+    document.getElementById('requestCount').textContent = 
+        (requestData.released || 0) + (requestData.completed || 0) + 
+        (requestData.overdue || 0) + (requestData.broken || 0) + 
+        (requestData.missing || 0);
+}
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    // Example data - replace with actual data from your backend
+    const fileData = { bsit: 10, bscs: 15, bsis: 8, blis: 2 };
+    const userData = { student: 20, alumni: 15, faculty: 10, pending: 5 };
+    const requestData = { released: 8, completed: 12, overdue: 3, broken: 1, missing: 2 };
+    updateCharts(fileData, userData, requestData);
+});
