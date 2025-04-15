@@ -1,0 +1,38 @@
+<!-- Added Chart.js library -->
+<head>
+    <!-- ... existing head content ... -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<!-- Replaced the old stats section with new chart containers -->
+<div class="dashboard-stats">
+    <div class="stat">
+        <div class="chart-container">
+            <canvas id="fileChart"></canvas>
+            <div class="chart-center">
+                <h3 id="fileCount">0</h3>
+                <p>Files</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat">
+        <div class="chart-container">
+            <canvas id="userChart"></canvas>
+            <div class="chart-center">
+                <h3 id="userCount">0</h3>
+                <p>Users</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat">
+        <div class="chart-container">
+            <canvas id="requestChart"></canvas>
+            <div class="chart-center">
+                <h3 id="requestCount">0</h3>
+                <p>Requests</p>
+            </div>
+        </div>
+    </div>
+</div>
