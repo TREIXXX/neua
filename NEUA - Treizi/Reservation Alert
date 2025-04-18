@@ -1,0 +1,77 @@
+// Eto makikita ni user pag successful docu request nya.
+
+<div class="modal fade"  id="reserveModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="reserveModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+            <div class="modal-content">
+               
+                <div class="modal-body">
+                    <form id="reserveForm">
+    
+                        <!-- Terms and Conditions Section -->
+                        <div class="terms-container p-3 mb-3">
+                            <h3 class="mb-2 fw-bold">Document Reserved!</h3>
+                            <div class="terms-content" style="height: auto;">
+                                
+                                <ol class="fs-6">
+                                    <li><b>Take a screenshot</b> of this form for proof of reservation.</li>
+                                    <li><b>Present your ID</b> to the Main Campus Librarian for verification.</li>
+                                    <li>Claim the document <b>within 3 Days</b> after requesting.</li>
+                                </ol>
+                            </div>
+                            
+                        </div>
+    
+                        <!-- User Details Section -->
+                        <div class="detail-row mb-3">
+                            <span class="detail-label fw-bold col-4">Email</span>
+                            <span class="detail-value col-8" id="userEmail"></span>
+                        </div>
+                        <div class="detail-row mb-3">
+                            <span class="detail-label fw-bold col-4">Name</span>
+                            <span class="detail-value col-8" id="userName"></span>
+                        </div>
+                        <div class="detail-row mb-3">
+                            <span class="detail-label fw-bold col-4">ID</span>
+                            <span class="detail-value col-8" id="userID"></span>
+                        </div>
+                        <div class="detail-row mb-3">
+                            <span class="detail-label fw-bold col-4">User Type</span>
+                            <span class="detail-value col-8" id="userUserType"></span>
+                        </div>
+    
+                        <hr class="separator">
+    
+                       <!-- Document Details Section -->
+                       <div class="detail-row mb-3">
+                        <span class="detail-label fw-bold col-4">Doc ID</span>
+                        <span class="detail-value col-8" id="modalDocumentId"></span>
+                    </div>
+
+                    <div class="detail-row mb-3">
+                        <span class="detail-label fw-bold col-4">Title</span>
+                        <span class="detail-value col-8" id="modalDocumentTitle"></span>
+                    </div>
+                    <div class="detail-row mb-3">
+                        <span class="detail-label fw-bold col-4">Author</span>
+                        <span class="detail-value col-8" id="modalDocumentAuthor"></span>
+                    </div>
+
+                    <div class="detail-row mb-3">
+                        <span class="detail-label fw-bold col-4">Published</span>
+                        <span class="detail-value col-8" id="modalDocumentPublished"></span>
+                    </div>
+
+                    <div class="detail-row mb-3">
+                        <span class="detail-label fw-bold col-4">Ref no.</span>
+                        <span class="detail-value col-8" id="ReferenceNo"></span>
+                    </div>
+    
+                    </form>
+                </div>
+                <div class="modal-footer">
+                   
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
