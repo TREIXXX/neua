@@ -60,6 +60,7 @@ html, body {
 
 .btn-outline-primary {
     background-color: transparent !important;
+    color: #005580 !important;
     border-color: #005580 !important;
     border-radius: 8px !important;
     height: 100% !important;
@@ -68,7 +69,8 @@ html, body {
 .btn-outline-primary:hover, 
 .btn-outline-primary:focus {
     background-color: #d9e3e6 !important; 
-    border-color: #004466 !important;
+    color: #005580 !important;
+    border-color: #005580 !important;
     border-radius: 8px !important;
     height: 100% !important;
 }
