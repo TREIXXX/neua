@@ -174,11 +174,12 @@
         
         
         
-        <div class="request-document">
+        <div class="request-document" style="display: flex; align-items: center; gap: 10px;">
           <button class="request-btn btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestModal">
               <i class="fas fa-file-alt"></i> Request Document
           </button>
-      </div>
+          <span id="unavailableAlert" style="color:  #FF9500"></span>
+        </div>
   
       <!-- Modal -->
       <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
@@ -194,7 +195,7 @@
                         <!-- Terms and Conditions Section -->
                         <div class="terms-container p-3 mb-3">
                             <h6 class="mb-2 fw-bold">Read First</h6>
-                            <div class="terms-content" style="height: 150px; overflow-y: auto;">
+                            <div class="terms-content" style="height: 120px; overflow-y: auto;">
                                 <p class="mb-2 fs-6">By requesting access to this document, you agree to:</p>
                                 <ol class="fs-6">
                                     <li>Use the document solely for the stated purpose</li>
