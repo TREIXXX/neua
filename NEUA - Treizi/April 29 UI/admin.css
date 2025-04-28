@@ -96,7 +96,7 @@ h4 {
 
 .container {
     flex-direction: column;
-    min-width: 850px;
+    min-width: 900px;
     max-width: 1200px;
     height: auto;
     margin:12px auto;
@@ -427,6 +427,11 @@ h1{
     border: 1px solid #757575;
     border-radius: 8px;
     width: 300px;
+}
+
+.search-controls {
+    display: flex;
+    align-items: center;
 }
 
 .search-filters {
@@ -1246,4 +1251,6 @@ tr.deactivated:hover {
     font-weight: 500;
     min-width: 80px;
 }
+
+
 
