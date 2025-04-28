@@ -667,7 +667,7 @@ doc.text(`As of ${currentDate}`, 105, 28, { align: 'center' });
         doc.autoTable({
             startY: yPos,
             head: [
-                [{ content: 'USER STATISTICS', colSpan: 3, styles: { 
+                [{ content: 'USERS STATISTICS', colSpan: 3, styles: { 
                     halign: 'center', 
                     fillColor: null, 
                     textColor: [0, 0, 0], 
