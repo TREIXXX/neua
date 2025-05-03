@@ -389,24 +389,13 @@ function renderTable(tableId, records) {
         
         switch (tableId) {
             case 'fileRecordsTable':
-                // Add cells for file records with copy functionality
+                // Add cells for file records
                 ['documentId', 'title', 'author', 'year', 'course'].forEach((prop, index) => {
                     const cell = row.insertCell();
                     const value = record[prop] || '';
-                    
-                    // Add copy functionality for file records
                     cell.textContent = value;
-                    cell.setAttribute('title', 'Click to copy');
-                    cell.style.cursor = 'pointer';
-                    cell.onclick = (e) => {
-                        // Don't copy if row is in edit mode
-                        if (e.target.closest('tr').classList.contains('edit-mode')) {
-                            return;
-                        }
-                        copyToClipboard(value);
-                    };
                 });
-
+                
                 // Add actions column
                 const actionsCell = row.insertCell();
                 actionsCell.className = 'actions';
