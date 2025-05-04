@@ -524,41 +524,7 @@ function submitRequest() {
     });
 }
 
-// Helper function to show alerts
-function showAlert(message, type) {
-    const alertElement = document.getElementById('customAlert');
-    const alertMessage = document.getElementById('alertMessage');
-    const alertIcon = document.querySelector('.alert-icon');
-    
-    // Set icon based on alert type
-    let icon = '';
-    switch(type) {
-        case 'success':
-            icon = '<i class="fas fa-check-circle"></i>';
-            break;
-        case 'danger':
-            icon = '<i class="fas fa-times-circle"></i>';
-            break;
-        case 'warning':
-            icon = '<i class="fas fa-exclamation-triangle"></i>';
-            break;
-        default:
-            icon = '<i class="fas fa-info-circle"></i>';
-    }
-    
-    alertIcon.innerHTML = icon;
-    alertElement.className = `custom-alert alert alert-${type} show`;
-    alertMessage.textContent = message;
-    
-    // Show alert
-    alertElement.style.display = 'block';
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        alertElement.style.display = 'none';
-        alertElement.className = 'custom-alert alert';
-    }, 5000);
-}
+
 
 // PDF Viewer using Canvas - Simplified Version
 document.addEventListener('DOMContentLoaded', function () {
@@ -615,38 +581,40 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     // After setting window.currentDocumentId
-                    const docId = data.id;
-                    fetch(`document.php?action=checkDocStatus&docId=${docId}&userId=${sessionStorage.getItem('user_id')}`)
-                        .then(response => response.json())
-                        .then(statusData => {
-                            const requestBtn = document.querySelector('.request-btn');
-                            let alertMsg = document.getElementById('unavailableAlert');
-                            if (!alertMsg) {
-                                alertMsg = document.createElement('span');
-                                alertMsg.id = 'unavailableAlert';
-                                alertMsg.style.marginLeft = '10px';
-                                alertMsg.style.color = 'red';
-                                requestBtn.parentNode.appendChild(alertMsg);
-                            }
-                            
-                            if (statusData.unavailable) {
-                                // Set message based on status type
-                                if (statusData.messageType === 'limit') {
-                                    alertMsg.textContent = 'Request limit reached. Try again tomorrow.';
-                                } else if (statusData.messageType === 'unavailable') {
-                                    alertMsg.textContent = 'Unavailable';
-                                } else {
-                                    alertMsg.textContent = 'Unavailable - Reserved';
-                                }
-                                
-                                requestBtn.disabled = true;
-                                requestBtn.classList.add('disabled');
-                            } else {
-                                alertMsg.textContent = '';
-                                requestBtn.disabled = false;
-                                requestBtn.classList.remove('disabled');
-                            }
-                        });
+                    const docId = data.id;
+                    fetch(document.php?action=checkDocStatus&docId=${docId}&userId=${sessionStorage.getItem('user_id')})
+                        .then(response => response.json())
+                        .then(statusData => {
+                            const requestBtn = document.querySelector('.request-btn');
+                            let alertMsg = document.getElementById('unavailableAlert');
+                            if (!alertMsg) {
+                                alertMsg = document.createElement('span');
+                                alertMsg.id = 'unavailableAlert';
+                                alertMsg.style.marginLeft = '10px';
+                                requestBtn.parentNode.appendChild(alertMsg);
+                            }
+
+                            if (statusData.unavailable) {
+                                // Set message and text color based on status type
+                                if (statusData.messageType === 'limit') {
+                                    alertMsg.textContent = 'Request limit reached. Try again tomorrow.';
+                                    alertMsg.style.color = '#CE0000';
+                                } else if (statusData.messageType === 'unavailable') {
+                                    alertMsg.textContent = 'Currently Unavailable';
+                                    alertMsg.style.color = '#757575';
+                                } else {
+                                    alertMsg.textContent = 'Unavailable - Reserved';
+                                    alertMsg.style.color = '#FF9500';
+                                }
+
+                                requestBtn.disabled = true;
+                                requestBtn.classList.add('disabled');
+                            } else {
+                                alertMsg.textContent = '';
+                                requestBtn.disabled = false;
+                                requestBtn.classList.remove('disabled');
+                            }
+                        });
                 })
                 .catch(error => {
                     console.error('Error fetching document metadata:', error);
