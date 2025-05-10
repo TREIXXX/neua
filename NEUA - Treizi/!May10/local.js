@@ -1,0 +1,1249 @@
+// Dropdown data
+// Define programs by department
+const programsByDepartment = {
+    'CICS': ['Computer Science','Information Technology','Information Systems','Library and Information Systems'],
+    'CAS': ['Economics','Political Science','Pyschology','Public Administration'],
+    'CEA': ['Civil Engineering','Electrical Engineering','Mechanical Engineering','Architecture']
+};
+
+// Variables for pagination and filtering
+let currentPage = 1;
+const resultsPerPage = 20;
+let selectedCategory = 'Any Field';
+let selectedYear = '';
+let selectedDepartment = 'All Departments';
+let selectedProgram = 'All Programs';
+let sortByDate = false;
+
+const searchPhrases = [
+    "Bachelor of Science in Information Technology",
+    "Bachelor of Science in Computer Science",
+    "Bachelor of Science in Information Systems",
+    "Bachelor of Library and Information Science",
+];
+
+// Initialize year calculations
+document.addEventListener("DOMContentLoaded", function() {
+    const currentYear = new Date().getFullYear();
+    const lastYear = currentYear - 1;
+    const fiveYearsAgo = currentYear - 5;
+
+    document.getElementById("lastYear").textContent = `Since ${lastYear}`;
+    document.getElementById("fiveYearsAgo").textContent = `Since ${fiveYearsAgo}`;
+
+    // Set data-value attributes for selection logic
+    document.getElementById("lastYear").setAttribute("data-value", `Since ${lastYear}`);
+    document.getElementById("fiveYearsAgo").setAttribute("data-value", `Since ${fiveYearsAgo}`);
+
+    // Search button click handler
+    document.getElementById('searchButton').addEventListener('click', performSearch);
+
+    // Search input enter key handler
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    // Year dropdown handler
+    document.getElementById('dropdownBtn').addEventListener('click', function() {
+        document.getElementById('dropdownMenu').classList.toggle('show');
+    });
+
+    // Initial search on page load
+    performSearch();
+});
+
+// Function to handle Archival Resources link click
+function handleArchivalResourcesClick(event) {
+    event.preventDefault();
+    selectedYear = ''; // Reset year filter
+    selectedProgram = 'All Programs'; // Reset course filter
+    sortByDate = true;
+    currentPage = 1;
+
+    // Update dropdowns visually
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+        dropdownBtn.innerHTML = `Sort by Year <i class="fa-solid fa-chevron-down"></i>`;
+    }
+
+    const programDropdownBtn = document.getElementById('dropdownProgram');
+    if (programDropdownBtn) {
+        programDropdownBtn.innerHTML = `All Programs <i class="fa-solid fa-chevron-down"></i>`;
+    }
+
+    // Perform search
+    searchDocuments('');
+    history.pushState(null, '', 'resources.html?sort=year');
+}
+
+// Function to fetch documents from local backend
+async function searchDocuments(searchQuery, page = 1) {
+    const documentList = document.getElementById('documentList');
+    documentList.innerHTML = ''; // Clear previous results
+    currentPage = page;
+
+    try {
+        const response = await fetch(`resources.php?keyword=${encodeURIComponent(searchQuery)}&page=${page}&year=${encodeURIComponent(selectedYear)}&sortByDate=${sortByDate}&category=${encodeURIComponent(selectedCategory)}&department=${encodeURIComponent(selectedDepartment)}&program=${encodeURIComponent(selectedProgram)}`);
+        const data = await response.json();
+
+        const totalResults = data.totalResults;
+        const resultElement = document.getElementById('result');
+        
+        if (totalResults === 0) {
+            resultElement.innerHTML = searchQuery
+                ? `No results were found for <span class="bold">${searchQuery}</span> in <span class="bold">${selectedCategory}</span>`
+                : 'No results were found.';
+        } else if (totalResults === 1) {
+            resultElement.innerHTML = searchQuery
+                ? `<span class="bold">${totalResults}</span> Result found for <span class="bold">${searchQuery}</span> in <span class="bold">${selectedCategory}</span>`
+                : `<span class="bold">${totalResults}</span> Result found`;
+        } else {
+            resultElement.innerHTML = searchQuery
+                ? `<span class="bold">${totalResults}</span> Results found for <span class="bold">${searchQuery}</span> in <span class="bold">${selectedCategory}</span>`
+                : `<span class="bold">${totalResults}</span> Results found`;
+        }
+
+        // Create pagination controls
+        createPaginationControls(data.totalPages);
+
+        // Display documents
+        data.docs.forEach((doc) => {
+            const card = createDocumentCard(doc);
+            documentList.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Error searching documents:', error);
+        showAlert('Error searching documents', 'danger');
+    }
+}
+
+// Function to create pagination controls
+function createPaginationControls(totalPages) {
+    const paginationContainer = document.querySelector('.pagination');
+    paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+    if (totalPages > 1) {
+        // Previous button
+        const prevButton = document.createElement('li');
+        prevButton.classList.add('page-item');
+        const prevLink = document.createElement('a');
+        prevLink.classList.add('page-link');
+        prevLink.href = '#';
+        prevLink.innerHTML = '&laquo;';
+        prevLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage > 1) {
+                searchDocuments(document.getElementById('searchInput').value.trim(), currentPage - 1);
+                scrollToTarget();
+            }
+        });
+        prevButton.appendChild(prevLink);
+        paginationContainer.appendChild(prevButton);
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('li');
+            pageButton.classList.add('page-item');
+            const pageLink = document.createElement('a');
+            pageLink.classList.add('page-link');
+            pageLink.href = '#';
+            pageLink.innerText = i;
+            
+            if (i === currentPage) {
+                pageLink.classList.add('active');
+                pageLink.style.backgroundColor = '#00415a';
+                pageLink.style.color = '#fff';
+                pageLink.style.borderColor = '#00415a';
+            }
+            
+            pageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const searchQuery = document.getElementById('searchInput').value.trim();
+                searchDocuments(searchQuery, i);
+                scrollToTarget();
+            });
+            pageButton.appendChild(pageLink);
+            paginationContainer.appendChild(pageButton);
+        }
+        
+        // Next button
+        const nextButton = document.createElement('li');
+        nextButton.classList.add('page-item');
+        const nextLink = document.createElement('a');
+        nextLink.classList.add('page-link');
+        nextLink.href = '#';
+        nextLink.innerHTML = '&raquo;';
+        nextLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage < totalPages) {
+                searchDocuments(document.getElementById('searchInput').value.trim(), currentPage + 1);
+                scrollToTarget();
+            }
+        });
+        nextButton.appendChild(nextLink);
+        paginationContainer.appendChild(nextButton);
+    }
+}
+
+// Scroll-to-target function
+function scrollToTarget() {
+    const targetElement = document.getElementById('scroll-target');
+    if (targetElement) {
+        const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - 50;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+        });
+    }
+}
+
+// Setup dropdown functionality
+function setupDropdown() {
+    // User Dropdown
+    const userDropdownBtn = document.getElementById('dropdownUser');
+    const userDropdownMenu = document.getElementById('dropdownOption');
+
+    if (userDropdownBtn && userDropdownMenu) {
+        userDropdownBtn.addEventListener('click', () => {
+            // Close other dropdowns
+            const categoryDropdownMenu = document.getElementById('dropdownCategory');
+            const yearDropdownMenu = document.getElementById('dropdownMenu');
+            const departmentDropdownMenu = document.getElementById('dropdownDepartmentMenu');
+            const programDropdownMenu = document.getElementById('dropdownProgramMenu');
+            
+            if (categoryDropdownMenu) categoryDropdownMenu.style.display = 'none';
+            if (yearDropdownMenu) yearDropdownMenu.style.display = 'none';
+            if (departmentDropdownMenu) departmentDropdownMenu.style.display = 'none';
+            if (programDropdownMenu) programDropdownMenu.style.display = 'none';
+            
+            // Toggle current dropdown
+            userDropdownMenu.style.display =
+                userDropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!userDropdownBtn.contains(event.target) &&
+                !userDropdownMenu.contains(event.target)) {
+                userDropdownMenu.style.display = 'none';
+            }
+        });
+    }
+    
+    // Category Dropdown
+    const categoryDropdownBtn = document.getElementById('dropdownField');
+    const categoryDropdownMenu = document.getElementById('dropdownCategory');
+
+    if (categoryDropdownBtn && categoryDropdownMenu) {
+        categoryDropdownBtn.addEventListener('click', () => {
+            // Close other dropdowns
+            if (userDropdownMenu) userDropdownMenu.style.display = 'none';
+            const yearDropdownMenu = document.getElementById('dropdownMenu');
+            if (yearDropdownMenu) yearDropdownMenu.style.display = 'none';
+            const departmentDropdownMenu = document.getElementById('dropdownDepartmentMenu');
+            if (departmentDropdownMenu) departmentDropdownMenu.style.display = 'none';
+            const programDropdownMenu = document.getElementById('dropdownProgramMenu');
+            if (programDropdownMenu) programDropdownMenu.style.display = 'none';
+            
+            // Toggle current dropdown
+            categoryDropdownMenu.style.display =
+                categoryDropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        categoryDropdownMenu.querySelectorAll('a').forEach((item) => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                selectedCategory = item.getAttribute('data-value');
+                
+                // Update button text
+                categoryDropdownBtn.innerHTML = `${selectedCategory} <i class="fa-solid fa-chevron-down"></i>`;
+                categoryDropdownMenu.style.display = 'none';
+
+                // Perform search
+                currentPage = 1;
+                searchDocuments(document.getElementById('searchInput').value.trim());
+            });
+        });
+    }
+
+    // Year Dropdown
+    const yearDropdownBtn = document.getElementById('dropdownBtn');
+    const yearDropdownMenu = document.getElementById('dropdownMenu');
+
+    if (yearDropdownBtn && yearDropdownMenu) {
+        yearDropdownBtn.addEventListener('click', () => {
+            // Close other dropdowns
+            const userDropdownMenu = document.getElementById('dropdownOption');
+            if (userDropdownMenu) userDropdownMenu.style.display = 'none';
+            const categoryDropdownMenu = document.getElementById('dropdownCategory');
+            if (categoryDropdownMenu) categoryDropdownMenu.style.display = 'none';
+            const departmentDropdownMenu = document.getElementById('dropdownDepartmentMenu');
+            if (departmentDropdownMenu) departmentDropdownMenu.style.display = 'none';
+            const programDropdownMenu = document.getElementById('dropdownProgramMenu');
+            if (programDropdownMenu) programDropdownMenu.style.display = 'none';
+            
+            // Toggle current dropdown
+            yearDropdownMenu.style.display = yearDropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        yearDropdownMenu.querySelectorAll('a').forEach((item) => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                const text = item.textContent.trim();
+
+                if (text === 'Sort by Year') {
+                    sortByDate = true;
+                    selectedYear = '';
+                } else if (text === 'Any time') {
+                    selectedYear = '';
+                    sortByDate = false;
+                } else {
+                    selectedYear = text;
+                    sortByDate = false;
+                }
+
+                // Update button text
+                yearDropdownBtn.innerHTML = `${text} <i class="fa-solid fa-chevron-down"></i>`;
+                yearDropdownMenu.style.display = 'none';
+
+                // Perform search
+                currentPage = 1;
+                searchDocuments(document.getElementById('searchInput').value.trim());
+            });
+        });
+    }
+
+    // Department Dropdown
+    const departmentDropdownBtn = document.getElementById('dropdownDepartment');
+    const departmentDropdownMenu = document.getElementById('dropdownDepartmentMenu');
+    const programDropdownBtn = document.getElementById('dropdownProgram');
+    const programDropdownMenu = document.getElementById('dropdownProgramMenu');
+
+    if (departmentDropdownBtn && departmentDropdownMenu) {
+        departmentDropdownBtn.addEventListener('click', () => {
+            // Close other dropdowns
+            const userDropdownMenu = document.getElementById('dropdownOption');
+            if (userDropdownMenu) userDropdownMenu.style.display = 'none';
+            const categoryDropdownMenu = document.getElementById('dropdownCategory');
+            if (categoryDropdownMenu) categoryDropdownMenu.style.display = 'none';
+            const yearDropdownMenu = document.getElementById('dropdownMenu');
+            if (yearDropdownMenu) yearDropdownMenu.style.display = 'none';
+            if (programDropdownMenu) programDropdownMenu.style.display = 'none';
+            
+            // Toggle current dropdown
+            departmentDropdownMenu.style.display = departmentDropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Handle department selection
+        departmentDropdownMenu.querySelectorAll('a').forEach((item) => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                selectedDepartment = item.getAttribute('data-value');
+                
+                // Update department button text
+                departmentDropdownBtn.innerHTML = `${selectedDepartment} <i class="fa-solid fa-chevron-down"></i>`;
+                departmentDropdownMenu.style.display = 'none';
+                
+                // Reset program selection
+                selectedProgram = 'All Programs';
+                if (programDropdownBtn) {
+                    programDropdownBtn.innerHTML = `${selectedProgram} <i class="fa-solid fa-chevron-down"></i>`;
+                }
+                
+                // Update program dropdown options
+                updateProgramDropdown();
+                
+                // Perform search
+                currentPage = 1;
+                searchDocuments(document.getElementById('searchInput').value.trim());
+            });
+        });
+    }
+
+    if (programDropdownBtn && programDropdownMenu) {
+        programDropdownBtn.addEventListener('click', () => {
+            if (selectedDepartment === 'All Departments') {
+                showAlert('Please select a department first', 'warning');
+                return;
+            }
+            
+            // Close other dropdowns
+            const userDropdownMenu = document.getElementById('dropdownOption');
+            if (userDropdownMenu) userDropdownMenu.style.display = 'none';
+            const categoryDropdownMenu = document.getElementById('dropdownCategory');
+            if (categoryDropdownMenu) categoryDropdownMenu.style.display = 'none';
+            const yearDropdownMenu = document.getElementById('dropdownMenu');
+            if (yearDropdownMenu) yearDropdownMenu.style.display = 'none';
+            const departmentDropdownMenu = document.getElementById('dropdownDepartmentMenu');
+            if (departmentDropdownMenu) departmentDropdownMenu.style.display = 'none';
+            
+            // Toggle program dropdown
+            programDropdownMenu.style.display = programDropdownMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Handle program selection using event delegation
+        programDropdownMenu.addEventListener('click', (event) => {
+            if (event.target.tagName === 'A') {
+                event.preventDefault();
+                selectedProgram = event.target.getAttribute('data-value');
+                
+                // Update program button text
+                programDropdownBtn.innerHTML = `${selectedProgram} <i class="fa-solid fa-chevron-down"></i>`;
+                programDropdownMenu.style.display = 'none';
+
+                // Perform search
+                currentPage = 1;
+                searchDocuments(document.getElementById('searchInput').value.trim());
+            }
+        });
+    }
+
+    // Function to update program dropdown options
+    function updateProgramDropdown() {
+        const programDropdownMenu = document.getElementById('dropdownProgramMenu');
+        if (!programDropdownMenu) return;
+        
+        programDropdownMenu.innerHTML = '<a href="#" data-value="All Programs" id="sort">All Programs</a>';
+
+        if (selectedDepartment !== 'All Departments') {
+            const programs = programsByDepartment[selectedDepartment] || [];
+            programs.forEach(program => {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.setAttribute('data-value', program);
+                link.id = 'sort-program';
+                link.textContent = program;
+                programDropdownMenu.appendChild(link);
+            });
+        }
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (event) => {
+        const userDropdownBtn = document.getElementById('dropdownUser');
+        const userDropdownMenu = document.getElementById('dropdownOption');
+        const categoryDropdownBtn = document.getElementById('dropdownField');
+        const categoryDropdownMenu = document.getElementById('dropdownCategory');
+        const yearDropdownBtn = document.getElementById('dropdownBtn');
+        const yearDropdownMenu = document.getElementById('dropdownMenu');
+        const departmentDropdownBtn = document.getElementById('dropdownDepartment');
+        const departmentDropdownMenu = document.getElementById('dropdownDepartmentMenu');
+        const programDropdownBtn = document.getElementById('dropdownProgram');
+        const programDropdownMenu = document.getElementById('dropdownProgramMenu');
+        
+        if (userDropdownBtn && userDropdownMenu && !userDropdownBtn.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+            userDropdownMenu.style.display = 'none';
+        }
+        if (categoryDropdownBtn && categoryDropdownMenu && !categoryDropdownBtn.contains(event.target) && !categoryDropdownMenu.contains(event.target)) {
+            categoryDropdownMenu.style.display = 'none';
+        }
+        if (yearDropdownBtn && yearDropdownMenu && !yearDropdownBtn.contains(event.target) && !yearDropdownMenu.contains(event.target)) {
+            yearDropdownMenu.style.display = 'none';
+        }
+        if (departmentDropdownBtn && departmentDropdownMenu && !departmentDropdownBtn.contains(event.target) && !departmentDropdownMenu.contains(event.target)) {
+            departmentDropdownMenu.style.display = 'none';
+        }
+        if (programDropdownBtn && programDropdownMenu && !programDropdownBtn.contains(event.target) && !programDropdownMenu.contains(event.target)) {
+            programDropdownMenu.style.display = 'none';
+        }
+    });
+}
+
+// Function to handle search button click
+function searchDocumentsOnButtonClick() {
+    const searchInput = document.getElementById('searchInput').value.trim();
+
+    if (searchInput === '') {
+        showAlert('Please enter a search query', 'info');
+        return;
+    }
+
+    if (window.location.pathname.includes('resources.html')) {
+        // Already on the target page – perform in-place search
+        currentPage = 1;
+        searchDocuments(searchInput);
+    } else {
+        // Navigate to the resources page with query params
+        const url = `resources.html?keyword=${encodeURIComponent(searchInput)}&category=${encodeURIComponent(selectedCategory)}&program=${encodeURIComponent(selectedProgram)}`;
+        window.location.href = url;
+    }
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up click handler for Archival Resources link
+    const archivalResourcesLink = document.getElementById('archivalResourcesLink');
+    if (archivalResourcesLink) {
+        archivalResourcesLink.addEventListener('click', function(event) {
+            if (window.location.pathname.includes('resources.html')) {
+                event.preventDefault();
+                window.location.reload();
+            } else {
+                window.location.href = archivalResourcesLink.href;
+            }
+        });
+    }
+
+    // Get search query from URL
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const searchQuery = urlParams.get('keyword') || urlParams.get('search');
+    const categoryParam = urlParams.get('category');
+    const programParam = urlParams.get('program');
+    
+    // Check if the URL contains ?sort=year and trigger the search if it does
+    if (urlParams.get('sort') === 'year') {
+        handleArchivalResourcesClick(new Event('click'));
+    } else if (searchQuery) {
+        document.getElementById('searchInput').value = decodeURIComponent(searchQuery);
+        searchDocuments(searchQuery);
+    }
+
+    if (categoryParam) {
+        selectedCategory = decodeURIComponent(categoryParam);
+        const categoryDropdownBtn = document.getElementById('dropdownField');
+        categoryDropdownBtn.innerHTML = `${selectedCategory} <i class="fa-solid fa-chevron-down"></i>`;
+    }
+    
+    if (programParam) {
+        selectedProgram = decodeURIComponent(programParam);
+        const programDropdownBtn = document.getElementById('dropdownProgram');
+        if (programDropdownBtn) {
+            programDropdownBtn.innerHTML = `${selectedProgram} <i class="fa-solid fa-chevron-down"></i>`;
+        }
+    }
+
+    // Add event listeners
+    const searchButton = document.getElementById('searchButton');
+    if (searchButton) {
+        searchButton.addEventListener('click', searchDocumentsOnButtonClick);
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                searchDocumentsOnButtonClick();
+            }
+        });
+    }
+
+    // Initialize dropdown functionality
+    setupDropdown();
+
+    // Get user info from sessionStorage
+    const userName = sessionStorage.getItem('user_name');
+    const userEmail = sessionStorage.getItem('user_email');
+
+    // Update the dropdown content
+    if (userName) {
+        document.getElementById('userName').textContent = userName;
+    }
+    if (userEmail) {
+        document.getElementById('userEmail').textContent = userEmail;
+    }
+});
+
+// Document request functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const requestBtn = document.querySelector('.request-btn');
+    if (requestBtn) {
+        requestBtn.addEventListener('click', function() {
+            // Set initial state of submit button to disabled
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            // Add event listener for terms checkbox
+            const termsCheck = document.getElementById('termsCheck');
+            if (termsCheck) {
+                termsCheck.addEventListener('change', function() {
+                    submitBtn.disabled = !this.checked;
+                });
+            }
+        });
+    }
+});
+
+// Update page title when document title changes
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.target.id === 'documentTitle') {
+            document.title = `${mutation.target.textContent} | NEUA`;
+        }
+    });
+});
+
+// Start observing the document title element
+if (document.getElementById('documentTitle')) {
+    observer.observe(document.getElementById('documentTitle'), {
+        childList: true,
+        characterData: true,
+        subtree: true
+    });
+}
+
+// Function to submit document request
+function submitRequest() {
+    // Check if terms are accepted
+    if (!document.getElementById('termsCheck').checked) {
+        showAlert('Please accept the terms and conditions', 'warning');
+        return;
+    }
+
+    // Show loading state
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+
+    // Get data from request modal
+    const requestData = {
+        action: 'submitDocRequest', // Add this action identifier
+        documentId: document.querySelector('#requestModal #modalDocumentId').textContent.trim(),
+        title: document.querySelector('#requestModal #modalDocumentTitle').textContent.trim(),
+        user: {
+            name: document.querySelector('#requestModal #userName').textContent.trim(),
+            email: document.querySelector('#requestModal #userEmail').textContent.trim(),
+            id: document.querySelector('#requestModal #userID').textContent.trim(),
+            type: document.querySelector('#requestModal #userUserType').textContent.trim()
+        }
+    };
+
+    // Send request to server
+    fetch('process_document_request.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close the request modal
+            const requestModal = bootstrap.Modal.getInstance(document.getElementById('requestModal'));
+            requestModal.hide();
+
+            // Show success modal with the reference number
+            document.querySelector('#reserveModal #ReferenceNo').textContent = data.referenceNo;
+            
+            // Transfer data to success modal
+            document.querySelector('#reserveModal #userEmail').textContent = requestData.user.email;
+            document.querySelector('#reserveModal #userName').textContent = requestData.user.name;
+            document.querySelector('#reserveModal #userID').textContent = requestData.user.id;
+            document.querySelector('#reserveModal #userUserType').textContent = requestData.user.type;
+            document.querySelector('#reserveModal #modalDocumentId').textContent = requestData.documentId;
+            document.querySelector('#reserveModal #modalDocumentTitle').textContent = requestData.title;
+
+            // Show the success modal
+            const reserveModal = new bootstrap.Modal(document.getElementById('reserveModal'));
+            reserveModal.show();
+
+            // Show success message
+            showAlert('Document request submitted successfully!', 'success');
+        } else {
+            throw new Error(data.message || 'Failed to submit request');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert(error.message || 'Failed to submit request', 'danger');
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit';
+    });
+}
+
+// Helper function to show alerts
+function showAlert(message, type) {
+    const alertElement = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertIcon = document.querySelector('.alert-icon');
+    
+    // Set icon based on alert type
+    let icon = '';
+    switch(type) {
+        case 'success':
+            icon = '<i class="fas fa-check-circle"></i>';
+            break;
+        case 'danger':
+            icon = '<i class="fas fa-times-circle"></i>';
+            break;
+        case 'warning':
+            icon = '<i class="fas fa-exclamation-triangle"></i>';
+            break;
+        default:
+            icon = '<i class="fas fa-info-circle"></i>';
+    }
+    
+    alertIcon.innerHTML = icon;
+    alertElement.className = `custom-alert alert alert-${type} show`;
+    alertMessage.textContent = message;
+    
+    // Show alert
+    alertElement.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        alertElement.style.display = 'none';
+        alertElement.className = 'custom-alert alert';
+    }, 5000);
+}
+
+// PDF Viewer using Canvas - Simplified Version
+document.addEventListener('DOMContentLoaded', function () {
+    const pdfContainer = document.getElementById('pdfContainer');
+    
+    if (pdfContainer) {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const pdfId = urlParams.get('pdf');
+        
+        if (pdfId) {
+            // Document Loader
+            pdfContainer.innerHTML = `
+                <div class="text-center w-100 my-5">
+                    <div class="spinner-border" role="status" style="color: #005580;"></div>
+                    <p class="mt-2 w-100">Loading document...</p>
+                </div>
+                `;
+            
+            // First fetch the metadata
+            fetch(`document.php?pdf=${pdfId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Store the document ID from the database response and format it with leading zeros
+                    window.currentDocumentId = String(data.id).padStart(4, '0');
+                    
+                    // Update document information
+                    if (document.getElementById('documentTitle')) {
+                        document.getElementById('documentTitle').textContent = data.title || 'Untitled';
+                    }
+                    if (document.getElementById('documentAuthor')) {
+                        document.getElementById('documentAuthor').textContent = data.author || 'Unknown';
+                    }
+                    if (document.getElementById('documentPublishedDate')) {
+                        document.getElementById('documentPublishedDate').textContent = data.creationDate || '';
+                    }
+                    if (document.getElementById('documentAbstract')) {
+                        document.getElementById('documentAbstract').innerHTML = data.abstract || '';
+                    }
+
+                    // Check user type and show/hide request button
+                    const userType = sessionStorage.getItem('user_type') || sessionStorage.getItem('userType');
+                    const requestBtn = document.querySelector('.request-document');
+                    if (requestBtn) {
+                        if (userType && userType.toLowerCase() === 'faculty') {
+                            requestBtn.style.display = 'flex';
+                        } else {
+                            requestBtn.style.display = 'none';
+                        }
+                    }
+                    
+                    // Make sure PDF.js library is loaded
+                    if (typeof pdfjsLib === 'undefined') {
+                        // Load PDF.js if it's not already loaded
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
+                        script.onload = function() {
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+                            loadPdf(pdfId, pdfContainer);
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        // PDF.js is already loaded
+                        loadPdf(pdfId, pdfContainer);
+                    }
+
+                    // After setting window.currentDocumentId
+                    const docId = data.id;
+                    fetch(`document.php?action=checkDocStatus&docId=${docId}&userId=${sessionStorage.getItem('user_id')}`)
+                        .then(response => response.json())
+                        .then(statusData => {
+                            const requestBtn = document.querySelector('.request-btn');
+                            let alertMsg = document.getElementById('unavailableAlert');
+                            if (!alertMsg) {
+                                alertMsg = document.createElement('span');
+                                alertMsg.id = 'unavailableAlert';
+                                alertMsg.style.marginLeft = '10px';
+                                requestBtn.parentNode.appendChild(alertMsg);
+                            }
+
+                            if (statusData.unavailable) {
+                                // Set message and text color based on status type
+                                if (statusData.messageType === 'limit') {
+                                    alertMsg.textContent = 'Request limit reached. Try again tomorrow.';
+                                    alertMsg.style.color = '#CE0000';
+                                } else if (statusData.messageType === 'unavailable') {
+                                    alertMsg.textContent = 'Currently Unavailable';
+                                    alertMsg.style.color = '#757575';
+                                } else {
+                                    alertMsg.textContent = 'Unavailable - Reserved';
+                                    alertMsg.style.color = '#FF9500';
+                                }
+
+                                requestBtn.disabled = true;
+                                requestBtn.classList.add('disabled');
+                            } else {
+                                alertMsg.textContent = '';
+                                requestBtn.disabled = false;
+                                requestBtn.classList.remove('disabled');
+                            }
+                        });
+                })
+                .catch(error => {
+                    console.error('Error fetching document metadata:', error);
+                    pdfContainer.innerHTML = `<div class="alert alert-danger">Error loading document: ${error.message}</div>`;
+                });
+        } else {
+            pdfContainer.innerHTML = '<div class="alert alert-warning">No document specified</div>';
+        }
+    }
+});
+
+// Function to load PDF and render to canvas
+function loadPdf(pdfId, container) {
+    // Clear container
+    container.innerHTML = '';
+    
+    // Set the PDF url
+    const pdfUrl = `document.php?view=${pdfId}`;
+    
+    // Load the PDF
+    pdfjsLib.getDocument(pdfUrl).promise.then(async function(pdf) {
+        console.log('PDF loaded successfully');
+        
+        const totalPages = pdf.numPages;
+        // Find the List of Tables or Chapter 5 page within first 20 pages
+        let stopPage = Math.ceil(totalPages / 5); // default fallback
+        
+        // Search for specific content to determine stop page
+        for (let i = 1; i <= Math.min(20, totalPages); i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ').toLowerCase();
+
+            if (pageText.includes('list of tables')) {
+                stopPage = i;
+                break;
+            } else if (pageText.includes('chapter 5') || pageText.includes('chapter v')) {
+                stopPage = i;
+                // Don't break here - continue searching for List of Tables
+            }
+        }
+        
+        // Style container - clean and minimal
+        container.style.padding = '0';
+        container.style.backgroundColor = 'white';
+        
+        // Render pages up to the stop page
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+            if (pageNum <= stopPage) {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'pdf-page-container';
+                pageContainer.style.margin = '0 auto 20px auto';
+                pageContainer.style.backgroundColor = 'white';
+                pageContainer.style.position = 'relative'; 
+                
+                container.appendChild(pageContainer);
+                
+                try {
+                    const page = await pdf.getPage(pageNum);
+                    await renderPage(page, pageNum, pageContainer);
+                } catch (error) {
+                    console.error(`Error rendering page ${pageNum}:`, error);
+                    pageContainer.innerHTML = `<div class="alert alert-danger">Error rendering page ${pageNum}</div>`;
+                }
+            } else if (pageNum === stopPage + 1) {
+                // Add "Request Full Document" notice after the last rendered page
+                const requestNotice = document.createElement('div');
+                requestNotice.innerHTML = `
+                    <div style="text-align: center; padding: 20px; background-color: rgb(253, 255, 182); border: 1px solid #ccc; margin: 20px 0;">
+                        <strong>Full Content Restricted</strong><br>
+                        Request document to access the full content.
+                    </div>
+                `;
+                container.appendChild(requestNotice);
+                break; // Stop rendering more pages
+            }
+        }
+        
+        // Add security measures
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.closest('#pdfContainer')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Prevent keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.target.closest('#pdfContainer')) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 's' || e.key === 'p')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+        
+    }).catch(function(error) {
+        console.error('Error loading PDF:', error);
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <p><strong>Error loading PDF</strong></p>
+                <p>${error.message}</p>
+            </div>
+        `;
+    });
+}
+
+// Function to render PDF page on canvas - With watermark added
+function renderPage(page, pageNum, container) {
+    const scale = 1.5;
+    const viewport = page.getViewport({ scale: scale });
+    
+    const canvas = document.createElement('canvas');
+    canvas.className = 'pdf-page-canvas';
+    canvas.style.display = 'block';
+    canvas.style.margin = '0 auto';
+    canvas.style.maxWidth = '100%';
+    canvas.style.height = 'auto';
+    
+    container.appendChild(canvas);
+    
+    const context = canvas.getContext('2d');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    
+    const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+    };
+    
+    return page.render(renderContext).promise.then(function() {
+        // Add CSS to prevent selection
+        canvas.style.userSelect = 'none';
+        canvas.style.webkitUserSelect = 'none';
+        canvas.style.msUserSelect = 'none';
+        canvas.style.mozUserSelect = 'none';
+        
+        // Disable dragging
+        canvas.ondragstart = function() { return false; };
+        
+        // Add watermark after page is rendered
+        addWatermark(context, canvas.width, canvas.height);
+    });
+}
+
+// Function to add watermark to the canvas
+function addWatermark(context, canvasWidth, canvasHeight) {
+    const watermark = new Image();
+    watermark.src = 'neu-logo.png';
+    
+    // When image loads, draw it on the canvas
+    watermark.onload = function() {
+        context.save();
+        
+        // Calculate size for watermark (big but proportional)
+        const watermarkWidth = canvasWidth * 0.6; 
+        const watermarkHeight = (watermarkWidth / watermark.width) * watermark.height;
+        
+        // Position at center
+        const x = (canvasWidth - watermarkWidth) / 2;
+        const y = (canvasHeight - watermarkHeight) / 2;
+        
+        // Set transparency
+        context.globalAlpha = 0.15; 
+        
+        // Draw the image
+        context.drawImage(watermark, x, y, watermarkWidth, watermarkHeight);
+        
+        // Restore context
+        context.restore();
+    };
+    
+    // Handle loading errors
+    watermark.onerror = function() {
+        console.error('Error loading watermark image');
+    };
+}
+
+//dropdownUser script
+document.addEventListener('DOMContentLoaded', function() {
+    // Get user info from sessionStorage
+    const userName = sessionStorage.getItem('user_name');
+    const userEmail = sessionStorage.getItem('user_email');
+
+    // Update the dropdown content
+    if (userName) {
+        document.getElementById('userName').textContent = userName;
+    }
+    if (userEmail) {
+        document.getElementById('userEmail').textContent = userEmail;
+    }
+
+    // Logout function po
+    document.getElementById('logout').addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    });
+});
+
+//Request Document script
+document.addEventListener('DOMContentLoaded', function() {
+    const requestModal = document.getElementById('requestModal');
+    if (requestModal) {
+        requestModal.addEventListener('show.bs.modal', function() {
+            const userName = sessionStorage.getItem('user_name');
+            const userEmail = sessionStorage.getItem('user_email');
+            const userId = sessionStorage.getItem('user_id');
+            const userType = sessionStorage.getItem('user_type');
+
+            console.log('Modal opened. Email:', userEmail);
+
+            // Set email field
+            document.querySelector('#requestModal #userEmail').textContent = userEmail || '-';
+
+            // Fetch user details from backend for up-to-date user_type
+            if (userEmail) {
+                fetch(`document.php?action=getUserDetails&email=${encodeURIComponent(userEmail)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('User details response:', data);
+                        if (data.success) {
+                            document.querySelector('#requestModal #userUserType').textContent =
+                                capitalizeFirstLetter(data.user_type) || '-';
+                            document.querySelector('#requestModal #userName').textContent = data.name || userName || '-';
+                            document.querySelector('#requestModal #userID').textContent = data.user_id || userId || '-';
+                        } else {
+                            document.querySelector('#requestModal #userUserType').textContent = userType || '-';
+                            document.querySelector('#requestModal #userName').textContent = userName || '-';
+                            document.querySelector('#requestModal #userID').textContent = userId || '-';
+                        }
+                    })
+                    .catch((err) => {
+                        document.querySelector('#requestModal #userUserType').textContent = userType || '-';
+                        document.querySelector('#requestModal #userName').textContent = userName || '-';
+                        document.querySelector('#requestModal #userID').textContent = userId || '-';
+                    });
+            } else {
+                document.querySelector('#requestModal #userUserType').textContent = userType || '-';
+                document.querySelector('#requestModal #userName').textContent = userName || '-';
+                document.querySelector('#requestModal #userID').textContent = userId || '-';
+            }
+
+            // Get document info and format ID with leading zeros
+            const documentId = window.currentDocumentId ? String(window.currentDocumentId).padStart(4, '0') : 'N/A';
+            const documentTitle = document.getElementById('documentTitle')?.textContent || 'N/A';
+            const documentAuthor = document.getElementById('documentAuthor')?.textContent || 'N/A';
+            const documentPublished = document.getElementById('documentPublishedDate')?.textContent || 'N/A';
+
+            // Update document fields with formatted ID
+            document.querySelector('#requestModal #modalDocumentId').textContent = documentId;
+            document.querySelector('#requestModal #modalDocumentTitle').textContent = documentTitle;
+            document.querySelector('#requestModal #modalDocumentAuthor').textContent = documentAuthor;
+            document.querySelector('#requestModal #modalDocumentPublished').textContent = documentPublished;
+
+            // Update reserve modal fields with the same formatted data
+            document.querySelector('#reserveModal #userEmail').textContent = userEmail || 'Not available';
+            document.querySelector('#reserveModal #userName').textContent = userName || 'Not available';
+            document.querySelector('#reserveModal #userID').textContent = userId || 'Not available';
+            document.querySelector('#reserveModal #userUserType').textContent = userType || 'Not available';
+            document.querySelector('#reserveModal #modalDocumentId').textContent = documentId;
+            document.querySelector('#reserveModal #modalDocumentTitle').textContent = documentTitle;
+            document.querySelector('#reserveModal #modalDocumentAuthor').textContent = documentAuthor;
+            document.querySelector('#reserveModal #modalDocumentPublished').textContent = documentPublished;
+        });
+    }
+});
+
+// Update the populateRequestModal function as well
+function populateRequestModal() {
+    // Get document details and format ID with leading zeros
+    const documentId = window.currentDocumentId ? String(window.currentDocumentId).padStart(4, '0') : 'N/A';
+    const title = document.getElementById('documentTitle')?.textContent || 'N/A';
+    const author = document.getElementById('documentAuthor')?.textContent || 'N/A';
+    const published = document.getElementById('documentPublishedDate')?.textContent || 'N/A';
+
+    // Populate the modal fields
+    document.querySelector('#requestModal #modalDocumentId').textContent = documentId;
+    document.querySelector('#requestModal #modalDocumentTitle').textContent = title;
+    document.querySelector('#requestModal #modalDocumentAuthor').textContent = author;
+    document.querySelector('#requestModal #modalDocumentPublished').textContent = published;
+}
+
+// Add event listener for modal opening
+document.addEventListener('DOMContentLoaded', function() {
+    const requestModal = document.getElementById('requestModal');
+    if (requestModal) {
+        requestModal.addEventListener('show.bs.modal', function() {
+            populateRequestModal();
+        });
+    }
+});
+
+// Function to perform search
+
+
+// Function to create document card
+function createDocumentCard(doc) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    
+    // Add hover effects
+    card.style.textDecoration = 'none';
+    card.style.border = '2px solid #ccc';
+    card.style.borderRadius = '12px';
+
+    card.addEventListener('mouseover', function() {
+        this.style.border = '2px solid #00415a';
+    });
+
+    card.addEventListener('mouseout', function() {
+        this.style.border = '2px solid #ccc';
+    });
+
+    // Format the date
+    let displayDate = 'N/A';
+    if (doc.creationDate) {
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        
+        const dateMatch = doc.creationDate.match(/(\d{1,2})?[\/\s-]?(\d{4})/);
+        if (dateMatch) {
+            const month = dateMatch[1] ? months[parseInt(dateMatch[1]) - 1] : '';
+            const year = dateMatch[2];
+            displayDate = month ? `${month} ${year}` : year;
+        } else {
+            displayDate = doc.creationDate;
+        }
+    }
+
+    const displayAuthor = doc.author === 'N/A' ? 'N/A' : doc.author;
+    const displayTitle = doc.title || doc.fileName.replace(/\.pdf$/, '');
+    const displayProgram = doc.program || 'N/A';
+
+    card.innerHTML = `
+<div class="card-body">
+                <p id="title1">${escapeHtml(displayTitle)}</p>
+<div class="card-info-row">
+                <div class="card-sub" id="author"><i class="fa-solid fa-user"></i> ${escapeHtml(displayAuthor)}</div>
+                <div class="card-sub" id="program"><i class="fa-solid fa-graduation-cap"></i> ${escapeHtml(displayProgram)}</div>
+                <div class="card-sub" id="year"><i class="fa-regular fa-calendar"></i> ${escapeHtml(displayDate)}</div>
+            </div>
+        </div>
+    `;
+
+    // Add click handler to open document
+    card.addEventListener('click', function() {
+        const pdfName = encodeURIComponent(doc.fileName);
+        window.open('document.html?pdf=' + pdfName, '_blank');
+    });
+
+    return card;
+}
+
+// Function to update pagination
+function updatePagination(currentPage, totalPages) {
+    const pagination = document.querySelector('.pagination');
+    let paginationHtml = '';
+
+    // Previous button
+    paginationHtml += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        paginationHtml += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `;
+    }
+
+    // Next button
+    paginationHtml += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    `;
+
+    pagination.innerHTML = paginationHtml;
+
+    // Add click handlers for pagination
+    document.querySelectorAll('.page-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = e.target.closest('.page-link').dataset.page;
+            if (page) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                window.location.search = urlParams.toString();
+                scrollToTarget();
+            }
+        });
+    });
+}
+
+// Helper function to escape HTML
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+  // Prevent right-click across the entire document
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+  });
+  
+  // Optional: Show a custom message when right-click is attempted
+  document.addEventListener('mousedown', function(e) {
+    if (e.button === 2) { // Right mouse button
+      // You can uncomment this if you want to show a message
+      // alert("Right-click functionality is disabled on this page.");
+      return false;
+    }
+  });
+
+// Add this to your login success handler
+function handleLoginSuccess(userData) {
+    console.log('Login userData:', userData); // Debug log
+    sessionStorage.setItem('user_name', userData.name);
+    sessionStorage.setItem('user_email', userData.email);
+    sessionStorage.setItem('user_id', userData.user_id);
+    sessionStorage.setItem('user_type', userData.user_type);
+ 
+}
+
+// Place this function at the top of your script or before you use it
+function capitalizeFirstLetter(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Check if user is authenticated
+if (!sessionStorage.getItem('userAuthenticated')) {
+    window.location.href = 'index.html';
+}
