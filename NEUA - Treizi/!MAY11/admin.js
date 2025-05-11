@@ -422,7 +422,7 @@ function renderTable(tableId, records) {
                             <div class="action-item" onclick="editRow(this.closest('.actions-dropdown'))">
                                 <i class="fas fa-edit"></i>Edit
                             </div>
-                            <div class="action-item" onclick="downloadPdf('${record.documentId}')">
+                            <div class="action-item" onclick="downloadPdf('${record.documentId}')" title="Download this file">
                                 <i class="fas fa-download"></i>Download
                             </div>
                             <div class="action-item" onclick="requestDocument('${record.documentId}')">
@@ -980,48 +980,64 @@ function deleteRow(dropdown) {
     
     if (tableId === 'fileRecordsTable') {
         const fileName = row.cells[1].textContent; // Get filename from second column
-        if (confirm(`Are you sure you want to delete ${fileName}?`)) {
-            fetch(`admin_dashboard.php?action=deleteFile&file=${encodeURIComponent(fileName)}`)
+        
+        showConfirmDialog({
+            message: `Are you sure you want to delete ${fileName}?`,
+            title: 'Delete File',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            dialogType: 'danger',
+            onConfirm: () => {
+                fetch(`admin_dashboard.php?action=deleteFile&file=${encodeURIComponent(fileName)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('File deleted successfully', 'success');
+                            loadFileRecords(); // Refresh the file list
+                        } else {
+                            showAlert(data.message || 'Error deleting file', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('Error deleting file', 'danger');
+                    });
+            }
+        });
+    } else if (tableId === 'userRecordsTable') {
+        // Get the user ID from the 4th cell (index 3)
+        const userId = row.cells[3].textContent.trim();
+        
+        showConfirmDialog({
+            message: 'Are you sure you want to delete this user?',
+            title: 'Delete User',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            dialogType: 'danger',
+            onConfirm: () => {
+                const formData = new FormData();
+                formData.append('action', 'deleteUser');
+                formData.append('userId', userId);
+
+                fetch('admin_dashboard.php', {
+                    method: 'POST',
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('File deleted successfully', 'success');
-                        loadFileRecords(); // Refresh the file list
+                        showAlert('User deleted successfully', 'success');
+                        loadUserRecords(); // Refresh the user list
                     } else {
-                        showAlert(data.message || 'Error deleting file', 'danger');
+                        showAlert(data.message || 'Error deleting user', 'danger');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('Error deleting file', 'danger');
+                    showAlert('Error deleting user', 'danger');
                 });
-        }
-    } else if (tableId === 'userRecordsTable') {
-        // Get the user ID from the 4th cell (index 3)
-        const userId = row.cells[3].textContent.trim();
-        if (confirm('Are you sure you want to delete this user?')) {
-            const formData = new FormData();
-            formData.append('action', 'deleteUser');
-            formData.append('userId', userId);
-
-            fetch('admin_dashboard.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('User deleted successfully', 'success');
-                    loadUserRecords(); // Refresh the user list
-                } else {
-                    showAlert(data.message || 'Error deleting user', 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('Error deleting user', 'danger');
-            });
-        }
+            }
+        });
     }
 }
 
@@ -1216,72 +1232,79 @@ function deleteSelectedRecords(tableId) {
                       tableId === 'accountRequestsTable' ? 'account requests' :
                       tableId === 'docRequestsTable' ? 'document requests' : 'post requests';
     
-    if (confirm(`Are you sure you want to delete ${selectedRows.length} ${recordType}?`)) {
-        const promises = Array.from(selectedRows).map(checkbox => {
-            const row = checkbox.closest('tr');
-            const formData = new FormData();
-            
-            if (tableId === 'fileRecordsTable') {
-                const fileId = row.cells[1].textContent;
-                formData.append('action', 'deleteFile');
-                formData.append('fileId', fileId);
-            } else if (tableId === 'userRecordsTable') {
-                // Get the user ID from the 4th cell (index 3)
-                const userId = row.cells[3].textContent.trim();
-                formData.append('action', 'deleteUser');
-                formData.append('userId', userId);
-            } else if (tableId === 'accountRequestsTable') {
-                const requestId = row.querySelector('[data-request-id]').getAttribute('data-request-id');
-                formData.append('action', 'rejectUser');
-                formData.append('requestId', requestId);
-            } else if (tableId === 'docRequestsTable') {
-                const referenceNo = row.cells[1].textContent;
-                formData.append('action', 'deleteDocRequest');
-                formData.append('referenceNo', referenceNo);
-            } else if (tableId === 'returnedDocsTable') {
-                const referenceNo = row.cells[1].textContent;
-                formData.append('action', 'deleteReturnedDoc');
-                formData.append('referenceNo', referenceNo);
-            }
-            
-            return fetch('admin_dashboard.php', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json());
-        });
-        
-        Promise.all(promises)
-            .then(results => {
-                const successCount = results.filter(r => r.success).length;
-                showAlert(`Successfully deleted ${successCount} ${recordType}`, 'success');
+    showConfirmDialog({
+        message: `Are you sure you want to delete ${selectedRows.length} ${recordType}?`,
+        title: 'Delete Confirmation',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        dialogType: 'danger',
+        onConfirm: () => {
+            const promises = Array.from(selectedRows).map(checkbox => {
+                const row = checkbox.closest('tr');
+                const formData = new FormData();
                 
-                const deleteButton = document.querySelector(`#${tableId}`).closest('.tab-pane').querySelector('.btn-delete');
-                if (deleteButton) deleteButton.style.display = 'none';
-                
-                // Refresh the appropriate table
-                switch (tableId) {
-                    case 'fileRecordsTable':
-                        loadFileRecords();
-                        break;
-                    case 'userRecordsTable':
-                        loadUserRecords();
-                        break;
-                    case 'accountRequestsTable':
-                        loadAccountRequests();
-                        break;
-                    case 'docRequestsTable':
-                        loadDocRequests();
-                        break;
-                    case 'returnedDocsTable':
-                        loadReturnedDocs();
-                        break;
+                if (tableId === 'fileRecordsTable') {
+                    const fileId = row.cells[1].textContent;
+                    formData.append('action', 'deleteFile');
+                    formData.append('fileId', fileId);
+                } else if (tableId === 'userRecordsTable') {
+                    // Get the user ID from the 4th cell (index 3)
+                    const userId = row.cells[3].textContent.trim();
+                    formData.append('action', 'deleteUser');
+                    formData.append('userId', userId);
+                } else if (tableId === 'accountRequestsTable') {
+                    const requestId = row.querySelector('[data-request-id]').getAttribute('data-request-id');
+                    formData.append('action', 'rejectUser');
+                    formData.append('requestId', requestId);
+                } else if (tableId === 'docRequestsTable') {
+                    const referenceNo = row.cells[1].textContent;
+                    formData.append('action', 'deleteDocRequest');
+                    formData.append('referenceNo', referenceNo);
+                } else if (tableId === 'returnedDocsTable') {
+                    const referenceNo = row.cells[1].textContent;
+                    formData.append('action', 'deleteReturnedDoc');
+                    formData.append('referenceNo', referenceNo);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('Error deleting records', 'danger');
+                
+                return fetch('admin_dashboard.php', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => response.json());
             });
-    }
+            
+            Promise.all(promises)
+                .then(results => {
+                    const successCount = results.filter(r => r.success).length;
+                    showAlert(`Successfully deleted ${successCount} ${recordType}`, 'success');
+                    
+                    const deleteButton = document.querySelector(`#${tableId}`).closest('.tab-pane').querySelector('.btn-delete');
+                    if (deleteButton) deleteButton.style.display = 'none';
+                    
+                    // Refresh the appropriate table
+                    switch (tableId) {
+                        case 'fileRecordsTable':
+                            loadFileRecords();
+                            break;
+                        case 'userRecordsTable':
+                            loadUserRecords();
+                            break;
+                        case 'accountRequestsTable':
+                            loadAccountRequests();
+                            break;
+                        case 'docRequestsTable':
+                            loadDocRequests();
+                            break;
+                        case 'returnedDocsTable':
+                            loadReturnedDocs();
+                            break;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error deleting records', 'danger');
+                });
+        }
+    });
 }
 
 // Filter state
@@ -1708,5 +1731,103 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function downloadPdf(documentId) {
-    window.open(`admin_dashboard.php?action=downloadPdf&fileId=${encodeURIComponent(documentId)}`, '_blank');
+    showConfirmDialog({
+        message: 'Do you want to download this document?',
+        title: 'Download Confirmation',
+        confirmText: 'Download',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+            window.open(`admin_dashboard.php?action=downloadPdf&fileId=${encodeURIComponent(documentId)}`, '_blank');
+        }
+    });
+}
+
+// Custom Dialog Functions
+/**
+ * Show a custom confirmation dialog
+ * @param {string} message - The message to display
+ * @param {string} title - The title of the dialog (optional)
+ * @param {string} confirmText - The text for the confirm button (optional)
+ * @param {string} cancelText - The text for the cancel button (optional)
+ * @param {string} dialogType - Dialog type (default, danger, etc.)
+ * @param {Function} onConfirm - Function to call when confirmed
+ * @returns {Promise} Promise that resolves when the dialog is closed
+ */
+function showConfirmDialog({ 
+    message = 'Are you sure you want to proceed?', 
+    title = 'Confirmation', 
+    confirmText = 'Confirm', 
+    cancelText = 'Cancel',
+    dialogType = 'default',
+    onConfirm = null
+}) {
+    return new Promise((resolve) => {
+        const dialogOverlay = document.getElementById('customDialog');
+        const dialogEl = dialogOverlay.querySelector('.custom-dialog');
+        const titleEl = document.getElementById('dialogTitle');
+        const messageEl = document.getElementById('dialogMessage');
+        const confirmBtn = document.getElementById('dialogConfirmBtn');
+        const cancelBtn = document.getElementById('dialogCancelBtn');
+        
+        // Reset dialog state
+        dialogEl.className = 'custom-dialog';
+        if (dialogType !== 'default') {
+            dialogEl.classList.add(dialogType);
+        }
+        
+        // Set content
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        confirmBtn.textContent = confirmText;
+        cancelBtn.textContent = cancelText;
+        
+        // Show dialog with animation
+        dialogOverlay.classList.add('show');
+        
+        // Set up buttons
+        const handleConfirm = () => {
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+            closeDialog();
+            resolve(true);
+        };
+        
+        const handleCancel = () => {
+            closeDialog();
+            resolve(false);
+        };
+        
+        // Remove existing event listeners
+        confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+        cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+        
+        // Add new event listeners
+        document.getElementById('dialogConfirmBtn').addEventListener('click', handleConfirm);
+        document.getElementById('dialogCancelBtn').addEventListener('click', handleCancel);
+        
+        // Close on escape key
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                handleCancel();
+                document.removeEventListener('keydown', handleKeyDown);
+            }
+        };
+        
+        document.addEventListener('keydown', handleKeyDown);
+    });
+}
+
+/**
+ * Close the custom dialog
+ */
+function closeDialog() {
+    const dialogOverlay = document.getElementById('customDialog');
+    dialogOverlay.classList.remove('show');
+}
+
+// Replace native confirm with custom dialog
+window.originalConfirm = window.confirm;
+window.confirm = function(message) {
+    return showConfirmDialog({ message });
 }
