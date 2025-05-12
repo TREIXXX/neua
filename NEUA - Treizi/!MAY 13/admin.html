@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login </title>
+    
+    <link rel="website icon" type="png" href="neu-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> 
+    <link href="bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <link rel="stylesheet" href="fontawesome-free-6.7.1-web/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">    
+    <link rel="stylesheet" href="main.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<style>
+body {
+     background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), url('admin-bg.jpg');
+                    background-size: cover;
+                    background-position: center;
+    }
+
+    .form-label::after {
+      content: "";
+ 
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+      /* Login page styles */
+  .form-control {
+      border: 2px solid #757575;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      background-color: #f5f5f5;
+  }
+
+  .form-control:focus {
+      box-shadow: none;
+      border-color: #000;
+  }
+
+
+
+  .card {
+      border-radius: 20px;
+      overflow: hidden;
+  }
+
+  .card-body {
+      padding: 2rem;
+  }
+
+
+  .display-3, .display-4 {
+      font-weight: 600;
+  }
+
+
+  .heading {
+      font-size: 3rem;
+
+  }
+
+  .sub-heading {
+      font-size:2.25rem;
+      
+  }
+
+
+  .black-welcome-container {
+      background-color: #000;
+      border-radius: 20px 0 0 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+  }
+
+
+  .login-wrapper {
+    max-height: 500px;
+    padding: 1rem; 
+    margin: auto;
+  }
+
+  .login-wrapper .text-white {
+    padding-bottom: 1rem;
+
+  }
+
+  .login-header {
+    text-align: center;
+    font-weight: bold;
+  }
+
+
+  .form-container {
+    background-color: #f5f5f5;
+    border-radius: 32px;
+  }
+
+  @media (max-width: 768px) {
+    
+
+    .heading, .sub-heading {
+      text-align: center;
+    }
+
+    .heading {
+      font-size: 2.5rem;
+    }
+    
+    .sub-heading {
+      font-size: 1.75rem;
+    }
+
+    .form-container {
+    margin-top: 32px;
+  }
+
+
+  .form-control {
+    padding: 8px 12px;
+  }
+  
+  .card-body {
+      padding: 2rem;
+  }
+}
+</style>
+
+<body>
+    <!-- Custom Alert -->
+    <div id="alertContainer" class="alert-container"></div>
+  
+  
+    <!-- Login Content -->
+  <div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
+    <div class="row login-wrapper w-100" style="max-width: 1000px; max-height: 500px;">
+
+      <!-- Left Column -->
+      <div class="col-md-6">
+        <div class="text-white h-100 d-flex flex-column justify-content-center">
+          <h3 class="sub-heading mb-0">NEUR</h3>
+          <h1 class="heading mb-0 fw-bold">Administrator</h1>
+        </div>
+      </div>
+  
+      <!-- Right Column -->
+      <div class="col-md-6 d-flex align-items-center form-container">
+        <div class="card-body">
+          <h4 class="login-header mb-4">Welcome Back!</h4>
+          <form id="loginForm">
+            <div class="mb-4">
+              <label class="form-label text-muted">Username</label>
+              <input type="email" class="form-control" 
+                     id="userEmail" name="email" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label text-muted">Password</label>
+              <input type="password" class="form-control" 
+                     id="userPassword" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-orange w-100 mb-3">Log in</button>
+           
+            
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="components.js"></script>
+<script>
+document.getElementById('loginForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const loginButton = document.querySelector('#loginForm button[type="submit"]');
+    const originalButtonText = loginButton.innerHTML;
+
+    // Set loading state
+    loginButton.disabled = true;
+    loginButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+
+    fetch('admin.php', {
+        method: 'POST',
+        body: formData,
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Store admin authentication info
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                sessionStorage.setItem('adminEmail', email);
+                window.location.href = 'admin_dashboard.html';
+            } else {
+                // Clear form inputs on login failure
+                document.getElementById('userEmail').value = '';
+                document.getElementById('userPassword').value = '';
+                showAlert(data.message || 'Login failed', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Clear form inputs on error
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userPassword').value = '';
+            showAlert('Login failed. Please try again.', 'danger');
+        })
+        .finally(() => {
+            // Reset button state
+            loginButton.disabled = false;
+            loginButton.innerHTML = originalButtonText;
+        });
+});
+    
+    </script>
+
+  </body>
+</html>
+
+
+
+    
+    
+
+
+
