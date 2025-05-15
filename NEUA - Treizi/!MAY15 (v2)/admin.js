@@ -34,9 +34,7 @@ const tableSettings = {
     accountRequestsTable: { rowsPerPage: 20, currentPage: 1 },
     docRequestsTable: { rowsPerPage: 20, currentPage: 1 },
     returnedDocsTable: { rowsPerPage: 20, currentPage: 1 },
-    disapprovedDocsTable: { rowsPerPage: 20, currentPage: 1 },
-    deactivatedUsersTable: { rowsPerPage: 20, currentPage: 1 },
-    disapprovedUsersTable: { rowsPerPage: 20, currentPage: 1 }
+    disapprovedDocsTable: { rowsPerPage: 20, currentPage: 1 }
 };
 
 function logout() {
