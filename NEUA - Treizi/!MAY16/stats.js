@@ -695,9 +695,11 @@ doc.text(`As of ${currentDate}`, 105, 28, { align: 'center' });
         
         // Add All-Time Most Borrowed Documents Table (NEW)
         // Prepare all-time top borrowed docs data
-        const allTimeTopDocsData = additionalData.allTimeBorrowedDocs.map(doc => 
-            [doc.docId, doc.title, doc.count]
-        );
+        const allTimeTopDocsData = additionalData.allTimeBorrowedDocs.map(doc => {
+            // Truncate title if it's too long (more than 40 characters)
+            const truncatedTitle = doc.title.length > 40 ? doc.title.substring(0, 37) + '...' : doc.title;
+            return [doc.docId, truncatedTitle, doc.count];
+        });
         
         // If we have no data, add a placeholder row
         if (allTimeTopDocsData.length === 0) {
@@ -730,13 +732,15 @@ doc.text(`As of ${currentDate}`, 105, 28, { align: 'center' });
             },
             styles: {
                 font: 'helvetica',
-                overflow: 'linebreak',
+                overflow: 'ellipsize',
+                cellWidth: 'wrap',
                 cellPadding: 2,
+                minCellHeight: 12
             },
             columnStyles: {
-                0: { cellWidth: 40, halign: 'center' },
-                1: { cellWidth: 80, halign: 'left' },
-                2: { cellWidth: 30, halign: 'center' }
+                0: { cellWidth: 35, halign: 'center' },
+                1: { cellWidth: 90, halign: 'left' },
+                2: { cellWidth: 25, halign: 'center' }
             },
             alternateRowStyles: {
                 fillColor: [245, 245, 245]
@@ -748,9 +752,11 @@ doc.text(`As of ${currentDate}`, 105, 28, { align: 'center' });
         
         // Add Most Borrowed Documents in Last 30 Days Table
         // Prepare top borrowed docs data
-        const topDocsData = additionalData.topBorrowedDocs.map(doc => 
-            [doc.docId, doc.title, doc.count]
-        );
+        const topDocsData = additionalData.topBorrowedDocs.map(doc => {
+            // Truncate title if it's too long (more than 40 characters)
+            const truncatedTitle = doc.title.length > 40 ? doc.title.substring(0, 37) + '...' : doc.title;
+            return [doc.docId, truncatedTitle, doc.count];
+        });
         
         // If we have no data, add a placeholder row
         if (topDocsData.length === 0) {
@@ -783,13 +789,15 @@ doc.text(`As of ${currentDate}`, 105, 28, { align: 'center' });
             },
             styles: {
                 font: 'helvetica',
-                overflow: 'linebreak',
+                overflow: 'ellipsize',
+                cellWidth: 'wrap',
                 cellPadding: 2,
+                minCellHeight: 12
             },
             columnStyles: {
-                0: { cellWidth: 40, halign: 'center' },
-                1: { cellWidth: 80, halign: 'left' },
-                2: { cellWidth: 30, halign: 'center' }
+                0: { cellWidth: 35, halign: 'center' },
+                1: { cellWidth: 90, halign: 'left' },
+                2: { cellWidth: 25, halign: 'center' }
             },
             alternateRowStyles: {
                 fillColor: [245, 245, 245]
