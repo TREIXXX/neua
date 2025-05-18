@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEUR | Dashboard</title>
+    
+    <link rel="website icon" type="png" href="neu-logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> 
+    <link href="bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <link rel="stylesheet" href="fontawesome-free-6.7.1-web/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Helvetica">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="main.css">
+    
+    <style>
+        /* Custom Year Range Styles */
+        #customYearRange input[type="number"] {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        #customYearRange input[type="number"]:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: 0;
+        }
+        #customYearRange button {
+            margin-top: 4px;
+        }
+    </style>
+    
+    
+    <script src="bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    
+</head>
+    
+
+
+<body>
+
+
+
+    <!-- Custom Alert -->
+    <div id="alertContainer" class="alert-container"></div>
+
+
+ <div class="modal fade" id="fileUploadModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered modal-lg">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="fileUploadModalLabel">Upload Files</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body">
+           <div class="file-box" onclick="document.getElementById('pdfFile').click();">
+               <div class="file-upload-wrapper">
+                   <div class="upload-elements"> <!-- Wrap elements to hide -->
+                       <i class="fas fa-cloud-upload-alt upload"></i> 
+                       <h1>Drag and Drop File</h1>
+                       <h1>or</h1>
+                       <button type="button" class="btn btn-secondary">Browse</button>
+                   </div>
+                   <input type="file" id="pdfFile" accept=".pdf" multiple required>
+                   <div class="selected-files-container"></div>
+               </div>
+           </div>
+           <div class="upload-status mt-3"></div>
+           </div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-outline-secondary btn-remove" onclick="removeFile()">
+                    Remove
+               </button>
+               <button type="button" class="btn btn-primary btn-upload">
+                    Upload
+               </button>
+           </div>
+           </div>
+       </div>
+   </div>
+
+<!-- View User -->
+<div class="modal fade" id="viewUser" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewUserModalLabel">User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="user-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Name</span>
+                        <span class="detail-value" id="viewName"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value" id="viewEmail"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">ID</span>
+                        <span class="detail-value" id="viewID"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">User Type</span>
+                        <span class="detail-value" id="viewUserType"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Creation Date</span>
+                        <span class="detail-value" id="viewCreationDate"></span>
+                    </div>
+                    <div class="detail-row">
+            <span class="detail-label">Approved by&nbsp;</span>
+            <span class="detail-value" id="viewCreatedBy"></span>
+        </div>
+                    <div id="viewExtraInfo"></div>
+                    <div class="accordion mb-3">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#certificateAccordion">
+                                    <span class="detail-label">Certificate</span>
+                                    <span class="detail-value">[ Click to Show ]</span>
+
+                                </button>
+                            </h2>
+                            <div id="certificateAccordion" class="accordion-collapse collapse">
+                                <div class="accordion-body p-0">
+                                    <div class="certificate-view" id="viewCertificate">
+                                        <img id="certificateImage" src="" alt="Certificate">
+                                    </div>
+                                </div>
+                            </div>
+                            
+ 
+                            
+ 
+                            <div class="requests-section">
+                              <hr class="requests-separator">
+                              <!-- Requests/ Reserve Container Should Display Here (Dynamic) -->
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
+
+    
+   
+
+
+ <!-- Admin Create User -->
+ <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+     <div class="modal-content">
+       <div class="modal-header">
+         <h5 class="modal-title" id="signupModalLabel">Create User
+         </h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+       </div>
+       <div class="modal-body">
+        <form id="signupForm" enctype="multipart/form-data">
+           <div class="mb-3">
+             <label for="userType" class="form-label">User Type</label>
+             <select class="form-select" id="userType" required>
+               <option value="" selected disabled>Select User Type</option>
+               <option value="student" id="studentUser">Student</option>
+               <option value="alumni" id="alumniUser">Alumni</option>
+               <option value="faculty" id="facultyUser">Faculty</option>
+               <!-- <option value="admin" id="adminUser">Admin</option> -->
+               <option value="coordinator" id="coordinatorUser">Coordinator</option>
+               <option value="dean" id="deanUser">Dean</option>
+             </select>
+           </div>
+           <div class="mb-3">
+            <label for="department" class="form-label">Department</label>
+            <select class="form-select" id="department" required>
+              <option value="">Select Department</option>
+              <option value="CICS">College of Informatics and Computing Studies</option>
+              <option value="CAS">College of Arts and Sciences</option>
+              <option value="CEA">College of Engineering and Architecture</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="program" class="form-label">Program</label>
+            <select class="form-select" id="program" required disabled>
+              <option value="">Select Program</option>
+            </select>
+          </div>
+           <div class="mb-3">
+             <div class="row">
+               <div class="col-md-5">
+                 <label for="lastName" class="form-label">Last Name</label>
+                 <input type="text" class="form-control" id="lastName" placeholder="Dela Cruz" required>
+               </div>
+               <div class="col-md-5">
+                 <label for="firstName" class="form-label">First Name</label>
+                 <input type="text" class="form-control" id="firstName" placeholder="Juan" required>
+               </div>
+               <div class="col-md-2">
+                 <label for="middleInitial" class="form-label">MI</label>
+                 <input type="text" class="form-control" id="middleInitial" placeholder="P" maxlength="1">
+               </div>
+             </div>
+           </div>
+           <div class="mb-3">
+             <label for="signupEmail" class="form-label">Email</label>
+             <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+             <div id="emailExists" class="password-mismatch">Email is already registered.</div>
+            </div>
+           <div class="mb-3" id="idField">
+             <label for="signupID" class="form-label">ID</label>
+             <input type="text" class="form-control" id="signupID" placeholder="Enter your ID" required>
+           </div>
+           <div class="mb-3 row">
+             <div class="col-md-6">
+               <label for="signupPassword" class="form-label">Password</label>
+               <input type="password" class="form-control" id="signupPassword" placeholder="at least 8 characters" minlength="8" required>
+             </div>
+             <div class="col-md-6">
+               <label for="confirmPassword" class="form-label">Confirm Password</label>
+               <input type="password" class="form-control" id="confirmPassword" placeholder="" minlength="8" required>
+               <div id="passwordMismatch" class="password-mismatch">Passwords do not match.</div>
+               <div id="passwordMatch" class="password-match">Passwords match!</div>
+             </div>
+           </div>
+           <div class="mb-3" id="certificateField">
+            <label for="certificateUpload" class="form-label">Upload Certificate of Matriculation (Latest)</label>
+            <input type="file" class="form-control" id="certificateUpload" name="certificate" accept=".jpg,.jpeg,.png" 
+                   data-max-size="5242880" required>
+            <small class="text-muted">Supported formats: JPG, PNG. Maximum size: 5MB</small>
+          </div>
+          
+           <button type="submit" class="btn btn-primary w-100" id="submitSignupForm">Submit</button>
+         </form>
+       </div>
+     </div>
+   </div>
+ </div>
+   
+ <header>
+    <div class="logo-container">
+        <a href="https://neu.edu.ph/main/">
+            <img src="neu-logo.png" alt="NEU Logo">
+        </a>
+        NEUR
+        </div>
+   <div class="nav-links">
+       <a href="#" onclick="redirectToHome()">Home</a>
+       <div class="separator"></div>
+       <button type="button" onclick="logout()">Logout</button>
+   </div>
+   </div>
+ </header>
+
+ 
+   
+   <div class="container-fluid">
+       
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <h1 id="welcomeMessage"></h1>
+        <button id="statsReport" class="btn" style="color: #aeaeae;" title="Download Report (PDF)">
+            Statistics Report <i class="fa-solid fa-arrow-right-to-bracket" style="transform: rotate(90deg);"></i> 
+        </button>
+    </div>
+       
+   
+      
+    <div class="dashboard-stats">
+        <div class="stat">
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="fileChart"></canvas>
+                    <div class="chart-center">
+                        <h3 id="fileCount">0</h3>
+                        <p>Files</p>
+                    </div>
+                </div>
+                <div class="chart-legend" id="fileChartLegend"></div>
+            </div>
+        </div>
+
+         <div class="stat" id="docStatusChartContainer">
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="docStatusChart"></canvas>
+                    <div class="chart-center">
+                        <h3 id="docStatusCount">0</h3>
+                        <p>Doc Requests</p>
+                    </div>
+                </div>
+                <div class="chart-legend" id="docStatusChartLegend"></div>
+            </div>
+        </div>
+    
+        <div class="stat">
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="userChart"></canvas>
+                    <div class="chart-center">
+                        <h3 id="userCount">0</h3>
+                        <p>Users</p>
+                    </div>
+                </div>
+                <div class="chart-legend" id="userChartLegend"></div>
+            </div>
+        </div>
+    </div>
+
+   
+    
+
+
+       
+   
+
+   <div class="container">
+       
+       <!-- Updated Admin Tabs -->
+<ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button" role="tab" aria-controls="files" aria-selected="true">
+            File Records
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="docRequests-tab" data-bs-toggle="tab" data-bs-target="#docRequests" type="button" role="tab" aria-controls="docRequests" aria-selected="false">
+            Document Requests
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">
+            User Records
+        </button>
+    </li>
+</ul>
+
+<!-- Updated Tab Content -->
+<div class="tab-content" id="adminTabsContent">
+    <!-- File Records Tab -->
+    <div class="tab-pane fade show active" id="files" role="tabpanel" aria-labelledby="files-tab">
+        <div class="search-container">
+            <div class="search-filters">
+                <input type="text" id="fileSearch" placeholder="Search file records..." oninput="filterFileRecords()">
+                
+                <button type="button" id="toggleFiltersBtn" class="btn btn-outline-secondary"  title="Apply Filters">
+                    <i class="fas fa-filter"></i>
+                </button>
+                
+                <div class="filter-group" id="filterOptions" style="display: none;">
+                    
+                    <!-- Level Filter Premade
+                            
+                    <div class="dropdown-filter">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                            Level <span class="selected-count"></span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <label><input type="radio" name="level" value="undergraduate"> Undergraduate</label>
+                            <label><input type="radio" name="level" value="graduate"> Graduate</label>
+                        </div>
+                    </div> -->
+
+                    <div class="dropdown-filter">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                            Program <span class="selected-count"></span>
+                        </button>
+                        <div class="dropdown-menu" id="programFilterDropdown">
+                            <!-- Program options will be dynamically populated based on department -->
+                            <div class="dropdown-divider"></div>
+                            <label><input type="checkbox" value="see_all" id="seeAllPrograms"> See All Programs</label>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown-filter">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                            Year <span class="selected-count"></span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <label><input type="radio" name="year" value="current" id="currentYearOption"> <span id="currentYearText"></span></label>
+                            <label><input type="radio" name="year" value="less5"> < 5 Years</label>
+                            <!-- more than 5 yrs <label><input type="radio" name="year" value="more5"> > 5 Years</label> -->
+                            <div class="dropdown-divider"></div>
+                            <label id="customRangeOption"><input type="radio" name="year" value="custom"> Custom Range</label>
+                            <div id="customYearRange" style="display: none; padding: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                    <input type="number" id="fromYear" placeholder="" style="width: 70px; padding: 4px;" min="1900" max="2100">
+                                    <span style="margin: 0 5px;">to</span>
+                                    <input type="number" id="toYear" placeholder="" style="width: 70px; padding: 4px;" min="1900" max="2100">
+                                </div>
+                                <button type="button" id="applyYearRange" class="btn btn-sm btn-primary w-100" style="font-size: 12px; padding: 6px 8px; text-align: center; display: block;">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                   <div class="search-controls d-flex align-items-center">
+                       
+
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('fileRecordsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshFileRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportFileRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                       <button type="button" class="btn btn-outline-secondary ms-2" id="FileUpload" title="Upload New Files" data-bs-toggle="modal" data-bs-target="#fileUploadModal">
+                        <i class="fas fa-plus"></i> Add File
+                    </button>
+                       
+
+                   </div>
+               </div>
+               
+
+               <div class="table-wrapper">
+                   <table id="fileRecordsTable">
+                       <thead>
+                           <tr>
+                               <th><input type="checkbox" id="selectAllFiles" onchange="toggleSelectAll('fileRecordsTable', this)"></th>
+                               <th onclick="sortTable('fileRecordsTable', 1)">Document ID <span id="fileRecordsTableHeader1"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 2)">Title <span id="fileRecordsTableHeader2"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 3)">Author <span id="fileRecordsTableHeader3"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 4)">Year <span id="fileRecordsTableHeader4"></span></th>
+                               <th onclick="sortTable('fileRecordsTable', 5)">Program <span id="fileRecordsTableHeader5"></span></th>
+                               <th class="actions">Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <!-- Rows will be dynamically generated here -->
+                       </tbody>
+                   </table>
+               </div>
+
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="fileRowsPerPage" onchange="changeRowsPerPage('fileRecordsTable', this.value)">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="fileRecordsTablePagination" class="pagination"></div>
+               </div>
+    </div>
+
+    <!-- Document Requests Tab -->
+    <div class="tab-pane fade" id="docRequests" role="tabpanel" aria-labelledby="docRequests-tab">
+        <ul class="nav nav-pills mb-4" id="docRequestsSubTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active me-2 custom-nav-link" id="released-docs-tab" data-bs-toggle="pill" data-bs-target="#released-docs" type="button" role="tab" aria-controls="released-docs" aria-selected="true">
+                    Requests
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-nav-link me-2" id="returned-docs-tab" data-bs-toggle="pill" data-bs-target="#returned-docs" type="button" role="tab" aria-controls="returned-docs" aria-selected="false">
+                    Approved
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-nav-link" id="disapproved-docs-tab" data-bs-toggle="pill" data-bs-target="#disapproved-docs" type="button" role="tab" aria-controls="disapproved-docs" aria-selected="false">
+                    Disapproved
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content" id="docRequestsSubTabsContent">
+            <div class="tab-pane fade show active" id="released-docs" role="tabpanel" aria-labelledby="released-docs-tab">
+                <div class="search-container">
+                   <input type="text" id="docRequestSearch" placeholder="Search document requests..." oninput="filterDocRequests()">
+                   <div class="search-controls">
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('docRequestsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshDocRequestsRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportDocRequestsRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                   </div>
+               </div>
+               <div class="table-wrapper">
+                   <table id="docRequestsTable">
+                       <thead>
+                           <tr>
+                            <th onclick="sortTable('docRequestsTable', 1)">Ref No. <span id="docRequestsTableHeader1"></span></th>
+                            <th onclick="sortTable('docRequestsTable', 2)">Document ID <span id="docRequestsTableHeader2"></span></th>
+                            <th onclick="sortTable('docRequestsTable', 3)">Title <span id="docRequestsTableHeader3"></span></th>
+                            <th onclick="sortTable('docRequestsTable', 4)">Requester <span id="docRequestsTableHeader4"></span></th>
+                            <th onclick="sortTable('docRequestsTable', 5)">Email <span id="docRequestsTableHeader5"></span></th>
+                            <th onclick="sortTable('docRequestsTable', 6)">Date Requested <span id="docRequestsTableHeader6"></span></th>
+                            <th class="actions">Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <!-- Rows will be dynamically generated here -->
+                       </tbody>
+                   </table>
+               </div>
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="docRequestsRowsPerPage" onchange="changeRowsPerPage('docRequestsTable', this.value)">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="docRequestsTablePagination" class="pagination"></div>
+               </div>
+            </div>
+            <div class="tab-pane fade" id="returned-docs" role="tabpanel" aria-labelledby="returned-docs-tab">
+                <div class="search-container">
+                    <input type="text" id="returnedDocsSearch" placeholder="Search returned documents..." oninput="filterReturnedDocs()">
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshReturnedDocs()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportReturnedDocs()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="returnedDocsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('returnedDocsTable', 1)">Ref No. <span id="returnedDocsTableHeader1"></span></th>
+                                <th onclick="sortTable('returnedDocsTable', 2)">Document ID <span id="returnedDocsTableHeader2"></span></th>
+                                <th onclick="sortTable('returnedDocsTable', 3)">Title <span id="returnedDocsTableHeader3"></span></th>
+                                <th onclick="sortTable('returnedDocsTable', 4)">Requester <span id="returnedDocsTableHeader4"></span></th>
+                                <th onclick="sortTable('returnedDocsTable', 5)">Email <span id="returnedDocsTableHeader5"></span></th>
+                                <th onclick="sortTable('returnedDocsTable', 6)">Date Sent <span id="returnedDocsTableHeader6"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="returnedDocsRowsPerPage" onchange="changeRowsPerPage('returnedDocsTable', this.value)">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="returnedDocsTablePagination" class="pagination"></div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="disapproved-docs" role="tabpanel" aria-labelledby="disapproved-docs-tab">
+                <div class="search-container">
+                    <input type="text" id="disapprovedDocsSearch" placeholder="Search disapproved documents..." oninput="filterDisapprovedDocs()">
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshDisapprovedDocs()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportDisapprovedDocs()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="disapprovedDocsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('disapprovedDocsTable', 1)">Ref No. <span id="disapprovedDocsTableHeader1"></span></th>
+                                <th onclick="sortTable('disapprovedDocsTable', 2)">Document ID <span id="disapprovedDocsTableHeader2"></span></th>
+                                <th onclick="sortTable('disapprovedDocsTable', 3)">Title <span id="disapprovedDocsTableHeader3"></span></th>
+                                <th onclick="sortTable('disapprovedDocsTable', 4)">Requester<span id="disapprovedDocsTableHeader4"></span></th>
+                                <th onclick="sortTable('disapprovedDocsTable', 5)">Email <span id="disapprovedDocsTableHeader5"></span></th>
+                                <th onclick="sortTable('disapprovedDocsTable', 6)">Date Disapproved <span id="disapprovedDocsTableHeader6"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="disapprovedDocsRowsPerPage" onchange="changeRowsPerPage('disapprovedDocsTable', this.value)">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="disapprovedDocsTablePagination" class="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Records Tab -->
+    <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+        <!-- Add sub-tabs for User Records -->
+        <ul class="nav nav-pills mb-4" id="userSubTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active me-2 custom-nav-link" id="user-records-tab" data-bs-toggle="pill" data-bs-target="#userRecords" type="button" role="tab" aria-controls="userRecords" aria-selected="true">
+                    Users
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-nav-link me-2" id="pending-users-tab" data-bs-toggle="pill" data-bs-target="#account-requests" type="button" role="tab" aria-controls="account-requests" aria-selected="false">
+                    Pending
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-nav-link me-2" id="disapproved-users-tab" data-bs-toggle="pill" data-bs-target="#disapproved-users" type="button" role="tab" aria-controls="disapproved-users" aria-selected="false">
+                    Rejected
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-nav-link" id="deactivated-users-tab" data-bs-toggle="pill" data-bs-target="#deactivated-users" type="button" role="tab" aria-controls="deactivated-users" aria-selected="false">
+                    Deactivated
+                </button>
+            </li>
+        </ul>
+
+        <!-- Sub-tabs content -->
+        <div class="tab-content" id="userSubTabsContent">
+            <!-- User Records Tab Content (existing) -->
+            <div class="tab-pane fade show active" id="userRecords" role="tabpanel" aria-labelledby="user-records-tab">
+                <div class="search-container">
+                   <div class="search-filters">
+                    <input type="text" id="userSearch" placeholder="Search user records..." oninput="filterUserRecords()">
+                       
+                    <button type="button" id="toggleUserFiltersBtn" class="btn btn-outline-secondary" title="Apply Filters">
+                        <i class="fas fa-filter"></i>
+                    </button>
+
+                    <div class="filter-group" id="userFilterOptions" style="display: none;">
+                        <div class="dropdown-filter">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                                Department <span class="selected-count"></span>
+                            </button>
+                            <div class="dropdown-menu" id="userDepartmentFilterDropdown">
+                                <label><input type="checkbox" value="CICS"> CICS</label>
+                                <label><input type="checkbox" value="CAS"> CAS</label>
+                                <label><input type="checkbox" value="CEA"> CEA</label>
+                                <div class="dropdown-divider"></div>
+                                <label><input type="checkbox" value="see_all" id="seeAllUserPrograms"> See All Departments</label> 
+
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown-filter">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                                User Type <span class="selected-count"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <label><input type="checkbox" value="student"> Student</label>
+                                <label><input type="checkbox" value="alumni"> Alumni</label>
+                                <label><input type="checkbox" value="faculty"> Faculty</label>
+                                <label><input type="checkbox" value="coordinator"> Coordinator</label>
+                                <label><input type="checkbox" value="dean"> Dean</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Filter Premade
+                        <div class="dropdown-filter">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button">
+                                Status <span class="selected-count"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <label><input type="radio" name="status" value="active"> Active</label>
+                                <label><input type="radio" name="status" value="deactivated"> Deactivated</label>
+                            
+                            </div>
+                        </div>  -->
+                    </div>
+                </div>
+                   <div class="search-controls">
+                       
+
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('userRecordsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshUserRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportUserRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                       
+
+                       <button type="button" class="btn btn-outline-secondary ms-2" id="CreateUser" title="Create New User" data-bs-toggle="modal" data-bs-target="#signupModal">
+                           <i class="fas fa-plus"></i> Create User
+                       </button>
+                   
+
+                   </div>
+               </div>
+               <div class="table-wrapper">
+    <table id="userRecordsTable">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAllUsers" onchange="toggleSelectAll('userRecordsTable', this)"></th>
+                <th onclick="sortTable('userRecordsTable', 1)">Name <span id="userRecordsTableHeader1"></span></th>
+                <th onclick="sortTable('userRecordsTable', 2)">Email <span id="userRecordsTableHeader2"></span></th>
+                <th onclick="sortTable('userRecordsTable', 3)">ID <span id="userRecordsTableHeader3"></span></th>
+                <th onclick="sortTable('userRecordsTable', 4)">User Type <span id="userRecordsTableHeader4"></span></th>
+                <th onclick="sortTable('userRecordsTable', 5)">Program <span id="userRecordsTableHeader5"></span></th>
+                <th class="actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically generated here -->
+        </tbody>
+    </table>
+</div>
+
+
+        
+
+
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="userRowsPerPage" onchange="changeRowsPerPage('userRecordsTable', this.value)">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="userRecordsTablePagination" class="pagination"></div>
+               </div>
+            </div>
+            <!-- Pending Users Tab Content (existing) -->
+            <div class="tab-pane fade" id="account-requests" role="tabpanel" aria-labelledby="pending-users-tab">
+                <div class="search-container">
+                <input type="text" id="accountRequestSearch" placeholder="Search account requests..." oninput="filterAccountRequests()">
+                   <div class="search-controls">
+                       
+
+                       <button type="button" class="btn btn-delete btn-outline-danger me-2" onclick="deleteSelectedRecords('accountRequestsTable')" style="display: none;">
+                           <i class="fas fa-trash"></i>
+                       </button>
+                       <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshAccountRequestsRecords()">
+                           <i class="fa-solid fa-arrows-rotate"></i>
+                       </button>
+                       <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportAccountRequestsRecords()">
+                           <i class="fa-solid fa-share-from-square"></i>
+                       </button>
+                       
+
+                   </div>
+               </div>
+               <div class="table-wrapper">
+                   <table id="accountRequestsTable">
+                       <thead>
+                           <tr>
+                               <th><input type="checkbox" id="selectAllRequests" onchange="toggleSelectAll('accountRequestsTable', this)"></th>
+                               <th onclick="sortTable('accountRequestsTable', 1)">Name <span id="accountRequestsTableHeader1"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 2)">Email <span id="accountRequestsTableHeader2"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 3)">ID <span id="accountRequestsTableHeader3"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 4)">User Type <span id="accountRequestsTableHeader4"></span></th>
+                               <th onclick="sortTable('accountRequestsTable', 5)">Program <span id="accountRequestsTableHeader5"></span></th>
+                               <th>Certificate</th>
+                               <th>Actions</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <!-- Rows will be dynamically generated here -->
+                       </tbody>
+                   </table>
+               </div>
+               <div class="pagination-container">
+                   <div class="rows-per-page">
+                       <span>Showing</span>
+                       <select id="accountRowsPerPage" onchange="changeRowsPerPage('accountRequestsTable', this.value)">
+                           <option value="20">20</option>
+                           <option value="50">50</option>
+                           <option value="100">100</option>
+                       </select>
+                       <span>rows per page</span>
+                   </div>
+                   <div id="accountRequestsTablePagination" class="pagination"></div>
+               </div>
+            </div>
+            <!-- Disapproved Users Tab Content (new) -->
+            <div class="tab-pane fade" id="disapproved-users" role="tabpanel" aria-labelledby="disapproved-users-tab">
+                <div class="search-container">
+                    <input type="text" id="disapprovedUserSearch" placeholder="Search account requests..." oninput="filterDisapprovedUsers()">
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-delete btn-outline-danger me-2" id="deleteDisapprovedBtn" onclick="deleteSelectedDisapprovedUsers()" style="display: none;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshDisapprovedUsers()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportDisapprovedUsers()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+        </div>
+    </div>
+                
+                <div class="table-wrapper">
+                    <table id="disapprovedUsersTable">
+                        <thead>
+                            <tr>
+                                <th class="text-center"><input type="checkbox" id="selectAllDisapproved" onchange="toggleAllDisapproved(this)"></th>
+                                <th class="text-center" onclick="sortTable('disapprovedUsersTable', 1)">Name <span id="disapprovedUsersTableHeader1"></span></th>
+                                <th class="text-center" onclick="sortTable('disapprovedUsersTable', 2)">Email <span id="disapprovedUsersTableHeader2"></span></th>
+                                <th class="text-center" onclick="sortTable('disapprovedUsersTable', 3)">ID <span id="disapprovedUsersTableHeader3"></span></th>
+                                <th class="text-center" onclick="sortTable('disapprovedUsersTable', 4)">User Type <span id="disapprovedUsersTableHeader4"></span></th>
+                                <th class="text-center">Program</th>
+                                <th class="text-center">Reason</th>
+                                <!-- <th class="text-center">Action</th> -->
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="disapprovedUsersRowsPerPage" onchange="changeRowsPerPage('disapprovedUsersTable', this.value)">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="disapprovedUsersTablePagination" class="pagination"></div>
+                </div>
+            </div>
+            <!-- Deactivated Users Tab Content -->
+            <div class="tab-pane fade" id="deactivated-users" role="tabpanel" aria-labelledby="deactivated-users-tab">
+                <div class="search-container">
+                    <input type="text" id="deactivatedUserSearch" placeholder="Search deactivated users..." oninput="filterDeactivatedUsers()">
+                    <div class="search-controls">
+                        <button type="button" class="btn btn-refresh btn-outline-secondary me-2" title="Refresh Records" onclick="refreshDeactivatedUsers()">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <button type="button" class="btn btn-export btn-outline-secondary" title="Export Records" onclick="exportDeactivatedUsers()">
+                            <i class="fa-solid fa-share-from-square"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="deactivatedUsersTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('deactivatedUsersTable', 0)">Name <span id="deactivatedUsersTableHeader0"></span></th>
+                                <th onclick="sortTable('deactivatedUsersTable', 1)">Email <span id="deactivatedUsersTableHeader1"></span></th>
+                                <th onclick="sortTable('deactivatedUsersTable', 2)">ID <span id="deactivatedUsersTableHeader2"></span></th>
+                                <th onclick="sortTable('deactivatedUsersTable', 3)">User Type <span id="deactivatedUsersTableHeader3"></span></th>
+                                <th onclick="sortTable('deactivatedUsersTable', 4)">Program <span id="deactivatedUsersTableHeader4"></span></th>
+                                <th onclick="sortTable('deactivatedUsersTable', 5)">Reason <span id="deactivatedUsersTableHeader5"></span></th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be dynamically generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination-container">
+                    <div class="rows-per-page">
+                        <span>Showing</span>
+                        <select id="deactivatedUsersRowsPerPage" onchange="changeRowsPerPage('deactivatedUsersTable', this.value)">
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>rows per page</span>
+                    </div>
+                    <div id="deactivatedUsersTablePagination" class="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+   </div>
+
+   <div class="loader"></div>
+   <footer>
+       <p class="copyright">2025 © NEUR All rights reserved.</p>
+   </footer>
+   <div class="to-top-btn">
+       <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fas fa-angle-up"></i></button>
+   </div>
+
+
+<script src="admin.js"></script>
+<script src="admin_files.js"></script>
+<script src="admin_users.js"></script>
+<script src="admin_docrequests.js"></script>
+
+
+<script src="stats.js"></script>
+<script src="components.js"></script>
+<script src="signup.js"></script>
+<script src="auto-logout.js"></script>
+
+<div class="modal fade" id="editFileModal" tabindex="-1" aria-labelledby="editFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFileModalLabel">Edit File Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editFileForm">
+                    <div class="mb-3">
+                        <label for="editFileName" class="form-label">File Name</label>
+                        <input type="text" class="form-control" id="editFileName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="editTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAuthor" class="form-label">Author</label>
+                        <input type="text" class="form-control" id="editAuthor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editYear" class="form-label">Year</label>
+                        <input type="text" class="form-control" id="editYear" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCourse" class="form-label">Course</label>
+                        <select class="form-control" id="editCourse" required>
+                            <option value="BSIT">BSIT</option>
+                            <option value="BSCS">BSCS</option>
+                            <option value="BSIS">BSIS</option>
+                            <option value="BLIS">BLIS</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateFileDetails({ID: document.getElementById('editFileForm').getAttribute('data-file-id')})">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this right after the body tag -->
+<div class="certificate-overlay">
+    <button class="close-button" onclick="closeCertificateOverlay()">
+        <i class="fas fa-times"></i>
+    </button>
+    <img id="overlayImage" src="" alt="Certificate">
+</div>
+
+<!-- Custom Dialog Component -->
+<div class="custom-dialog-overlay" id="customDialog">
+    <div class="custom-dialog">
+        <div class="custom-dialog-header">
+            <h5 id="dialogTitle">Confirmation</h5>
+            <button class="dialog-close-btn" onclick="closeDialog()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="custom-dialog-body">
+            <p id="dialogMessage">Are you sure you want to proceed?</p>
+        </div>
+        <div class="custom-dialog-footer">
+            <button class="btn btn-outline-secondary" id="dialogCancelBtn" onclick="closeDialog()">Cancel</button>
+            <button class="btn btn-primary" id="dialogConfirmBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- PDF Viewer Modal -->
+<div class="modal fade" id="pdfViewerModal" tabindex="-1" aria-labelledby="pdfViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfViewerModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="pdfModalContainer" class="pdf-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+<!-- admin view control --><!-- admin view control --><!-- admin view control -->
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('get_user_type.php')
+        .then(res => res.json())
+        .then(data => {
+            const role = data.user_type?.toLowerCase();
+            const uploadBtn = document.getElementById('FileUpload');
+            const requestTab = document.getElementById('docRequests-tab');
+            const createCoordinator = document.getElementById('coordinatorUser');
+            const createDean = document.getElementById('deanUser');
+            const createAdmin = document.getElementById('adminUser');
+
+
+
+            if (uploadBtn && role === 'admin') {
+                uploadBtn.style.display = 'none'; // Hide the upload button
+            }
+
+            if (requestTab && role === 'admin') {
+                requestTab.style.display = 'none'; // Hide the requestTab button
+            }
+
+            if (createCoordinator && role === 'admin') {
+                createCoordinator.style.display = 'none'; // Hide the createCoordinator button
+            }
+
+            if (createDean && role === 'admin') {
+                createDean.style.display = 'none'; // Hide the createDean button
+            }
+
+            if (createAdmin && role === 'admin') {
+                createAdmin.style.display = 'none'; // Hide the createAdmin button
+            }
+        })
+        .catch(err => console.error('Error fetching user type:', err));
+});
+</script>
+
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+<!-- coordinator view control --><!-- coordinator view control -->
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('get_user_type.php')
+        .then(res => res.json())
+        .then(data => {
+            const role = data.user_type?.toLowerCase();
+            const requestTab = document.getElementById('docRequests-tab');
+            const createCoordinator = document.getElementById('coordinatorUser');
+            const createDean = document.getElementById('deanUser');
+
+
+
+
+            if (requestTab && role === 'coordinator') {
+                requestTab.style.display = 'none'; // Hide the requestTab button
+            }
+
+            if (createCoordinator && role === 'coordinator') {
+                createCoordinator.style.display = 'none'; // Hide the createCoordinator button
+            }
+
+            if (createDean && role === 'coordinator') {
+                createDean.style.display = 'none'; // Hide the createDean button
+            }
+
+        })
+        .catch(err => console.error('Error fetching user type:', err));
+});
+</script>
+
+
+<script>
+    // Toggle filters functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // File Filters Toggle
+        const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
+        const filterOptions = document.getElementById('filterOptions');
+        
+        if (toggleFiltersBtn && filterOptions) {
+            toggleFiltersBtn.addEventListener('click', function() {
+                if (filterOptions.style.display === 'none') {
+                    filterOptions.style.display = 'flex';
+                    toggleFiltersBtn.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    filterOptions.style.display = 'none';
+                    toggleFiltersBtn.innerHTML = '<i class="fas fa-filter"></i>';
+                }
+            });
+        }
+        
+        // User Filters Toggle
+        const toggleUserFiltersBtn = document.getElementById('toggleUserFiltersBtn');
+        const userFilterOptions = document.getElementById('userFilterOptions');
+        
+        if (toggleUserFiltersBtn && userFilterOptions) {
+            toggleUserFiltersBtn.addEventListener('click', function() {
+                if (userFilterOptions.style.display === 'none') {
+                    userFilterOptions.style.display = 'flex';
+                    toggleUserFiltersBtn.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    userFilterOptions.style.display = 'none';
+                    toggleUserFiltersBtn.innerHTML = '<i class="fas fa-filter"></i>';
+                }
+            });
+        }
+    });
+    </script>
+
+
+
+</html>
+
+<script>
+// Add this code at the end of the file before </body>
+document.addEventListener('DOMContentLoaded', function() {
+  // Fetch the user type and update the welcome message
+  fetch('get_user_type.php')
+    .then(response => response.json())
+    .then(data => {
+      const welcomeElement = document.getElementById('welcomeMessage');
+      if (welcomeElement) {
+        const userType = data.user_type?.toLowerCase();
+        if (userType) {
+          // Capitalize the first letter of user type
+          const capitalizedUserType = userType.charAt(0).toUpperCase() + userType.slice(1);
+          welcomeElement.textContent = `Welcome, ${capitalizedUserType}!`;
+        }
+      }
+    })
+    .catch(error => console.error('Error fetching user type:', error));
+});
+</script>
